@@ -77,7 +77,7 @@ export const globalStyles = globalCss({
         boxSizing: 'border-box',
         fontFamily: '$default',  
 
-        '-webkit-font-smooting': 'antialiased'
+        '-webkit-font-smooting': 'antialiased',
 
     },
 

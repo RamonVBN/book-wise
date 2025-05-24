@@ -34,7 +34,7 @@ export default function Login(){
 
     if (session.status === 'authenticated') {
         
-        router.push('/home')
+        router.push('/app')
     }
 
     console.log(session)
@@ -66,7 +66,7 @@ export default function Login(){
                         <Image src={githubLogo} alt=""/>
                         Entrar com Github
                     </ProviderButton>
-                    <ProviderButton onClick={() => router.push('/home')}>
+                    <ProviderButton onClick={() => router.push('/app')}>
                         <Image src={visitLogo} alt=""/>
                         Acessar como visitante
                     </ProviderButton>
