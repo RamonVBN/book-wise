@@ -1,16 +1,18 @@
 import { Binoculars, MagnifyingGlass, Star } from "phosphor-react";
-import { ExploreBook, ExploreBooksContainer, ExploreCategories, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton } from "./styles";
-import { AllCategories, ExploreBooksProps } from "@/pages/app";
+import { ExploreBook, ExploreBooksContainer, ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton } from "./styles";
+import { AllCategories, BooksProps } from "@/pages/app";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { PageHeader } from "../pageHeader";
+import { PageHeader } from "@/components/pageHeader";
+import { BookDetails } from "./components/BookDetails";
+import { calcMediaRating } from "@/utils/calcMediaRating";
 
 
 interface ExploreProps {
 
-    books: ExploreBooksProps | undefined
+    books: BooksProps[] | undefined
     categories: AllCategories | undefined 
 }
 
@@ -22,14 +24,18 @@ type ExploreFormType = z.infer<typeof exploreFormSchema>
 
 
 export default function Explore({books, categories}: ExploreProps){
-
+    
     const [categoriesFilters, setCategoriesFilters] = useState<string[]>([])
+
+    const [isBookDetailsOpen, setIsBookDetailsOpen] = useState(false)
+
+    const [bookDetailsName, setBookDetailsName] = useState<string>('')
 
     const {register, handleSubmit, reset, watch} = useForm<ExploreFormType>({
         resolver: zodResolver(exploreFormSchema)
     })
 
-    function handleExploreSubmit(data: ExploreFormType){
+    function handleExploreSubmit(){
         reset()
     }
 
@@ -48,6 +54,16 @@ export default function Explore({books, categories}: ExploreProps){
         return setCategoriesFilters((prevState) => [...prevState, categoryName])
     }
 
+    function handleOpenBookDetails(bookName: string){
+        setBookDetailsName(bookName)
+
+        setIsBookDetailsOpen(true)
+    }
+
+    function handleCloseBookDetails(){
+        setIsBookDetailsOpen(false)
+    }
+
     const filteredBooksByInput = books?.filter((book) => watch('bookAuthor') ? book.name.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) || book.author.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) : true)
 
     const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
@@ -58,6 +74,11 @@ export default function Explore({books, categories}: ExploreProps){
 
     return (
         <>
+        {
+            isBookDetailsOpen && (
+                <BookDetails bookName={bookDetailsName} books={books} closeBookDetails={handleCloseBookDetails} />
+            )
+        }
         <ExploreContainer>
             <ExploreHeader>
 
@@ -80,7 +101,7 @@ export default function Explore({books, categories}: ExploreProps){
                         categories && categories.map((category, i) => {
 
                             return (
-                                <ExploreCategories isActive={categoriesFilters.includes(category.name)} onClick={() => handleCategoriesFilters(category.name)} key={i} >{category.name}</ExploreCategories>
+                                <ExploreCategory isActive={categoriesFilters.includes(category.name)} onClick={() => handleCategoriesFilters(category.name)} key={i} >{category.name}</ExploreCategory>
                             )
                         })
                     }
@@ -91,7 +112,7 @@ export default function Explore({books, categories}: ExploreProps){
                         filteredBooksByCategoriesAndInput && filteredBooksByCategoriesAndInput.map((book, i) => {
 
                             return (
-                            <ExploreBook key={i}>
+                            <ExploreBook name={book.name} onClick={(e) => handleOpenBookDetails(e.currentTarget.name)} key={i}>
                                 <img src={book.coverUrl} alt="" />
                                 <div>
                                     <span>
@@ -100,11 +121,24 @@ export default function Explore({books, categories}: ExploreProps){
                                     </span>
 
                                     <span>
-                                        <Star/>
-                                        <Star/>
-                                        <Star/>
-                                        <Star/>
-                                        <Star/>
+                                       
+                                        {
+                                            Array.from({length: 5}).map((_, i) => {
+
+                                                const bookMediaRating = calcMediaRating(book.ratings)
+
+                                                if (i + 1 > bookMediaRating) {
+                                                    
+                                                    return (
+                                                        <Star key={i}/>
+                                                    )
+                                                }
+
+                                                return (
+                                                    <Star key={i} weight="fill"/>
+                                                )
+                                            })
+                                        }
                                     </span>
                                 </div>
                             </ExploreBook>

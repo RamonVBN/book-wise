@@ -38,20 +38,34 @@ export const ExploreHeader = styled('div', {
         padding: '0.875rem 1.25rem',
 
         display: 'flex',
-        alignItems: 'center'
-    }
+        alignItems: 'center',
+        
+    },
+    
+    '&:has(input:focus)': {
+        
+        label: {
+            borderColor: '$green200',
+        },
 
+        button: {
+            borderColor: '$green200',
+            svg: {
+                color: '$green200'
+            }
+        }
+    }
 })
 
 export const ExploreInput = styled('input', {
     all: 'unset',
     backgroundColor: 'transparent',
-    color: '$gray400',
+    color: '$gray100',
 
 
     '&::placeholder': {
         color: '$gray400'
-    }
+    },
 })
 
 export const ExploreFormButton = styled('button', {
@@ -80,7 +94,7 @@ export const ExploreCategoriesContainer = styled('div', {
 
 })
 
-export const ExploreCategories = styled('button', {
+export const ExploreCategory = styled('button', {
     all: 'unset',
     cursor: 'pointer',
     padding: '0.25rem 1rem',
@@ -91,6 +105,7 @@ export const ExploreCategories = styled('button', {
     fontWeight: '$regular',
     lineHeight: '$base',
 
+
     variants: {
 
         isActive: {
@@ -98,11 +113,22 @@ export const ExploreCategories = styled('button', {
                 color: '$gray100',
                 backgroundColor: '$purple200',
                 border: '1px solid $purple200',
+
+                '&:hover': {
+                    border: '1px solid $purple100',
+
+                },
             },
 
             false: {
                 color: '$purple100',
                 border: '1px solid $purple100',
+
+                '&:hover': {
+                    color: '$gray100',
+                    backgroundColor: '$purple200',
+                },
+                
             }
         }
     },
@@ -126,7 +152,12 @@ export const ExploreBooksContainer = styled('div', {
 
 })
 
-export const ExploreBook = styled('div', {
+export const ExploreBook = styled('button', {
+    all: 'unset',
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+
+    border: '2px solid transparent',
 
     display: 'flex',
     gap: '1.25rem',
@@ -137,6 +168,10 @@ export const ExploreBook = styled('div', {
 
     maxWidth: '19.9375rem',
     height: '11.5rem',
+
+    '&:hover': {
+        border: '2px solid $gray600',
+    },
 
     img: {
         borderRadius: '0.25rem',

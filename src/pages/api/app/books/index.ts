@@ -23,7 +23,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
             ratings: {
                 select: {
-                    rate: true
+                    rate: true,
+                    createdAt: true,
+                    description: true,
+                    user: {
+                        select: {
+                            avatarUrl: true,
+                            name: true,
+                        }
+                    }
                 }
             }
         },

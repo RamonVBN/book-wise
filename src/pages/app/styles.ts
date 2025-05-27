@@ -1,4 +1,4 @@
-import { styled } from "@stitches/react";
+import { styled } from "../globalStyles"
 
 export const AppContainer = styled('div', {
 

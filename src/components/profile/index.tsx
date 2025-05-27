@@ -6,8 +6,8 @@ import { BookmarkSimple, BookOpen, Books, MagnifyingGlass, Star, User, UserList 
 import { RatingProps } from "@/pages/app"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
-import { PageHeader } from "../pageHeader"
 import { capitalize } from "@/utils/capitalize"
+import { PageHeader } from "@/components/pageHeader"
 
 const profileFormSchema = z.object({
     RatedBook: z.string().min(1)
@@ -18,8 +18,8 @@ type ProfileFormData = z.infer<typeof profileFormSchema>
 interface ProfileProps {
 
     ratings: RatingProps[] | undefined
-    name: string
-    avatarUrl: string
+    name: string | undefined
+    avatarUrl: string | undefined
 }
 
 

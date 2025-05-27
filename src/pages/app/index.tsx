@@ -14,16 +14,17 @@ import { useState } from "react";
 import { api } from "@/lib/axios";
 import { useQuery } from "@tanstack/react-query";
 
-import Home from "../../components/home";
-import Profile from "../../components/profile";
 import { useRouter } from "next/router";
-import Explore from "@/components/explore";
+import Home from "../../components/home";
+import Explore from "../../components/explore";
+import Profile from "../../components/profile";
 
-type LayoutProps = {
-    name: string
-    avatarUrl: string
-    email: string
-}
+
+// type LayoutProps = {
+//     name: string
+//     avatarUrl: string
+//     email: string
+// }
 
 type Navigation = {
     
@@ -40,7 +41,7 @@ type RatingBookProps = {
     summary: string
 }
 
-type UserProps = {
+type RatingUserProps = {
     name: string
     avatarUrl: string
     email: string
@@ -52,7 +53,7 @@ export type RatingProps = {
     description: string
     createdAt: string
     book: RatingBookProps
-    user: UserProps
+    user: RatingUserProps
 
 }
 
@@ -65,6 +66,12 @@ export type BooksProps = {
     categories: Category[]
     ratings: {
         rate: number
+        createdAt: string
+        description: string
+        user: {
+            avatarUrl: string
+            name: string
+        }
     }[]
 }
 
@@ -79,7 +86,7 @@ export type AllCategories = {
 }[]
 
 
-export default function Layout({avatarUrl, name, email}: LayoutProps){
+export default function Layout(){
 
     const [navigation, setNavigation] = useState<Navigation[]>([
         {
@@ -176,8 +183,8 @@ export default function Layout({avatarUrl, name, email}: LayoutProps){
                     isSigned ? (
                         
                         <SignOutButton onClick={handleSignOut}>
-                            <img width={32} height={32} src={avatarUrl} alt=""/>
-                            <span>{name}</span>
+                            <img width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
+                            <span>{session.data.user.name}</span>
                             <SignOut size={20}/>
                         </SignOutButton>
                     ) :
@@ -195,7 +202,7 @@ export default function Layout({avatarUrl, name, email}: LayoutProps){
                     {
                         navigation[0].active && (
 
-                            <Home top4PopBooks={top4PopBooks} userEmail={email} isSigned={isSigned} handleNavigation={handleMenuNavigationButtons} ratings={ratingData?.ratings}/>
+                            <Home top4PopBooks={top4PopBooks} userEmail={session.data?.user.email} isSigned={isSigned} handleNavigation={handleMenuNavigationButtons} ratings={ratingData?.ratings}/>
                         )
                     }
 
@@ -207,7 +214,7 @@ export default function Layout({avatarUrl, name, email}: LayoutProps){
                     
                     {
                         navigation[2].active && (
-                            <Profile avatarUrl={avatarUrl} name={name} ratings={ratingData?.ratings}/>
+                            <Profile avatarUrl={session.data?.user.avatarUrl} name={session.data?.user.name} ratings={ratingData?.ratings}/>
                         )
                     }
 
@@ -219,9 +226,7 @@ export default function Layout({avatarUrl, name, email}: LayoutProps){
 
 export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
 
-    const session: any = await getServerSession(req, res, authOptions)
-
-   
+    const session = await getServerSession(req, res, authOptions)
 
     if (!session?.user) {
         
@@ -238,5 +243,3 @@ export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
         }
     }
 }
-
-

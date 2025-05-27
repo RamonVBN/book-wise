@@ -1,11 +1,11 @@
 import { CaretRight, ChartLineUp, Star } from "phosphor-react"
-import { BookRating, BookRatingBody, BookRatingDescription, BookRatingUserContainer, BookRatingUser, BooksRatingsContainer, Container, HomeContainer, LastReadBody, LastReadContainer, LastReadContent, LastReadHeader, PopBookContainer, PopBookBody, PopBook, PopBookDescription, Rating, ContentContainer, BooksRatingsContainerHeader } from "./styles"
-import { books } from "../../../prisma/seeds/constants/books"
-import { BooksProps, RatingProps } from "@/pages/app"
-import { PageHeader } from "../pageHeader"
+import { BookRating, BookRatingBody, BookRatingDescription, BookRatingUserContainer, BookRatingUser, BooksRatingsContainer, Container, HomeContainer, LastReadBody, LastReadContainer, LastReadContent, LastReadHeader, PopBookContainer, PopBookBody, PopBook, PopBookDescription, Rating, ContentContainer, BooksRatingsContainerHeader, Link } from "./styles"
+import  { BooksProps, RatingProps } from "@/pages/app"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
 import { capitalize } from "@/utils/capitalize"
+import { PageHeader } from "@/components/pageHeader"
+import { calcMediaRating } from "@/utils/calcMediaRating"
 
 
 type HomeProps = {
@@ -37,12 +37,12 @@ export default function Home({ratings, handleNavigation, isSigned, userEmail, to
                 <LastReadContainer>
                     <LastReadHeader>
                         <span>Sua última leitura</span>
-                        <button name="profile" onClick={(e) => handleNavigation(e.currentTarget.name)}>
+                        <Link name="profile" onClick={(e) => handleNavigation(e.currentTarget.name)}>
                             Ver todas
                             <CaretRight/>
-                        </button>
+                        </Link>
                     </LastReadHeader>
-                    <LastReadBody>
+                    <LastReadBody name="profile" onClick={(e) => handleNavigation(e.currentTarget.name)} >
                         <img src={lastUserRating.book.coverUrl} alt="" />
                         <LastReadContent>
                             <div>
@@ -84,7 +84,7 @@ export default function Home({ratings, handleNavigation, isSigned, userEmail, to
                 {
                     ratings && ratings.toReversed().map((rating, i) => {
                     return (
-                    <BookRating key={i}>
+                <BookRating key={i}>
                         <BookRatingUserContainer>
                             <BookRatingUser>
                                 <img src={rating.user.avatarUrl} alt="" />
@@ -129,23 +129,20 @@ export default function Home({ratings, handleNavigation, isSigned, userEmail, to
             <PopBookContainer>
                     <span>
                     <span>Livros populares</span>
-                    <button onClick={(e) => handleNavigation(e.currentTarget.name)} name="explore">
+                    <Link onClick={(e) => handleNavigation(e.currentTarget.name)} name="explore">
                     Ver todos
                     <CaretRight weight="bold"/>
-                    </button>
+                    </Link>
 
                     </span>
                 <PopBookBody>
                    {
-                    top4PopBooks && top4PopBooks.map((book) => {
-                        const bookRatingAmount = book.ratings.reduce((accumulator, currentValue) => {
-                            return accumulator += currentValue.rate
-                        }, 0)
+                    top4PopBooks && top4PopBooks.map((book, i) => {
 
-                        const bookMediaRating = bookRatingAmount / book.ratings.length
+                        const bookMediaRating = calcMediaRating(book.ratings)
 
                         return (
-                            <PopBook>
+                            <PopBook key={i}>
                             <img src={book.coverUrl} alt="" />
                             <PopBookDescription>
                                 <span>

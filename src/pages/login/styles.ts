@@ -31,7 +31,6 @@ export const ImageContainer = styled('div', {
 
 })
 
-
 export const LogoFilter = styled('div', {
     position: 'absolute',
     width: '100%',
@@ -45,7 +44,6 @@ export const LogoFilter = styled('div', {
     alignItems: 'center',
     justifyContent: 'center'
 })
-
 
 export const AuthContainer = styled('div', {
 
@@ -99,11 +97,12 @@ export const ProviderContainer = styled('div', {
 export const ProviderButton = styled('button', {
     all: 'unset',
     cursor: 'pointer',
+    boxSizing: 'border-box',
 
     width: '100%',
     borderRadius: 8,
     backgroundColor: '#252D4A',
-    padding: '20px 24px',
+    padding: '1.25rem 1.5rem',
     
     display: 'flex',
     alignItems: 'center',
@@ -111,8 +110,8 @@ export const ProviderButton = styled('button', {
 
     color: '#E6E8F2',
     fontSize: '1.125rem',
-    fontWeight: '500',
-    lineHeight: '160%',
+    fontWeight: '$bold',
+    lineHeight: '$base',
     transition: 'all 0.2s ease-out',
 
     '&:hover': {

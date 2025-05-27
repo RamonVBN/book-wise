@@ -1,4 +1,5 @@
-import { styled } from "../../pages/globalStyles";
+import { styled } from "@/pages/globalStyles"
+
 
 export const Container = styled('div', {
     display: 'flex',
@@ -158,10 +159,33 @@ export const BookRatingDescription = styled('div', {
     gap: '1.25rem'
 })
 
+export const Link = styled('button', {
+
+    all: 'unset',
+    cursor: 'pointer',
+
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+
+    padding: '0.25rem 0.5rem',
+    borderRadius: '4px',
+
+    color: '$purple100',
+    fontSize: '0.875rem',
+    lineHeigth: '$base',
+    fontWeight: '$bold',
+    
+
+    '&:hover': {
+        backgroundColor: 'rgba(130, 129, 217, 0.06)'
+    }
+
+})
+
 export const PopBookContainer = styled('aside', {
     width: '20.25rem',
     
-
     span: {
         display: 'flex',
         justifyContent: 'space-between',
@@ -173,25 +197,6 @@ export const PopBookContainer = styled('aside', {
             lineHeigth: '$base',
             color: '$gray100'
         },
-
-        button: {
-            all: 'unset',
-            cursor: 'pointer',
-
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-
-            color: '$purple100',
-            fontSize: '0.875rem',
-            lineHeigth: '$base',
-            fontWeight: '$bold',
-            
-
-            '&:hover': {
-               textDecoration: 'underline'
-            }
-        }
     }
 
 })
@@ -202,7 +207,7 @@ export const PopBookBody = styled('div', {
     flexDirection: 'column',
     gap: '1rem',
 
-    marginTop: '2rem'
+    marginTop: '1rem'
 
 })
 
@@ -284,27 +289,13 @@ export const LastReadHeader = styled('div', {
         lineHeight: '$base',
     },
 
-    button: {
-
-        all: 'unset',
-        cursor: 'pointer',
-        
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.25rem',
-
-        color: '$purple100',
-        fontSize: '0.875rem',
-        fontWeight: '$bold',
-        lineHeight: '$base',
-
-        '&:hover': {
-            textDecoration: 'underline'
-        }
-    }
 })
 
-export const LastReadBody = styled('div', {
+export const LastReadBody = styled('button', {
+    all: 'unset',
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+    border: '2px solid transparent',
 
     width: '100%',
     borderRadius: '8px',
@@ -321,6 +312,9 @@ export const LastReadBody = styled('div', {
         borderRadius: '4px',
     },
 
+    '&:hover': {
+        border: '2px solid $gray500'
+    }
 
 })
 

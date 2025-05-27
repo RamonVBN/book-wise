@@ -37,8 +37,6 @@ export default function Login(){
         router.push('/app')
     }
 
-    console.log(session)
-
     return (
         <Container>
         
@@ -82,22 +80,16 @@ export const getServerSideProps: GetServerSideProps = async({req, res}) => {
     const session = await getServerSession(req, res, authOptions)
     
     const email = session?.user?.email
-    const name = session?.user?.email
-    const avatarUrl = session?.user?.image
+    const name = session?.user?.name
+    const avatarUrl = session?.user?.avatarUrl
     
 
-    const sessionWithoutDate = {
-        user: {
-            email,
-            name,
-            avatarUrl
-        }
-
-    }
 
     return {
         props:{
-            ...sessionWithoutDate
+            email,
+            name,
+            avatarUrl
         }
     }
 }

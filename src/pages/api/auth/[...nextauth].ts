@@ -9,7 +9,7 @@ export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: 'database'
+    strategy: 'database',
   },
   providers: [
     GithubProvider({
