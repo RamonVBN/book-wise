@@ -8,6 +8,9 @@ import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
 import { capitalize } from "@/utils/capitalize"
 import { PageHeader } from "@/components/pageHeader"
+import { useQuery } from "@tanstack/react-query"
+import { api } from "@/lib/axios"
+import { useSession } from "next-auth/react"
 
 const profileFormSchema = z.object({
     RatedBook: z.string().min(1)
@@ -15,15 +18,9 @@ const profileFormSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileFormSchema>
 
-interface ProfileProps {
+export default function Profile(){
 
-    ratings: RatingProps[] | undefined
-    name: string | undefined
-    avatarUrl: string | undefined
-}
-
-
-export default function Profile({ratings, name, avatarUrl}: ProfileProps){
+    const session = useSession()
 
     const {register, handleSubmit, setFocus, reset, watch} = useForm<ProfileFormData>()
     
@@ -33,7 +30,20 @@ export default function Profile({ratings, name, avatarUrl}: ProfileProps){
         setFocus('RatedBook')
     }
 
-    const profileRatings = ratings ? ratings.toReversed().filter((rating) => 
+    const {data: ratingData} = useQuery<{ratings: RatingProps[]}>({
+        queryKey: ['ratings'],
+        queryFn: async () => {
+
+           const response = await api.get('/app/users/ratings')
+
+           return response.data
+        }
+    })
+
+    const name = session.data?.user.name
+    const avatarUrl = session.data?.user.avatarUrl
+
+    const profileRatings = ratingData?.ratings ? ratingData.ratings.toReversed().filter((rating) => 
         rating.user.name === name && 
         rating.book.name.toLowerCase().trim().includes(watch('RatedBook') ? watch('RatedBook').trim().toLowerCase(): '') ) : []
 

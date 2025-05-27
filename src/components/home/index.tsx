@@ -6,22 +6,53 @@ import { ptBR } from "date-fns/locale/pt-BR"
 import { capitalize } from "@/utils/capitalize"
 import { PageHeader } from "@/components/pageHeader"
 import { calcMediaRating } from "@/utils/calcMediaRating"
+import { useQuery } from "@tanstack/react-query"
+import { api } from "@/lib/axios"
+import { useSession } from "next-auth/react"
 
 
 type HomeProps = {
-    ratings: RatingProps[] | undefined
     handleNavigation: (buttonName: string) => void
-    isSigned: boolean
-    userEmail?: string
-    top4PopBooks: BooksProps[] | undefined
+   
+   
 }
 
-export default function Home({ratings, handleNavigation, isSigned, userEmail, top4PopBooks}: HomeProps){
+export default function Home({handleNavigation}: HomeProps){
 
+    const session = useSession()
 
-    const userRatings = ratings?.filter((rating) => rating.user.email === userEmail)
+    const {data: ratingData} = useQuery<{ratings: RatingProps[]}>({
+        queryKey: ['ratings'],
+        queryFn: async () => {
+
+           const response = await api.get('/app/users/ratings')
+
+           return response.data
+        }
+    })
+
+    const {data: booksData} = useQuery<{books: BooksProps[]}>({
+    
+        queryKey: ['books'],
+        queryFn: async () => {
+
+            const response = await api.get('/app/books')
+
+            return response.data
+        },
+            
+    })
+
+    const userEmail = session.data?.user.email
+
+    const isSigned = session.status  === 'authenticated'
+
+    const top4PopBooks = booksData?.books.slice(0, 4)
+
+    const userRatings = ratingData?.ratings?.filter((rating) => rating.user.email === userEmail)
 
     const lastUserRating: RatingProps | null = userRatings? userRatings.toReversed()[0] : null
+
 
     return (
     <Container>
@@ -82,7 +113,7 @@ export default function Home({ratings, handleNavigation, isSigned, userEmail, to
                     </BooksRatingsContainerHeader>
 
                 {
-                    ratings && ratings.toReversed().map((rating, i) => {
+                    ratingData?.ratings && ratingData.ratings.toReversed().map((rating, i) => {
                     return (
                 <BookRating key={i}>
                         <BookRatingUserContainer>

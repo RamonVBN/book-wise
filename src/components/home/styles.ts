@@ -304,10 +304,11 @@ export const LastReadBody = styled('button', {
     padding: '1.25rem 1.5rem',
 
     display: 'flex',
+    alignItems: 'center',
     gap: '1.5rem',
 
     img: {
-        height: '100%',
+        height: '9.5rem',
         width: '6.75rem',
         borderRadius: '4px',
     },

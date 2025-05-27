@@ -8,13 +8,9 @@ import { z } from "zod";
 import { PageHeader } from "@/components/pageHeader";
 import { BookDetails } from "./components/BookDetails";
 import { calcMediaRating } from "@/utils/calcMediaRating";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/axios";
 
-
-interface ExploreProps {
-
-    books: BooksProps[] | undefined
-    categories: AllCategories | undefined 
-}
 
 const exploreFormSchema = z.object({
     bookAuthor: z.string().min(1)
@@ -23,7 +19,7 @@ const exploreFormSchema = z.object({
 type ExploreFormType = z.infer<typeof exploreFormSchema>
 
 
-export default function Explore({books, categories}: ExploreProps){
+export default function Explore(){
     
     const [categoriesFilters, setCategoriesFilters] = useState<string[]>([])
 
@@ -64,7 +60,19 @@ export default function Explore({books, categories}: ExploreProps){
         setIsBookDetailsOpen(false)
     }
 
-    const filteredBooksByInput = books?.filter((book) => watch('bookAuthor') ? book.name.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) || book.author.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) : true)
+    const {data: booksData} = useQuery<{books: BooksProps[], categories: AllCategories}>({
+
+        queryKey: ['books'],
+        queryFn: async () => {
+
+            const response = await api.get('/app/books')
+
+            return response.data
+        },
+        
+    })
+
+    const filteredBooksByInput = booksData?.books?.filter((book) => watch('bookAuthor') ? book.name.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) || book.author.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) : true)
 
     const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
 
@@ -76,7 +84,7 @@ export default function Explore({books, categories}: ExploreProps){
         <>
         {
             isBookDetailsOpen && (
-                <BookDetails bookName={bookDetailsName} books={books} closeBookDetails={handleCloseBookDetails} />
+                <BookDetails bookName={bookDetailsName} closeBookDetails={handleCloseBookDetails} />
             )
         }
         <ExploreContainer>
@@ -98,7 +106,7 @@ export default function Explore({books, categories}: ExploreProps){
         </ExploreHeader>
                 <ExploreCategoriesContainer>
                     {
-                        categories && categories.map((category, i) => {
+                        booksData?.categories && booksData.categories.map((category, i) => {
 
                             return (
                                 <ExploreCategory isActive={categoriesFilters.includes(category.name)} onClick={() => handleCategoriesFilters(category.name)} key={i} >{category.name}</ExploreCategory>

@@ -1,6 +1,6 @@
 import { BookmarkSimple, BookOpen, Check, Star, X } from "phosphor-react";
 
-import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton, UserRatingContainer, CancelButton, ConfirmButton, ModalOverlay, ModalContainer } from "./styles";
+import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton, UserRatingContainer, CancelButton, ConfirmButton, ModalOverlay, ModalContainer, FormError } from "./styles";
 
 import { BooksProps } from "@/pages/app";
 import { capitalize } from "@/utils/capitalize";
@@ -17,11 +17,12 @@ import Image from "next/image";
 
 import googleLogo from '../../../../../assets/logos_google-icon.png'
 import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
+import { api } from "@/lib/axios";
+import { useQuery } from "@tanstack/react-query";
 
 type BookDetailsProps ={
 
     closeBookDetails: () => void
-    books: BooksProps[] | undefined
     bookName: string
 }
 
@@ -32,17 +33,22 @@ const userRatingForm = z.object({
 type UserRatingFormData = z.infer<typeof userRatingForm>
 
 
-export function BookDetails({closeBookDetails, books, bookName}: BookDetailsProps){
+export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
 
-    const {register, handleSubmit} = useForm<UserRatingFormData>()
+    const {register, handleSubmit, reset} = useForm<UserRatingFormData>()
 
     const session = useSession()
 
     const [isUserRatingOpen, setIsUserRatingOpen] = useState(false)
 
+    const [rateOver, setRateOver] = useState(0)
+
+    const [definedRate, setDefinedRate] = useState<number | null>(null)
+
+    const [isError, setIsError] = useState(false)
+
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const book = books?.find((book) => book.name === bookName)
 
     function handleUserRatingOpen(){
 
@@ -54,11 +60,63 @@ export function BookDetails({closeBookDetails, books, bookName}: BookDetailsProp
         return setIsUserRatingOpen(true)
     }
 
-    function handleRatingSubmit(data: UserRatingFormData){
+    async function handleRatingSubmit(data: UserRatingFormData){
 
-        console.log(data)
+        if (!definedRate) {
+           return setIsError(true)
+        }
+
+        setIsError(false)
+
+        await api.post('/app/users/create-rating', {
+            rate: definedRate,
+            description: data.description,
+            bookId: book?.id,
+            userId: session.data?.user.id
+        })
+
+        refetch()
+        reset()
+        setIsUserRatingOpen(false)
+        setDefinedRate(null)
     }
     
+    function handleDefineRate(index: number){
+
+        if (definedRate === index) {
+            return setDefinedRate(null)
+        }
+
+        if (index) {
+            
+            return setDefinedRate(index)
+        }
+    }
+    
+    function handleRate(rateOver: number){
+        
+        const starRate = Array.from({length: 5})
+        
+        return starRate.map((_, i) => {
+
+            return <Star key={i} onClick={() => handleDefineRate(i + 1)} onMouseOut={() => setRateOver(0)} onMouseOver={() => setRateOver(i + 1)} weight={i + 1 <= rateOver ? 'fill': 'regular'}/>
+        })
+
+    }
+    
+    const {data: booksData, refetch} = useQuery<{books: BooksProps[]}>({
+
+        queryKey: ['books'],
+        queryFn: async () => {
+
+            const response = await api.get('/app/books')
+
+            return response.data
+        },
+        
+    })
+
+    const book = booksData?.books?.find((book) => book.name === bookName)
 
     return (
         <>
@@ -167,20 +225,32 @@ export function BookDetails({closeBookDetails, books, bookName}: BookDetailsProp
                             isUserRatingOpen && (
                         <UserRatingContainer>
                                 <div>  
+
                                     <span>
                                         <img src={session.data?.user?.avatarUrl} alt="" />
                                         <h2>{session.data?.user?.name}</h2>
                                     </span>
+
                                     <span>
-                                        <Star />
-                                        <Star/>
-                                        <Star/>
-                                        <Star/>
-                                        <Star/>
+    
+                                        <span>
+                                        {
+                                            handleRate(definedRate ?? rateOver)
+                                        }
+    
+                                        </span>
+
+                                        <span>
+                                           
+                                            <FormError isError={isError}>Selecione uma nota.</FormError>
+                                            
+                                        </span>
+    
                                     </span>
 
                                 </div>
 
+                              
                                 <form onSubmit={handleSubmit(handleRatingSubmit)}>
                                     <textarea {...register('description')} placeholder="Escreva sua avaliação"/>
                                     <span>
@@ -198,39 +268,38 @@ export function BookDetails({closeBookDetails, books, bookName}: BookDetailsProp
                         }
                                     
                             {
-                                book?.ratings.map((rating, i) =>  {
-
+                                book?.ratings.toReversed().map((rating, i) =>  {
                                     return (
-                                        <BookDetailsRating key={i}>
-                                <div>
+                                <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={i}>
                                     <div>
-                                        <img src={rating.user.avatarUrl} alt="" />
+                                        <div>
+                                            <img src={rating.user.avatarUrl} alt="" />
+                                            <span>
+                                                <h3>{rating.user.name}</h3>
+                                                <span>{capitalize(formatDistanceToNow(rating.createdAt, {addSuffix:true, locale: ptBR}))}</span>
+                                            </span>
+                                        </div>
+
                                         <span>
-                                            <h3>{rating.user.name}</h3>
-                                            <span>{capitalize(formatDistanceToNow(rating.createdAt, {addSuffix:true, locale: ptBR}))}</span>
+                                            
+                                            {
+                                                Array.from({length: 5}).map((_, i) => {
+
+                                                    if (i + 1 > rating.rate) {
+                                                        
+                                                    return (
+                                                    <Star key={i}/>
+                                                    )
+                                                    }
+
+                                                    return (
+                                                        <Star key={i} weight="fill"/>
+                                                    )
+                                                })
+                                            }
+                                    
                                         </span>
                                     </div>
-
-                                    <span>
-                                        
-                                        {
-                                            Array.from({length: 5}).map((_, i) => {
-
-                                                if (i + 1 > rating.rate) {
-                                                    
-                                                   return (
-                                                   <Star key={i}/>
-                                                )
-                                                }
-
-                                                return (
-                                                    <Star key={i} weight="fill"/>
-                                                )
-                                            })
-                                        }
-                                
-                                    </span>
-                                </div>
 
                                 <p>{rating.description}</p>
                             </BookDetailsRating>

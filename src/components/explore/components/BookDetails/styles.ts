@@ -241,7 +241,6 @@ export const BookDetailsRating = styled('div', {
 
     width: '100%',
     padding: '1.5rem',
-    backgroundColor: '$gray700',
     borderRadius: '8px',
 
     display: 'flex',
@@ -306,6 +305,23 @@ export const BookDetailsRating = styled('div', {
         fontSize: '0.875rem',
         lineHeight: '$base',
         color: '$gray300',
+    },
+
+    variants: {
+        isUserRating: {
+
+            true: {
+                backgroundColor: '$gray600',
+            },
+
+            false: {
+                backgroundColor: '$gray700',
+            }
+        }
+    },
+
+    defaultVariants: {
+        isUserRating: 'false'
     }
 })
 
@@ -347,13 +363,21 @@ export const UserRatingContainer = styled('div', {
 
         'span:last-child': {
             display: 'flex',
+            flexDirection: 'column',
+            
             gap: '0.25rem',
+
+            span: {
+                display: 'flex',
+                gap: '0.25rem',
+            },
 
             svg: {
                 width: '1.75rem',
                 height: '1.75rem',
 
                 color: '$purple100',
+                cursor: 'pointer',
 
             }
         }
@@ -446,6 +470,31 @@ export const CancelButton = styled('button', {
 
 })
 
+export const FormError = styled('pre', {
+    
+    fontSize: '0.75rem',
+    fontWeight: '$medium',
+    lineHeight: '$base',
+
+    variants: {
+
+        isError: {
+            true: {
+                color: 'IndianRed',
+            },
+    
+            false: {
+                color: '$gray700',
+            }
+        }
+    },
+
+    defaultVariants: {
+        isError: false
+    }
+    
+})
+
 export const ModalOverlay = styled('div', {
 
     position: 'absolute',
@@ -500,6 +549,7 @@ export const ModalContainer = styled('div', {
     }
 
 })
+
 
 
 

@@ -5,14 +5,8 @@ import logo from '../../../assets/Logo.png'
 import { Binoculars, ChartLineUp, SignIn, SignOut, User} from "phosphor-react"
 
 import { signOut, useSession } from "next-auth/react";
-import { GetServerSideProps } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 import { useState } from "react";
-
-import { api } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
 
 import { useRouter } from "next/router";
 import Home from "../../components/home";
@@ -59,6 +53,7 @@ export type RatingProps = {
 
 export type BooksProps = {
 
+    id: string
     name: string
     author: string
     coverUrl: string
@@ -71,6 +66,7 @@ export type BooksProps = {
         user: {
             avatarUrl: string
             name: string
+            email: string
         }
     }[]
 }
@@ -131,29 +127,6 @@ export default function Layout(){
 
     }
 
-    const {data: ratingData} = useQuery<{ratings: RatingProps[]}>({
-        queryKey: ['ratings'],
-        queryFn: async () => {
-
-           const response = await api.get('/app/users/ratings')
-
-           return response.data
-        }
-    })
-
-    const {data: booksData} = useQuery<{books: BooksProps[], categories: AllCategories}>({
-
-        queryKey: ['books'],
-        queryFn: async () => {
-
-            const response = await api.get('/app/books')
-
-            return response.data
-        }
-    })
-
-    const top4PopBooks = booksData?.books.slice(0, 4)
-
     return (
         <AppContainer>
             <MenuContainer>
@@ -202,19 +175,19 @@ export default function Layout(){
                     {
                         navigation[0].active && (
 
-                            <Home top4PopBooks={top4PopBooks} userEmail={session.data?.user.email} isSigned={isSigned} handleNavigation={handleMenuNavigationButtons} ratings={ratingData?.ratings}/>
+                            <Home handleNavigation={handleMenuNavigationButtons} />
                         )
                     }
 
                     {
                         navigation[1].active && (
-                            <Explore books={booksData?.books} categories={booksData?.categories} />
+                            <Explore />
                         )
                     }
                     
                     {
                         navigation[2].active && (
-                            <Profile avatarUrl={session.data?.user.avatarUrl} name={session.data?.user.name} ratings={ratingData?.ratings}/>
+                            <Profile/>
                         )
                     }
 
@@ -223,23 +196,3 @@ export default function Layout(){
     )
 }
 
-
-export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-
-    const session = await getServerSession(req, res, authOptions)
-
-    if (!session?.user) {
-        
-        return {
-          props: {}
-        }
-    }
-
-    return {
-        props: {
-           name: session?.user?.name,
-           email: session.user.email,
-           avatarUrl: session?.user.avatarUrl,
-        }
-    }
-}
