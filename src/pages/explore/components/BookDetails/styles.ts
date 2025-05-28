@@ -214,6 +214,10 @@ export const BookDetailsRatingsHeader = styled('span', {
         all: 'unset',
         cursor: 'pointer',
 
+        padding: '0.25rem 0.5rem',
+        boxSizing: 'border-box',
+        borderRadius: '4px',
+
         fontWeight: '$bold',
         fontSize: '1rem',
         lineHeight: '$base',
@@ -221,7 +225,7 @@ export const BookDetailsRatingsHeader = styled('span', {
         
 
         '&:hover': {
-            textDecoration: 'underline'
+            backgroundColor: 'rgba(130, 129, 217, 0.06)'
         }
     }
 

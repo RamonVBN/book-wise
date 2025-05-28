@@ -3,20 +3,27 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { ProfileButton,  ProfileMainContainer, ProfileForm, ProfileInput, UserSeparator, UserStats, UserStatsContainer,  RatedBook, RatedBookInfo, RatedBooksContainer, RatedBookTime, UserContainer, UserProfile, Container, ProfileContainer } from "./styles"
 import { BookmarkSimple, BookOpen, Books, MagnifyingGlass, Star, User, UserList } from "phosphor-react"
-import { RatingProps } from "@/pages/app"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow, getYear } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
 import { capitalize } from "@/utils/capitalize"
 import { PageHeader } from "@/components/pageHeader"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/axios"
 import { useSession } from "next-auth/react"
+import Layout from "@/components/Layout"
+import { BooksProps, RatingProps } from "@/@types/query-types"
+import { formatCategories } from "@/utils/formatCategories"
 
 const profileFormSchema = z.object({
     RatedBook: z.string().min(1)
 })
 
 type ProfileFormData = z.infer<typeof profileFormSchema>
+
+type MostReadCategory = {
+    categoryName: string
+    count: number
+}
 
 export default function Profile(){
 
@@ -40,14 +47,103 @@ export default function Profile(){
         }
     })
 
+    const {data: booksData} = useQuery<{books: BooksProps[]}>({
+
+        queryKey: ['books'],
+        queryFn: async () => {
+
+            const response = await api.get('/app/books')
+
+            return response.data
+        },
+        
+    })
+
     const name = session.data?.user.name
     const avatarUrl = session.data?.user.avatarUrl
+    const createdAt = session.data?.user.created_at
 
-    const profileRatings = ratingData?.ratings ? ratingData.ratings.toReversed().filter((rating) => 
-        rating.user.name === name && 
+    const userRatings = ratingData?.ratings.toReversed().filter((rating) => rating.user.name === name)
+
+    const profileRatings = userRatings ? userRatings.filter((rating) => 
         rating.book.name.toLowerCase().trim().includes(watch('RatedBook') ? watch('RatedBook').trim().toLowerCase(): '') ) : []
 
+    const userRatedBooks = booksData?.books.filter((book) => {
+        
+        return userRatings?.some((rating) => rating.book.name === book.name)
+    })
+    
+    const userTotalPages = userRatedBooks?.reduce((acc, current) => {
+        return acc += current.totalPages
+    }, 0)
+
+    const userTotalAuthors = userRatedBooks?.map((ratedBook) => {
+        
+        return ratedBook.author
+
+    }).reduce((acc: string[], current): string[] => {
+
+        if (acc.includes(current)) {
+
+            return acc
+        }
+        
+        acc.push(current)
+        return acc
+    }, [])
+
+    const MostReadCategories = userRatedBooks?.reduce((acc: MostReadCategory[], current): MostReadCategory[] => {
+
+        current.categories.map((category) => {
+
+            if (acc.some((item) => item.categoryName === category.category.name)) {
+                
+                const index = acc.findIndex((item) => item.categoryName === category.category.name)
+                
+                acc[index].count += 1
+
+            }else {
+
+                acc.push({
+                    categoryName: category.category.name,
+                    count: 1
+                })
+            }
+        })
+
+        return acc
+        
+    }, []).reduce((acc:MostReadCategory[], current, index): MostReadCategory[] => {
+
+        if (index !== 0) {
+            
+            if (acc.every((category) => category.count < current.count)) {
+                
+                acc = []
+                
+                acc.push(current)
+
+            }else if (acc.every((category) => category.count === current.count)) {
+                
+                acc.push(current)
+
+            }
+
+            
+        } else {
+
+            acc.push(current)
+        }
+
+
+        return acc
+
+    }, [])
+
+    console.log(MostReadCategories)
+
     return(
+    <Layout>
     <Container>
             <PageHeader>
                 <User/>
@@ -116,7 +212,7 @@ export default function Profile(){
                             <img src={avatarUrl} alt="" />
                             <span>
                                 <h2>{name}</h2>
-                                <span>membro desde 2021</span>
+                                <span>membro desde {getYear(createdAt? createdAt: '')}</span>
                             </span>
                         </UserProfile>
 
@@ -126,7 +222,7 @@ export default function Profile(){
                             <UserStats>
                             <BookOpen/>
                                 <span>
-                                    <h3>853</h3>
+                                    <h3>{userTotalPages}</h3>
                                     <span>Páginas lidas</span>
                                 </span>
                             </UserStats>
@@ -134,7 +230,7 @@ export default function Profile(){
                             <UserStats>
                                 <Books />
                                 <span>
-                                    <h3>3</h3>
+                                    <h3>{userRatedBooks?.length}</h3>
                                     <span>Livros avaliados</span>
                                 </span>
                             </UserStats>
@@ -142,7 +238,7 @@ export default function Profile(){
                             <UserStats>
                             <UserList/>
                                 <span>
-                                    <h3>3</h3>
+                                    <h3>{userTotalAuthors?.length}</h3>
                                     <span>Autores lidos</span>
                                 </span>
                             </UserStats>
@@ -150,8 +246,17 @@ export default function Profile(){
                             <UserStats>
                                 <BookmarkSimple/>
                                 <span>
-                                    <h3>Horror</h3>
-                                    <span>Categoria mais lida</span>
+                                    <h3>
+                                        {
+                                            MostReadCategories?.map((category, i) => {
+
+                                                return (
+                                                    formatCategories(category.categoryName, i)
+                                                )
+                                            })
+                                        }
+                                    </h3>
+                                    <span>Categoria(s) mais lida</span>
                                 </span>
                             </UserStats>
                         </UserStatsContainer>
@@ -159,5 +264,6 @@ export default function Profile(){
 
         </ProfileContainer>
     </Container>
+    </Layout>
     )
 }

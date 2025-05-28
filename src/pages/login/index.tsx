@@ -1,18 +1,14 @@
 import Image from "next/image";
 import { AuthContainer, LogoFilter, Container, ImageContainer, LoginContainer, LoginContainerHeader,  ProviderButton, ProviderContainer } from "./styles";
 
-import homeImage from '../../../assets/homeImage.png'
 import logo from '../../../assets/Logo.png'
 
 import googleLogo from '../../../assets/logos_google-icon.png'
 import githubLogo from '../../../assets/akar-icons_github-fill.png'
 import visitLogo from '../../../assets/RocketLaunch.png'
-import { signIn, useSession } from "next-auth/react";
-import { getServerSession } from "next-auth";
-import { GetServerSideProps } from "next";
-import { authOptions } from "../api/auth/[...nextauth]";
-import { useRouter } from "next/router";
 
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 
 
@@ -24,17 +20,22 @@ export default function Login(){
 
     async function handleGoogleSignIn(){
      
-        await signIn('google')
+        await signIn('google', {redirect: true, callbackUrl: '/home'})
     }
 
     async function handleGithubSignIn(){
 
-        await signIn('github')
+        await signIn('github', {redirect: true, callbackUrl: '/home'})
+    }
+
+    async function handleRedirect(){
+
+        await router.push('/home')
     }
 
     if (session.status === 'authenticated') {
         
-        router.push('/app')
+        handleRedirect()
     }
 
     return (
@@ -64,7 +65,7 @@ export default function Login(){
                         <Image src={githubLogo} alt=""/>
                         Entrar com Github
                     </ProviderButton>
-                    <ProviderButton onClick={() => router.push('/app')}>
+                    <ProviderButton onClick={handleRedirect}>
                         <Image src={visitLogo} alt=""/>
                         Acessar como visitante
                     </ProviderButton>
@@ -73,23 +74,4 @@ export default function Login(){
             </AuthContainer>
         </Container>
     )
-}
-
-export const getServerSideProps: GetServerSideProps = async({req, res}) => {
-
-    const session = await getServerSession(req, res, authOptions)
-    
-    const email = session?.user?.email
-    const name = session?.user?.name
-    const avatarUrl = session?.user?.avatarUrl
-    
-
-
-    return {
-        props:{
-            email,
-            name,
-            avatarUrl
-        }
-    }
 }

@@ -2,7 +2,6 @@ import { BookmarkSimple, BookOpen, Check, Star, X } from "phosphor-react";
 
 import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton, UserRatingContainer, CancelButton, ConfirmButton, ModalOverlay, ModalContainer, FormError } from "./styles";
 
-import { BooksProps } from "@/pages/app";
 import { capitalize } from "@/utils/capitalize";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
@@ -19,6 +18,7 @@ import googleLogo from '../../../../../assets/logos_google-icon.png'
 import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
 import { api } from "@/lib/axios";
 import { useQuery } from "@tanstack/react-query";
+import { BooksProps } from "@/@types/query-types";
 
 type BookDetailsProps ={
 
@@ -183,7 +183,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
                                        }
                                     </span>
                                     <span>
-                                        {book?.ratings.length} avaliações
+                                        {book?.ratings.length} {book && book?.ratings.length > 1? 'avaliações': 'avaliação'}
                                     </span>
                                 </span>
                             </div>

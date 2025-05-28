@@ -6,13 +6,9 @@ import { Binoculars, ChartLineUp, SignIn, SignOut, User} from "phosphor-react"
 
 import { signOut, useSession } from "next-auth/react";
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 import { useRouter } from "next/router";
-import Home from "../../components/home";
-import Explore from "../../components/explore";
-import Profile from "../../components/profile";
-
 
 // type LayoutProps = {
 //     name: string
@@ -21,81 +17,23 @@ import Profile from "../../components/profile";
 // }
 
 type Navigation = {
-    
     buttonName: string
-    active: boolean
 }
 
 // Query types
 
-type RatingBookProps = {
-    author: string
-    name: string
-    coverUrl: string,
-    summary: string
-}
 
-type RatingUserProps = {
-    name: string
-    avatarUrl: string
-    email: string
-}
+export default function Layout({children}: {children: ReactNode}){
 
-export type RatingProps = {
-    id: string
-    rate : number
-    description: string
-    createdAt: string
-    book: RatingBookProps
-    user: RatingUserProps
-
-}
-
-export type BooksProps = {
-
-    id: string
-    name: string
-    author: string
-    coverUrl: string
-    totalPages: number,
-    categories: Category[]
-    ratings: {
-        rate: number
-        createdAt: string
-        description: string
-        user: {
-            avatarUrl: string
-            name: string
-            email: string
-        }
-    }[]
-}
-
-type Category = {
-    category: {
-        name: string
-    }
-}
-
-export type AllCategories = {
-    name: string
-}[]
-
-
-export default function Layout(){
-
-    const [navigation, setNavigation] = useState<Navigation[]>([
+    const [navigation] = useState<Navigation[]>([
         {
-            buttonName: 'start',
-            active: true
+            buttonName: 'home',
         },
         {
             buttonName: 'explore',
-            active: false
         },
         {
             buttonName: 'profile',
-            active: false
         }
     ])
 
@@ -106,45 +44,27 @@ export default function Layout(){
     const isSigned = session.status === 'authenticated'
 
     async function handleSignOut(){
-
         await signOut({redirect: true, callbackUrl: '/'}) 
-
-    }
-
-    function handleMenuNavigationButtons(buttonName: string){
-
-        navigation.map((button) => {
-            if (button.buttonName === buttonName) {
-
-                button.active = true
-            }else{
-
-                button.active = false
-            }
-        })
-
-        setNavigation((prevState) => [...prevState])
-
     }
 
     return (
         <AppContainer>
             <MenuContainer>
-                <Image width={128} height={32} src={logo} alt=""/>
+                <Image priority width={128} height={32} src={logo} alt=""/>
                 <MenuNavigation>
 
-                    <NavButton isActive={navigation[0].active} onClick={(e) => handleMenuNavigationButtons(e.currentTarget.name)} name="start">
+                    <NavButton isActive={router.pathname.includes(navigation[0].buttonName)} onClick={async () => await router.push('/home')} >
                     <ChartLineUp size={24} />
                     Início
                     </NavButton>
-                    <NavButton isActive={navigation[1].active} onClick={(e) => handleMenuNavigationButtons(e.currentTarget.name)}  name="explore">
+                    <NavButton isActive={router.pathname.includes(navigation[1].buttonName)} onClick={async () => await router.push('/explore')}>
                     <Binoculars size={24} />
                     Explorar
                     </NavButton>
 
                     {
                         isSigned && (
-                    <NavButton isActive={navigation[2].active} onClick={(e) => handleMenuNavigationButtons(e.currentTarget.name)} name="profile">
+                    <NavButton isActive={router.pathname.includes(navigation[2].buttonName)} onClick={() => router.push('/profile')}>
                         <User size={24} />
                         Perfil
                     </NavButton>
@@ -171,7 +91,9 @@ export default function Layout(){
             </MenuContainer> 
         
             <MainContainer>
-                               
+
+                {children}
+{/*                                
                     {
                         navigation[0].active && (
 
@@ -189,7 +111,7 @@ export default function Layout(){
                         navigation[2].active && (
                             <Profile/>
                         )
-                    }
+                    } */}
 
             </MainContainer>
         </AppContainer>

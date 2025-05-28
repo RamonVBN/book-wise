@@ -1,4 +1,4 @@
-import { styled } from "../globalStyles"
+import { styled } from "@/pages/globalStyles"
 
 export const AppContainer = styled('div', {
 
