@@ -256,7 +256,7 @@ export default function Profile(){
                                             })
                                         }
                                     </h3>
-                                    <span>Categoria(s) mais lida</span>
+                                    <span>Categoria(s) mais lida(s)</span>
                                 </span>
                             </UserStats>
                         </UserStatsContainer>
