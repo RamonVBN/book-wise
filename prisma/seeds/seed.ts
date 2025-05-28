@@ -12,15 +12,15 @@ async function main() {
   await prisma.category.deleteMany()
   await prisma.book.deleteMany()
 
-  const usersSeed = users.map((user) => {
-    return prisma.user.create({
-      data: {
-        id: user.id,
-        name: user.name,
-        avatarUrl: user.avatar_url,
-      },
-    })
-  })
+  // const usersSeed = users.map((user) => {
+  //   return prisma.user.create({
+  //     data: {
+  //       id: user.id,
+  //       name: user.name,
+  //       avatarUrl: user.avatar_url,
+  //     },
+  //   })
+  // })
 
   const categoriesSeed = categories.map((category) => {
     return prisma.category.create({
@@ -57,27 +57,27 @@ async function main() {
     })
   })
 
-  const ratingsSeed = ratings.map((rating) => {
-    return prisma.rating.create({
-      data: {
-        id: rating.id,
-        rate: rating.rate,
-        description: rating.description,
-        user: {
-          connect: { id: rating.user_id },
-        },
-        book: {
-          connect: { id: rating.book_id },
-        },
-      },
-    })
-  })
+  // const ratingsSeed = ratings.map((rating) => {
+  //   return prisma.rating.create({
+  //     data: {
+  //       id: rating.id,
+  //       rate: rating.rate,
+  //       description: rating.description,
+  //       user: {
+  //         connect: { id: rating.user_id },
+  //       },
+  //       book: {
+  //         connect: { id: rating.book_id },
+  //       },
+  //     },
+  //   })
+  // })
 
   await prisma.$transaction([
     ...categoriesSeed,
     ...booksSeed,
-    ...usersSeed,
-    ...ratingsSeed,
+    // ...usersSeed,
+    // ...ratingsSeed,
   ])
 }
 

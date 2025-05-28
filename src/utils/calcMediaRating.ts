@@ -11,9 +11,15 @@ type Ratings = {
 
 export function calcMediaRating(ratings: Ratings[]){
 
-   const sum = ratings.reduce((accumulator, currentValue) => {
-        return accumulator += currentValue.rate
-    }, 0)
+    if (ratings.length > 0) {
+        
+        const sum = ratings.reduce((accumulator, currentValue) => {
+             return accumulator += currentValue.rate
+         }, 0)
+     
+        return sum / ratings.length
+    }
 
-    return sum / ratings.length
+    return 0
+
 }

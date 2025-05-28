@@ -183,7 +183,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
                                        }
                                     </span>
                                     <span>
-                                        {book?.ratings.length} {book && book?.ratings.length > 1? 'avaliações': 'avaliação'}
+                                        {book?.ratings.length} {book && book?.ratings.length === 1? 'avaliação' : 'avaliações' }
                                     </span>
                                 </span>
                             </div>

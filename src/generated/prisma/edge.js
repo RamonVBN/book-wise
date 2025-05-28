@@ -86,6 +86,9 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -154,6 +157,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
@@ -207,7 +215,7 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "sqlite",
+  "activeProvider": "postgresql",
   "postinstall": false,
   "inlineDatasources": {
     "db": {
@@ -217,8 +225,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String   @id @default(uuid())\n  name          String\n  email         String?  @unique\n  emailVerified String?\n  avatarUrl     String?  @map(\"avatar_url\")\n  created_at    DateTime @default(now())\n\n  accounts Account[]\n  sessions Session[]\n  ratings  Rating[]\n\n  @@map(\"users\")\n}\n\nmodel Book {\n  id         String   @id @default(uuid())\n  name       String\n  author     String\n  summary    String\n  coverUrl   String   @map(\"cover_url\")\n  totalPages Int      @map(\"totalPages\")\n  createdAt  DateTime @default(now()) @map(\"created_at\")\n\n  categories CategoriesOnBooks[]\n  ratings    Rating[]\n\n  @@map(\"books\")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  books CategoriesOnBooks[]\n\n  @@map(\"categories\")\n}\n\nmodel CategoriesOnBooks {\n  bookId     String @map(\"book_id\")\n  categoryId String @map(\"category_id\")\n\n  book     Book     @relation(fields: [bookId], references: [id])\n  category Category @relation(fields: [categoryId], references: [id])\n\n  @@id([bookId, categoryId])\n}\n\nmodel Rating {\n  id          String   @id @default(uuid())\n  rate        Int\n  description String\n  createdAt   DateTime @default(now()) @map(\"created_at\")\n\n  book   Book   @relation(fields: [bookId], references: [id])\n  bookId String @map(\"book_id\")\n\n  user   User   @relation(fields: [userId], references: [id])\n  userId String @map(\"user_id\")\n\n  @@map(\"ratings\")\n}\n\nmodel Account {\n  id                String  @id @default(cuid())\n  userId            String  @map(\"user_id\")\n  type              String\n  provider          String\n  providerAccountId String  @map(\"provider_account_id\")\n  refresh_token     String? @map(\"refresh_token\")\n  access_token      String? @map(\"access_token\")\n  expires_at        Int?    @map(\"expires_at\")\n  token_type        String? @map(\"token_type\")\n  scope             String?\n  id_token          String? @map(\"id_token\")\n  session_state     String? @map(\"session_state\")\n  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([provider, providerAccountId])\n  @@map(\"accounts\")\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  sessionToken String   @unique @map(\"session_token\")\n  userId       String   @map(\"user_id\")\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"sessions\")\n}\n",
-  "inlineSchemaHash": "68eccbf0cbeecfa009d07df6619839a7427e78b8ff57a193ebcdc3065f9e26bc",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String   @id @default(uuid())\n  name          String\n  email         String?  @unique\n  emailVerified String?\n  avatarUrl     String?  @map(\"avatar_url\")\n  created_at    DateTime @default(now())\n\n  accounts Account[]\n  sessions Session[]\n  ratings  Rating[]\n\n  @@map(\"users\")\n}\n\nmodel Book {\n  id         String   @id @default(uuid())\n  name       String\n  author     String\n  summary    String\n  coverUrl   String   @map(\"cover_url\")\n  totalPages Int      @map(\"totalPages\")\n  createdAt  DateTime @default(now()) @map(\"created_at\")\n\n  categories CategoriesOnBooks[]\n  ratings    Rating[]\n\n  @@map(\"books\")\n}\n\nmodel Category {\n  id   String @id @default(uuid())\n  name String @unique\n\n  books CategoriesOnBooks[]\n\n  @@map(\"categories\")\n}\n\nmodel CategoriesOnBooks {\n  bookId     String @map(\"book_id\")\n  categoryId String @map(\"category_id\")\n\n  book     Book     @relation(fields: [bookId], references: [id])\n  category Category @relation(fields: [categoryId], references: [id])\n\n  @@id([bookId, categoryId])\n}\n\nmodel Rating {\n  id          String   @id @default(uuid())\n  rate        Int\n  description String\n  createdAt   DateTime @default(now()) @map(\"created_at\")\n\n  book   Book   @relation(fields: [bookId], references: [id])\n  bookId String @map(\"book_id\")\n\n  user   User   @relation(fields: [userId], references: [id])\n  userId String @map(\"user_id\")\n\n  @@map(\"ratings\")\n}\n\nmodel Account {\n  id                String  @id @default(cuid())\n  userId            String  @map(\"user_id\")\n  type              String\n  provider          String\n  providerAccountId String  @map(\"provider_account_id\")\n  refresh_token     String? @map(\"refresh_token\")\n  access_token      String? @map(\"access_token\")\n  expires_at        Int?    @map(\"expires_at\")\n  token_type        String? @map(\"token_type\")\n  scope             String?\n  id_token          String? @map(\"id_token\")\n  session_state     String? @map(\"session_state\")\n  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([provider, providerAccountId])\n  @@map(\"accounts\")\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  sessionToken String   @unique @map(\"session_token\")\n  userId       String   @map(\"user_id\")\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"sessions\")\n}\n",
+  "inlineSchemaHash": "9061a53aa4fab1971984801e664ddda85baa971da5e6c5a99ab85868e19f9d7c",
   "copyEngine": true
 }
 config.dirname = '/'
