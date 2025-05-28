@@ -10,39 +10,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
 
-    const books = await prisma.book.findMany({
-        include: {
-            categories: {
-                select: {
-                    category: {
-                        select: {
-                            name: true
+    try {
+        const books = await prisma.book.findMany({
+            include: {
+                categories: {
+                    select: {
+                        category: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                },
+                ratings: {
+                    select: {
+                        rate: true,
+                        createdAt: true,
+                        description: true,
+                        user: {
+                            select: {
+                                avatarUrl: true,
+                                name: true,
+                                email: true
+                            }
                         }
                     }
                 }
             },
-            ratings: {
-                select: {
-                    rate: true,
-                    createdAt: true,
-                    description: true,
-                    user: {
-                        select: {
-                            avatarUrl: true,
-                            name: true,
-                            email: true
-                        }
-                    }
-                }
+            orderBy: {
+                ratings: {_count: 'desc'}
             }
-        },
-        orderBy: {
-            ratings: {_count: 'desc'}
-        }
-    })
+        })
+    
+        const categories = await prisma.category.findMany()
 
-    const categories = await prisma.category.findMany()
+        
+        return res.json({books, categories})
+
+    } catch (error) {
+        
+        console.log(error)
+    }
 
 
-    return res.json({books, categories})
 }
