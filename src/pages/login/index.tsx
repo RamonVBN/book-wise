@@ -10,8 +10,6 @@ import visitLogo from '../../../assets/RocketLaunch.png'
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-
-
 export default function Login(){
 
     const router = useRouter()
