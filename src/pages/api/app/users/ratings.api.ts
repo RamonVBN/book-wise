@@ -9,8 +9,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).end()
     }
 
-    try {
-        
         
     const ratings = await prisma.rating.findMany({
         omit: {bookId: true, userId: true},
@@ -29,8 +27,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.json({ratings})
 
-    } catch (error) {
-        
-        return res.json({error})
-    }
 }
