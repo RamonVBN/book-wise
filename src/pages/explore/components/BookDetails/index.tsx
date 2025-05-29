@@ -1,4 +1,4 @@
-import { BookmarkSimple, BookOpen, Check, Star, X } from "phosphor-react";
+import { BookmarkSimple, BookOpen, Check, Star, StarHalf, X } from "phosphor-react";
 
 import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton, UserRatingContainer, CancelButton, ConfirmButton, ModalOverlay, ModalContainer, FormError } from "./styles";
 
@@ -12,13 +12,16 @@ import { signIn, useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ProviderButton } from "@/pages/login/styles";
+
 import Image from "next/image";
 
 import googleLogo from '../../../../../assets/logos_google-icon.png'
 import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
+
 import { api } from "@/lib/axios";
 import { useQuery } from "@tanstack/react-query";
 import { BooksProps } from "@/@types/query-types";
+import { StarRating } from "@/components/StarsRating";
 
 type BookDetailsProps ={
 
@@ -41,7 +44,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
 
     const [isUserRatingOpen, setIsUserRatingOpen] = useState(false)
 
-    const [rateOver, setRateOver] = useState(0)
+    const [rateHover, setRateHover] = useState(0)
 
     const [definedRate, setDefinedRate] = useState<number | null>(null)
 
@@ -75,6 +78,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
             userId: session.data?.user.id
         })
 
+
         refetch()
         reset()
         setIsUserRatingOpen(false)
@@ -92,14 +96,47 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
             return setDefinedRate(index)
         }
     }
+
+    function handleMouseOver(index: number, e: React.MouseEvent<HTMLDivElement>){
+
+        const { left, width } = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - left;
+        const half = width / 2;
+        const isHalf = x > half;
+        const value = index + (isHalf ? 1 : 0.5);
+
+        setRateHover(value)
+    }
     
-    function handleRate(rateOver: number){
+    function handleRate(){
+
+        const value = definedRate ?? rateHover
         
         const starRate = Array.from({length: 5})
         
         return starRate.map((_, i) => {
 
-            return <Star key={i} onClick={() => handleDefineRate(i + 1)} onMouseOut={() => setRateOver(0)} onMouseOver={() => setRateOver(i + 1)} weight={i + 1 <= rateOver ? 'fill': 'regular'}/>
+            if (value >= i + 1) {
+                
+            return (
+                <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseLeave={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i , e)}>
+                <Star  weight='fill' />
+            </div>
+            )
+            }else if (value >= i + 0.5) {
+                return (
+                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseOut={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i , e)}>
+                <StarHalf  weight='fill' />
+            </div>
+                )
+            }else {
+                return (
+                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseOut={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i , e)}>
+                    <Star  weight='regular' />
+            </div>
+                )
+            }
+
         })
 
     }
@@ -117,6 +154,12 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
     })
 
     const book = booksData?.books?.find((book) => book.name === bookName)
+
+    const bookMediaRating = book? calcMediaRating(book?.ratings) : 6
+
+    const userEmail = session.data?.user.email
+
+    const isUserRead = book?.ratings.some((rating) => rating.user.email === userEmail)
 
     return (
         <>
@@ -161,25 +204,32 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
                                     <span>{book?.author}</span>
                                 </span>
 
+                                        
                                 <span>
                                     <span>
                                         
                                        {
-                                            Array.from({length: 5}).map((_, i) => {
 
-                                                const bookMediaRating = book? calcMediaRating(book?.ratings) : 6
+                                        <StarRating param={bookMediaRating} />
 
-                                                if (i + 1 > bookMediaRating) {
-                                                    
-                                                    return (
-                                                        <Star key={i}/>
-                                                    )
-                                                }
+                                        //    Array.from({length: 5}).map((_, i) => {
+                                                
+                                        //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
+                                        //         return (
+                                        //             <StarHalf key={i} weight="fill"/>  
+                                        //         )
+                                        //     }
+                                            
+                                        //     if (i + 1 > bookMediaRating) {
 
-                                                return (
-                                                    <Star key={i} weight="fill"/>
-                                                )
-                                            })
+                                                
+                                        //         return (
+                                        //             <Star key={i}/>
+                                        //         )
+                                        //     }
+
+                                        //     return <Star key={i} weight="fill"/>
+                                        // })
                                        }
                                     </span>
                                     <span>
@@ -216,7 +266,12 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
                     <BookDetailsRatingsContainer>
                         <BookDetailsRatingsHeader>
                             <span>Avaliações</span>
-                            <button type="button" onClick={() => handleUserRatingOpen() }>Avaliar</button>
+                            
+                            {
+                                !isUserRead && (
+                                    <button type="button" onClick={() => handleUserRatingOpen() }>Avaliar</button>
+                                )
+                            }
                         </BookDetailsRatingsHeader>
 
                         <BookDetailsRatingsBody>
@@ -235,7 +290,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
     
                                         <span>
                                         {
-                                            handleRate(definedRate ?? rateOver)
+                                            handleRate()
                                         }
     
                                         </span>
@@ -270,7 +325,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
                             {
                                 book?.ratings.toReversed().map((rating, i) =>  {
                                     return (
-                                <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={i}>
+                                <BookDetailsRating isUserRating={rating.user.email === userEmail} key={i}>
                                     <div>
                                         <div>
                                             <img src={rating.user.avatarUrl} alt="" />
@@ -283,19 +338,20 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
                                         <span>
                                             
                                             {
-                                                Array.from({length: 5}).map((_, i) => {
+                                                <StarRating param={rating.rate}/>
+                                                // Array.from({length: 5}).map((_, i) => {
 
-                                                    if (i + 1 > rating.rate) {
+                                                //     if (i + 1 > rating.rate) {
                                                         
-                                                    return (
-                                                    <Star key={i}/>
-                                                    )
-                                                    }
+                                                //     return (
+                                                //     <Star key={i}/>
+                                                //     )
+                                                //     }
 
-                                                    return (
-                                                        <Star key={i} weight="fill"/>
-                                                    )
-                                                })
+                                                //     return (
+                                                //         <Star key={i} weight="fill"/>
+                                                //     )
+                                                // })
                                             }
                                     
                                         </span>

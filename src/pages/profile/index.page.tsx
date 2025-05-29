@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react"
 import Layout from "@/components/Layout"
 import { BooksProps, RatingProps } from "@/@types/query-types"
 import { formatCategories } from "@/utils/formatCategories"
+import { StarRating } from "@/components/StarsRating"
 
 const profileFormSchema = z.object({
     RatedBook: z.string().min(1)
@@ -140,130 +141,131 @@ export default function Profile(){
 
     }, [])
 
-    console.log(MostReadCategories)
-
     return(
     <Layout>
-    <Container>
-            <PageHeader>
-                <User/>
-                <h1>Perfil</h1>
-            </PageHeader>
-        <ProfileContainer>
-            <ProfileMainContainer>
-            <ProfileForm onSubmit={handleSubmit(onSubmit)}>
-            <label >
-                <ProfileInput {...register('RatedBook')} placeholder="Buscar livro avaliado" />
-            </label>
-            <ProfileButton>
-                <MagnifyingGlass/>
-            </ProfileButton>
-            </ProfileForm>
-        
-            <RatedBooksContainer>
-                
-                {
-                    profileRatings && profileRatings.map((profileRating, i) => {
+        <Container>
+                <PageHeader>
+                    <User/>
+                    <h1>Perfil</h1>
+                </PageHeader>
+            <ProfileContainer>
+                <ProfileMainContainer>
+                <ProfileForm onSubmit={handleSubmit(onSubmit)}>
+                <label >
+                    <ProfileInput {...register('RatedBook')} placeholder="Buscar livro avaliado" />
+                </label>
+                <ProfileButton>
+                    <MagnifyingGlass/>
+                </ProfileButton>
+                </ProfileForm>
+            
+                <RatedBooksContainer>
+                    
+                    {
+                        profileRatings && profileRatings.map((profileRating, i) => {
 
-                        return (
-                            <div key={i}>
-                            <RatedBookTime>{capitalize(formatDistanceToNow(profileRating.createdAt, {addSuffix: true, locale: ptBR}))}
-                                </RatedBookTime>
-                            <RatedBook>
-                                <RatedBookInfo>
-                                    <img src={profileRating.book.coverUrl} alt="" />
-                                    <div>
-                                        <span>
-                                        <h2>{profileRating.book.name}</h2>
-                                        <span>{profileRating.book.author}</span>
-                                        </span>
-                                        
-                                        <span>
-                                        {
-                                            Array.from({length: 5}).map((_,i) => {
-                                                
-                                                if (i + 1 > profileRating.rate) {
+                            return (
+                                <div key={i}>
+                                <RatedBookTime>{capitalize(formatDistanceToNow(profileRating.createdAt, {addSuffix: true, locale: ptBR}))}
+                                    </RatedBookTime>
+                                <RatedBook>
+                                    <RatedBookInfo>
+                                        <img src={profileRating.book.coverUrl} alt="" />
+                                        <div>
+                                            <span>
+                                            <h2>{profileRating.book.name}</h2>
+                                            <span>{profileRating.book.author}</span>
+                                            </span>
+                                            
+                                            <span>
+                                            {
+
+                                                <StarRating param={profileRating.rate}/>
+
+                                                // Array.from({length: 5}).map((_,i) => {
                                                     
+                                                //     if (i + 1 > profileRating.rate) {
+                                                        
+                                                //         return (
+                                                //         <Star key={i} />
+                                                //     )
+                                                //     }
+                    
+                                                //     return (
+                                                //         <Star key={i} weight="fill"/>
+                                                //     )
+                                                // })
+                                            }
+                                            </span>
+                                        </div>
+                                    </RatedBookInfo>
+                    
+                                    <p>{profileRating.book.summary}</p>
+                                </RatedBook>
+                                </div> 
+                            )
+                        })
+                    }
+                </RatedBooksContainer>
+                </ProfileMainContainer>
+
+                <UserContainer>
+                            <UserProfile>
+                                <img src={avatarUrl} alt="" />
+                                <span>
+                                    <h2>{name}</h2>
+                                    <span>membro desde {getYear(createdAt? createdAt: '')}</span>
+                                </span>
+                            </UserProfile>
+
+                            <UserSeparator/>
+
+                            <UserStatsContainer>
+                                <UserStats>
+                                <BookOpen/>
+                                    <span>
+                                        <h3>{userTotalPages}</h3>
+                                        <span>Páginas lidas</span>
+                                    </span>
+                                </UserStats>
+
+                                <UserStats>
+                                    <Books />
+                                    <span>
+                                        <h3>{userRatedBooks?.length}</h3>
+                                        <span>Livros avaliados</span>
+                                    </span>
+                                </UserStats>
+
+                                <UserStats>
+                                <UserList/>
+                                    <span>
+                                        <h3>{userTotalAuthors?.length}</h3>
+                                        <span>Autores lidos</span>
+                                    </span>
+                                </UserStats>
+
+                                <UserStats>
+                                    <BookmarkSimple/>
+                                    <span>
+                                        <h3>
+                                            {
+                                                MostReadCategories?.map((category, i) => {
+
                                                     return (
-                                                    <Star key={i} />
-                                                )
-                                                }
-                
-                                                return (
-                                                    <Star key={i} weight="fill"/>
-                                                )
-                                            })
-                                        }
-                                        </span>
-                                    </div>
-                                </RatedBookInfo>
-                
-                                <p>{profileRating.book.summary}</p>
-                            </RatedBook>
-                            </div> 
-                        )
-                    })
-                }
-            </RatedBooksContainer>
-            </ProfileMainContainer>
+                                                        formatCategories(category.categoryName, i)
+                                                    )
+                                                })
+                                            }
+                                        </h3>
+                                        <span>Categoria(s) mais lida(s)</span>
+                                    </span>
+                                </UserStats>
+                            </UserStatsContainer>
+                </UserContainer>
 
-            <UserContainer>
-                        <UserProfile>
-                            <img src={avatarUrl} alt="" />
-                            <span>
-                                <h2>{name}</h2>
-                                <span>membro desde {getYear(createdAt? createdAt: '')}</span>
-                            </span>
-                        </UserProfile>
-
-                        <UserSeparator/>
-
-                        <UserStatsContainer>
-                            <UserStats>
-                            <BookOpen/>
-                                <span>
-                                    <h3>{userTotalPages}</h3>
-                                    <span>Páginas lidas</span>
-                                </span>
-                            </UserStats>
-
-                            <UserStats>
-                                <Books />
-                                <span>
-                                    <h3>{userRatedBooks?.length}</h3>
-                                    <span>Livros avaliados</span>
-                                </span>
-                            </UserStats>
-
-                            <UserStats>
-                            <UserList/>
-                                <span>
-                                    <h3>{userTotalAuthors?.length}</h3>
-                                    <span>Autores lidos</span>
-                                </span>
-                            </UserStats>
-
-                            <UserStats>
-                                <BookmarkSimple/>
-                                <span>
-                                    <h3>
-                                        {
-                                            MostReadCategories?.map((category, i) => {
-
-                                                return (
-                                                    formatCategories(category.categoryName, i)
-                                                )
-                                            })
-                                        }
-                                    </h3>
-                                    <span>Categoria(s) mais lida(s)</span>
-                                </span>
-                            </UserStats>
-                        </UserStatsContainer>
-            </UserContainer>
-
-        </ProfileContainer>
-    </Container>
+            </ProfileContainer>
+        </Container>
     </Layout>
     )
 }

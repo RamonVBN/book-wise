@@ -1,11 +1,19 @@
 import { styled } from "@/pages/globalStyles"
+import Link from "next/link"
 
 
 export const Container = styled('div', {
     display: 'flex',
     flexDirection: 'column',
-
     
+    '@media(max-width: 1308px)': {
+        width: '100%',
+    },
+
+    '@media(max-width: 900px)': {
+        marginTop: '18rem',
+       paddingInline: '2rem'
+    }
 
 })
 
@@ -13,6 +21,12 @@ export const HomeContainer = styled('div', {
     display: 'flex',
     gap: '6rem',
     height: '100%',
+
+    '@media(max-width: 1308px)': {
+        gap: '3rem',
+        overflow: 'scroll',
+        scrollbarWidth: 'none'
+    }
 
 })
 
@@ -24,6 +38,8 @@ export const ContentContainer = styled('div', {
 
     overflowY: 'scroll',
     scrollbarWidth: 'none',
+
+    paddingBottom: '8.15rem',
 
     width: '38rem',
 })
@@ -159,7 +175,7 @@ export const BookRatingDescription = styled('div', {
     gap: '1.25rem'
 })
 
-export const Link = styled('button', {
+export const LinkButton = styled(Link, {
 
     all: 'unset',
     cursor: 'pointer',
@@ -197,7 +213,7 @@ export const PopBookContainer = styled('aside', {
             lineHeigth: '$base',
             color: '$gray100'
         },
-    }
+    },
 
 })
 
@@ -207,7 +223,11 @@ export const PopBookBody = styled('div', {
     flexDirection: 'column',
     gap: '1rem',
 
-    marginTop: '1rem'
+    marginTop: '1rem',
+
+    '@media(max-width: 1308px)': {
+        width: '100%',
+    },
 
 })
 
@@ -225,6 +245,10 @@ export const PopBook = styled('div', {
     img: {
         width: '4rem',
         height: '5.875rem'
+    },
+
+    '@media(max-width: 1308px)': {
+        width: '100%',
     },
 
 
@@ -291,7 +315,7 @@ export const LastReadHeader = styled('div', {
 
 })
 
-export const LastReadBody = styled('button', {
+export const LastReadBody = styled(Link, {
     all: 'unset',
     cursor: 'pointer',
     boxSizing: 'border-box',

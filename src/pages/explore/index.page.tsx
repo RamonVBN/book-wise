@@ -1,5 +1,5 @@
-import { Binoculars, MagnifyingGlass, Star } from "phosphor-react";
-import { ExploreBook, ExploreBooksContainer, ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton } from "./styles";
+import { Binoculars, MagnifyingGlass, Star, StarHalf } from "phosphor-react";
+import { ExploreBook, ExploreBooksContainer, ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton, ReadMark } from "./styles";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import Layout from "@/components/Layout";
 import { AllCategories, BooksProps } from "@/@types/query-types";
+import { useSession } from "next-auth/react";
+import { StarRating } from "@/components/StarsRating";
 
 
 const exploreFormSchema = z.object({
@@ -21,6 +23,8 @@ type ExploreFormType = z.infer<typeof exploreFormSchema>
 
 
 export default function Explore(){
+
+    const session = useSession()
     
     const [categoriesFilters, setCategoriesFilters] = useState<string[]>([])
 
@@ -75,11 +79,17 @@ export default function Explore(){
 
     const filteredBooksByInput = booksData?.books?.filter((book) => watch('bookAuthor') ? book.name.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) || book.author.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) : true)
 
+    // const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
+
+    //     return book.categories.some((bookCategory) => categoriesFilters.length > 0 ? categoriesFilters.includes(bookCategory.category.name): true)
+    // })
+
     const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
 
-        return book.categories.some((bookCategory) => categoriesFilters.length > 0 ? categoriesFilters.includes(bookCategory.category.name): true)
+        return categoriesFilters.every((filteredCategory) => book.categories.some((bookCategory) => bookCategory.category.name === filteredCategory))
     })
 
+    const userEmail = session.data?.user.email
 
     return (
         <Layout>
@@ -120,8 +130,17 @@ export default function Explore(){
                         {
                             filteredBooksByCategoriesAndInput && filteredBooksByCategoriesAndInput.map((book, i) => {
 
+                                const isUserRead = book.ratings.find((rating) => rating.user.email === userEmail )
+
+                                const bookMediaRating = calcMediaRating(book.ratings)
+
                                 return (
-                                <ExploreBook name={book.name} onClick={(e) => handleOpenBookDetails(e.currentTarget.name)} key={i}>
+                                <ExploreBook onClick={() => handleOpenBookDetails(book.name)} key={i}>
+                                    {
+                                        isUserRead && (
+                                            <ReadMark>LIDO</ReadMark>
+                                        )
+                                    }
                                     <img src={book.coverUrl} alt="" />
                                     <div>
                                         <span>
@@ -132,21 +151,27 @@ export default function Explore(){
                                         <span>
                                         
                                             {
-                                                Array.from({length: 5}).map((_, i) => {
+                                                <StarRating param={bookMediaRating}/>
 
-                                                    const bookMediaRating = calcMediaRating(book.ratings)
+                                            //     Array.from({length: 5}).map((_, i) => {
+                                                
+                                            //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
+                                            //         return (
+                                            //             <StarHalf key={i} weight="fill"/>  
+                                            //         )
+                                            //     }
+                                                
+                                            //     if (i + 1 > bookMediaRating) {
 
-                                                    if (i + 1 > bookMediaRating) {
-                                                        
-                                                        return (
-                                                            <Star key={i}/>
-                                                        )
-                                                    }
+                                                    
+                                            //         return (
+                                            //             <Star key={i}/>
+                                            //         )
+                                            //     }
 
-                                                    return (
-                                                        <Star key={i} weight="fill"/>
-                                                    )
-                                                })
+                                            //     return <Star key={i} weight="fill"/>
+                                            // })
+
                                             }
                                         </span>
                                     </div>

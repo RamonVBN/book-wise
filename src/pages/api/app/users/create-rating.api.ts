@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const bodySchema = z.object({
-        rate: z.number().gte(1),
+        rate: z.number(),
         description: z.string(),
         bookId: z.string().min(1),
         userId: z.string().min(1)

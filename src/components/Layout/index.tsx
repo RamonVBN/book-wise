@@ -53,40 +53,52 @@ export default function Layout({children}: {children: ReactNode}){
                 <Image priority width={128} height={32} src={logo} alt=""/>
                 <MenuNavigation>
 
-                    <NavButton isActive={router.pathname.includes(navigation[0].buttonName)} onClick={async () => await router.push('/home')} >
-                    <ChartLineUp size={24} />
-                    Início
-                    </NavButton>
-                    <NavButton isActive={router.pathname.includes(navigation[1].buttonName)} onClick={async () => await router.push('/explore')}>
-                    <Binoculars size={24} />
-                    Explorar
-                    </NavButton>
+                    <div>
+                        <NavButton prefetch isActive={router.pathname.includes(navigation[0].buttonName)} href={'/home'} >
+                            <span>
+                                <ChartLineUp size={24} />
+                                Início
+                            </span>
+                            </NavButton>
+                        <NavButton prefetch isActive={router.pathname.includes(navigation[1].buttonName)} href={'/explore'}>
+                            <span>
+                                <Binoculars size={24} />
+                                Explorar
+                            </span>
+                        </NavButton>
+                    
+
+                        {
+                            isSigned && (
+                        <NavButton prefetch isActive={router.pathname.includes(navigation[2].buttonName)} href={'/profile'}>
+                            <span>
+                                <User size={24} />
+                                Perfil
+                            </span>
+                        </NavButton>
+                        )
+                        }
+
+                    </div>
 
                     {
-                        isSigned && (
-                    <NavButton isActive={router.pathname.includes(navigation[2].buttonName)} onClick={() => router.push('/profile')}>
-                        <User size={24} />
-                        Perfil
-                    </NavButton>
-                    )
+                        isSigned ? (
+                            
+                            <SignOutButton onClick={handleSignOut}>
+                                <img width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
+                                <span>{session.data.user.name}</span>
+                                <SignOut size={20}/>
+                            </SignOutButton>
+                        ) :
+
+                        <SignInButton prefetch href={'/'}>
+                            Fazer login
+                            <SignIn size={20} />
+                        </SignInButton>
                     }
+
                 </MenuNavigation>
                 
-                {
-                    isSigned ? (
-                        
-                        <SignOutButton onClick={handleSignOut}>
-                            <img width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
-                            <span>{session.data.user.name}</span>
-                            <SignOut size={20}/>
-                        </SignOutButton>
-                    ) :
-
-                <SignInButton onClick={() => router.push('/')}>
-                    Fazer login
-                    <SignIn size={20} />
-                </SignInButton>
-                }
 
             </MenuContainer> 
         

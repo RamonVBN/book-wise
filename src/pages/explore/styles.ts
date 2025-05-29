@@ -5,7 +5,7 @@ export const ExploreContainer = styled('div', {
     
     display: 'flex',
     flexDirection: 'column',
-    flexBasis: '83.5rem',
+    flex: '0 1 83.5rem',
 
     overflowY: 'scroll',
     scrollbarWidth: 'none',
@@ -13,6 +13,11 @@ export const ExploreContainer = styled('div', {
     
 
     borderBottom: '1px solid $gray600',
+
+    '@media(max-width: 900px)': {
+        paddingInline: '2rem'
+
+    }
     
 })
 
@@ -25,6 +30,7 @@ export const ExploreHeader = styled('div', {
     form: {
         display: 'flex',
         flexBasis: '27.0625rem',
+        marginLeft: '3rem',
     },
 
     label: {
@@ -54,6 +60,10 @@ export const ExploreHeader = styled('div', {
                 color: '$green200'
             }
         }
+    },
+
+    '@media(max-width: 900px)': {
+       marginTop: '18rem'
     }
 })
 
@@ -90,7 +100,8 @@ export const ExploreCategoriesContainer = styled('div', {
 
     display: 'flex',
     flexWrap: 'wrap',
-    gap: '0.75rem'
+    gap: '0.75rem',
+
 
 })
 
@@ -143,12 +154,25 @@ export const ExploreCategory = styled('button', {
 export const ExploreBooksContainer = styled('div', {
 
     marginTop: '3rem',
-
-    maxHeight: '42rem',
-
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '1.25rem'
+    gap: '1.25rem',
+
+    '@media(max-width: 1500px)': {
+        gridTemplateColumns: 'repeat(3, 1fr)',
+
+    },
+
+    '@media(max-width: 1200px)': {
+        gridTemplateColumns: 'repeat(2, 1fr)',
+
+    },
+
+    
+    // '@media(max-width: 900px)': {
+    //     gridTemplateColumns: 'repeat(1, 1fr)',
+
+    // }
 
 })
 
@@ -156,6 +180,8 @@ export const ExploreBook = styled('button', {
     all: 'unset',
     cursor: 'pointer',
     boxSizing: 'border-box',
+
+    position: 'relative',
 
     border: '2px solid transparent',
 
@@ -166,7 +192,7 @@ export const ExploreBook = styled('button', {
     borderRadius: '8px',
     backgroundColor: '$gray700',
 
-    maxWidth: '19.9375rem',
+    // maxWidth: '19.9375rem',
     height: '11.5rem',
 
     '&:hover': {
@@ -216,7 +242,29 @@ export const ExploreBook = styled('button', {
             }
         }
 
+    },
+
+    '@media(max-width: 900px)': {
+        justifySelf: 'center',
+        width: '100%'
     }
 
 })
 
+export const ReadMark = styled('span', {
+
+    position: 'absolute',
+    top: -2,
+    right: -2,
+
+    padding: '0.25rem 0.75rem',
+    backgroundColor: '$green300',
+    color: '$green100',
+    fontSize: '0.75rem',
+    lineHeight: '$shorter',
+    fontWeight: '$bold',
+    
+    borderRadius: '0px 4px 0px 4px'
+
+
+})

@@ -1,5 +1,4 @@
 import { styled } from "@/pages/globalStyles";
-import { all } from "axios";
 
 
 export const BookDetailsOverlay = styled('div', {
@@ -7,6 +6,7 @@ export const BookDetailsOverlay = styled('div', {
     position: 'absolute',
     top: 0,
     right: 0,
+    zIndex: 10,
     
     width: '100vw',
     height: '100vh',
@@ -502,7 +502,7 @@ export const FormError = styled('pre', {
 export const ModalOverlay = styled('div', {
 
     position: 'absolute',
-    zIndex: 10,
+    zIndex: 11,
     top: 0,
     right: 0,
 

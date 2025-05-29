@@ -1,5 +1,5 @@
-import { CaretRight, ChartLineUp, Star } from "phosphor-react"
-import { BookRating, BookRatingBody, BookRatingDescription, BookRatingUserContainer, BookRatingUser, BooksRatingsContainer, Container, HomeContainer, LastReadBody, LastReadContainer, LastReadContent, LastReadHeader, PopBookContainer, PopBookBody, PopBook, PopBookDescription, Rating, ContentContainer, BooksRatingsContainerHeader, Link } from "./styles"
+import { CaretRight, ChartLineUp, Star, StarHalf } from "phosphor-react"
+import { BookRating, BookRatingBody, BookRatingDescription, BookRatingUserContainer, BookRatingUser, BooksRatingsContainer, Container, HomeContainer, LastReadBody, LastReadContainer, LastReadContent, LastReadHeader, PopBookContainer, PopBookBody, PopBook, PopBookDescription, Rating, ContentContainer, BooksRatingsContainerHeader, LinkButton } from "./styles"
 
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
@@ -11,14 +11,14 @@ import { api } from "@/lib/axios"
 import { useSession } from "next-auth/react"
 import { BooksProps, RatingProps } from "@/@types/query-types"
 import Layout from "@/components/Layout"
-import { useRouter } from "next/router"
+import { formatBookName } from "@/utils/formatBookName"
+import { StarRating } from "@/components/StarsRating"
 
 
 export default function Home(){
 
     const session = useSession()
 
-    const router = useRouter()
 
     const {data: ratingData} = useQuery<{ratings: RatingProps[]}>({
         queryKey: ['ratings'],
@@ -67,12 +67,12 @@ export default function Home(){
                     <LastReadContainer>
                         <LastReadHeader>
                             <span>Sua última leitura</span>
-                            <Link onClick={async () => await router.push('/profile')}>
+                            <LinkButton prefetch href={'/profile'} >
                                 Ver todas
                                 <CaretRight/>
-                            </Link>
+                            </LinkButton>
                         </LastReadHeader>
-                        <LastReadBody onClick={async () => await router.push('/profile')} >
+                        <LastReadBody prefetch href={'/profile'} >
                             <img src={lastUserRating.book.coverUrl} alt="" />
                             <LastReadContent>
                                 <div>
@@ -80,17 +80,20 @@ export default function Home(){
                                         <span>{capitalize(formatDistanceToNow(lastUserRating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
                                         <span>
                                             {
-                                                Array.from({length: 5}).map((_, i) => {
 
-                                                    if (i + 1 > lastUserRating.rate) {
+                                                <StarRating param={lastUserRating.rate}/>
+
+                                                // Array.from({length: 5}).map((_, i) => {
+
+                                                //     if (i + 1 > lastUserRating.rate) {
                                                         
-                                                        return (
-                                                            <Star key={i}/>
-                                                        )
-                                                    }
+                                                //         return (
+                                                //             <Star key={i}/>
+                                                //         )
+                                                //     }
 
-                                                    return <Star key={i} weight="fill"/>
-                                                })
+                                                //     return <Star key={i} weight="fill"/>
+                                                // })
                                             }
                                         </span>
                                     </div>
@@ -124,16 +127,18 @@ export default function Home(){
                                     </span>
                                 </BookRatingUser>
                                 <Rating>
-                                    {
-                                    Array.from({length: 5}).map((_,i) => {
-                                        if (i + 1 > rating.rate) {
-                                            return <Star key={i}/>
-                                        }
-                    
-                                        return (
-                                            <Star key={i} weight="fill"/>
-                                        )
-                                    })
+                                    {   
+                                        <StarRating param={rating.rate}/>
+
+                                        // Array.from({length: 5}).map((_,i) => {
+                                        //     if (i + 1 > rating.rate) {
+                                        //         return <Star key={i}/>
+                                        //     }
+                        
+                                        //     return (
+                                        //         <Star key={i} weight="fill"/>
+                                        //     )
+                                        // })
                                     }
                                 </Rating>
                             </BookRatingUserContainer>
@@ -152,17 +157,17 @@ export default function Home(){
                     })
                     }
                     
-                    </BooksRatingsContainer>
+                </BooksRatingsContainer>
                 </ContentContainer>
 
                             
                 <PopBookContainer>
                         <span>
                         <span>Livros populares</span>
-                        <Link onClick={async () => await router.push('/explore') }>
+                        <LinkButton prefetch href={'/explore'}>
                         Ver todos
                         <CaretRight weight="bold"/>
-                        </Link>
+                        </LinkButton>
 
                         </span>
                     <PopBookBody>
@@ -176,23 +181,32 @@ export default function Home(){
                                 <img src={book.coverUrl} alt="" />
                                 <PopBookDescription>
                                     <span>
-                                        <h2>{book.name}</h2>
+                                        <h2>{formatBookName(book.name)}</h2>
                                         <span>{book.author}</span>
                                     </span>
         
                                     <Rating>
                                     {
-                                            Array.from({length: 5}).map((_, i) => {
+                                        
+                                        <StarRating param={bookMediaRating}/>
+                                        //    Array.from({length: 5}).map((_, i) => {
                                                 
-                                                if (i + 1 > bookMediaRating) {
-                                                    
-                                                    return (
-                                                        <Star key={i}/>
-                                                    )
-                                                }
+                                        //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
+                                        //         return (
+                                        //             <StarHalf key={i} weight="fill"/>  
+                                        //         )
+                                        //     }
+                                            
+                                        //     if (i + 1 > bookMediaRating) {
 
-                                                return <Star key={i} weight="fill"/>
-                                            })
+                                                
+                                        //         return (
+                                        //             <Star key={i}/>
+                                        //         )
+                                        //     }
+
+                                        //     return <Star key={i} weight="fill"/>
+                                        // })
                                     }
                                     </Rating>
                                 </PopBookDescription>

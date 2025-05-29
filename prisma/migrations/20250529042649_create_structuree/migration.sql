@@ -42,7 +42,7 @@ CREATE TABLE "CategoriesOnBooks" (
 -- CreateTable
 CREATE TABLE "ratings" (
     "id" TEXT NOT NULL,
-    "rate" INTEGER NOT NULL,
+    "rate" DOUBLE PRECISION NOT NULL,
     "description" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "book_id" TEXT NOT NULL,

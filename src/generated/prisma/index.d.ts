@@ -6583,7 +6583,7 @@ export namespace Prisma {
    */
   interface RatingFieldRefs {
     readonly id: FieldRef<"Rating", 'String'>
-    readonly rate: FieldRef<"Rating", 'Int'>
+    readonly rate: FieldRef<"Rating", 'Float'>
     readonly description: FieldRef<"Rating", 'String'>
     readonly createdAt: FieldRef<"Rating", 'DateTime'>
     readonly bookId: FieldRef<"Rating", 'String'>
@@ -9638,7 +9638,7 @@ export namespace Prisma {
     OR?: RatingWhereInput[]
     NOT?: RatingWhereInput | RatingWhereInput[]
     id?: StringFilter<"Rating"> | string
-    rate?: IntFilter<"Rating"> | number
+    rate?: FloatFilter<"Rating"> | number
     description?: StringFilter<"Rating"> | string
     createdAt?: DateTimeFilter<"Rating"> | Date | string
     bookId?: StringFilter<"Rating"> | string
@@ -9663,7 +9663,7 @@ export namespace Prisma {
     AND?: RatingWhereInput | RatingWhereInput[]
     OR?: RatingWhereInput[]
     NOT?: RatingWhereInput | RatingWhereInput[]
-    rate?: IntFilter<"Rating"> | number
+    rate?: FloatFilter<"Rating"> | number
     description?: StringFilter<"Rating"> | string
     createdAt?: DateTimeFilter<"Rating"> | Date | string
     bookId?: StringFilter<"Rating"> | string
@@ -9691,7 +9691,7 @@ export namespace Prisma {
     OR?: RatingScalarWhereWithAggregatesInput[]
     NOT?: RatingScalarWhereWithAggregatesInput | RatingScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Rating"> | string
-    rate?: IntWithAggregatesFilter<"Rating"> | number
+    rate?: FloatWithAggregatesFilter<"Rating"> | number
     description?: StringWithAggregatesFilter<"Rating"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Rating"> | Date | string
     bookId?: StringWithAggregatesFilter<"Rating"> | string
@@ -10087,7 +10087,7 @@ export namespace Prisma {
 
   export type RatingUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     book?: BookUpdateOneRequiredWithoutRatingsNestedInput
@@ -10096,7 +10096,7 @@ export namespace Prisma {
 
   export type RatingUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bookId?: StringFieldUpdateOperationsInput | string
@@ -10114,14 +10114,14 @@ export namespace Prisma {
 
   export type RatingUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RatingUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bookId?: StringFieldUpdateOperationsInput | string
@@ -10553,6 +10553,17 @@ export namespace Prisma {
     categoryId?: SortOrder
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -10591,6 +10602,22 @@ export namespace Prisma {
 
   export type RatingSumOrderByAggregateInput = {
     rate?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -11011,6 +11038,14 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type BookUpdateOneRequiredWithoutRatingsNestedInput = {
     create?: XOR<BookCreateWithoutRatingsInput, BookUncheckedCreateWithoutRatingsInput>
     connectOrCreate?: BookCreateOrConnectWithoutRatingsInput
@@ -11197,6 +11232,22 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -11393,7 +11444,7 @@ export namespace Prisma {
     OR?: RatingScalarWhereInput[]
     NOT?: RatingScalarWhereInput | RatingScalarWhereInput[]
     id?: StringFilter<"Rating"> | string
-    rate?: IntFilter<"Rating"> | number
+    rate?: FloatFilter<"Rating"> | number
     description?: StringFilter<"Rating"> | string
     createdAt?: DateTimeFilter<"Rating"> | Date | string
     bookId?: StringFilter<"Rating"> | string
@@ -11944,7 +11995,7 @@ export namespace Prisma {
 
   export type RatingUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     book?: BookUpdateOneRequiredWithoutRatingsNestedInput
@@ -11952,7 +12003,7 @@ export namespace Prisma {
 
   export type RatingUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bookId?: StringFieldUpdateOperationsInput | string
@@ -11960,7 +12011,7 @@ export namespace Prisma {
 
   export type RatingUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bookId?: StringFieldUpdateOperationsInput | string
@@ -11992,7 +12043,7 @@ export namespace Prisma {
 
   export type RatingUpdateWithoutBookInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutRatingsNestedInput
@@ -12000,7 +12051,7 @@ export namespace Prisma {
 
   export type RatingUncheckedUpdateWithoutBookInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
@@ -12008,7 +12059,7 @@ export namespace Prisma {
 
   export type RatingUncheckedUpdateManyWithoutBookInput = {
     id?: StringFieldUpdateOperationsInput | string
-    rate?: IntFieldUpdateOperationsInput | number
+    rate?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string

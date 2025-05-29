@@ -3,28 +3,41 @@ import { styled } from "@/pages/globalStyles"
 
 export const Container = styled('div', {
     display: 'flex',
-    flexDirection: 'column'
-    
+    flexDirection: 'column',
+
+  
+    '@media(max-width: 900px)': {
+        marginTop: '18rem',
+        paddingInline: '2rem',
+        overflow: 'scroll',
+        scrollbarWidth: 'none'
+    }
+   
 })
 
 export const ProfileContainer = styled('div', {
     display: 'flex',
     alignItems: 'flex-start',
     gap: '6rem',
+
 })
 
 export const ProfileMainContainer = styled('div', {
 
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
 
+    width: '38rem',
+
+    '@media(max-width: 1236px)': {
+        width: '100%',
+    }
 })
 
 export const ProfileForm = styled('form', {
 
     width: '100%',
     display: 'flex',
-    justifyContent: 'stretch',
 
     label: {
         width: '100%',
@@ -40,8 +53,21 @@ export const ProfileForm = styled('form', {
         alignItems: 'center'
     },
 
-    marginBottom: '3rem'
+    '&:has(input:focus)': {
+        
+        label: {
+            borderColor: '$green200',
+        },
 
+        button: {
+            borderColor: '$green200',
+            svg: {
+                color: '$green200'
+            }
+        }
+    },
+
+    marginBottom: '3rem',
 
 })
 
@@ -80,14 +106,19 @@ export const ProfileButton = styled('button', {
 
 export const UserContainer = styled('div', {
 
-    width: '20.25rem',
+    maxWidth: '20.25rem',
 
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '2rem',
 
-    borderLeft: '1px solid $gray700'
+    borderLeft: '1px solid $gray700',
+
+    '@media(max-width: 1236px)': {
+        width: '100%',
+    }
+
 })
 
 export const UserProfile = styled('div', {
@@ -107,6 +138,7 @@ export const UserProfile = styled('div', {
     span: {
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'center',
         gap: '0.25rem',
 
         h2: {
@@ -186,13 +218,14 @@ export const RatedBooksContainer = styled('div', {
     
     display: 'flex',
     flexDirection: 'column',
-    width: '38rem',
+    maxWidth: '38rem',
 
     maxHeight: '42rem',
     overflowY: 'scroll',
     scrollbarWidth: 'none',
     
     gap: '0.75rem',
+
 })
 
 export const RatedBook = styled('div', {
