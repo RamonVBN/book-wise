@@ -36,6 +36,11 @@ export const books = [
         name: 'Aventura',
         id: 'e9c6d3f6-f3ec-4c52-ae28-6adcbab6ee67',
       },
+
+      {
+        name: 'Fantasia',
+        id: 'c9f22067-4978-4a24-84a1-asdasdw23123scc',
+      }
     ],
   },
   {
@@ -283,6 +288,87 @@ export const books = [
         name: 'Educação',
         id: 'f1a50507-0aa7-4245-8a5c-0d0de14e9d6d',
       },
+    ],
+  },
+
+  {
+    id: '66cb0f47-7e20-4492-b640-9csdsdsadsadasdeqwe',
+    name: 'O Nome do Vento',
+    author: 'Patrick Rothfuss',
+    summary:
+      '"O Nome do Vento", de Patrick Rothfuss, é o primeiro livro da série "A Crônica do Matador do Rei" e conta a história de Kvothe, um homem enigmático que é misteriosamente convidado por um cronista a revelar a sua vida. ',
+    cover_url: '/images/books/o-nome-do-vento.jpeg',
+    total_pages: 205,
+    categories: [
+      {
+        name: 'Ficção',
+        id: '8c4a4a4d-cbc4-4d2c-bb46-e95b0a536e09',
+      },
+      {
+        name: 'Fantasia',
+        id: 'c9f22067-4978-4a24-84a1-asdasdw23123scc',
+      },
+    ],
+  },
+
+  {
+    id: '66cb0f47-7e20-4492-b640-9cosadhjceqwrasasx',
+    name: 'A guerra da papoula vol.1',
+    author: ' R. F. Kuang',
+    summary:
+      '"A Guerra da Papoula", de R. F. Kuang, é uma fantasia histórica que se passa no Império Nikara, inspirado na China, durante um período de conflito e violência. A história acompanha Rin, uma jovem órfã que busca escapar de um casamento arranjado e entrar na Academia Militar de Sinegard, a instituição mais prestigiosa do Império. ',
+    cover_url: '/images/books/a-guerra-da-papoula.jpeg',
+    total_pages: 205,
+    categories: [
+      {
+        name: 'Ficção',
+        id: '8c4a4a4d-cbc4-4d2c-bb46-e95b0a536e09',
+      },
+      {
+        name: 'Fantasia',
+        id: 'c9f22067-4978-4a24-84a1-asdasdw23123scc',
+      },
+    ],
+  },
+
+  {
+    id: '66cb0f47-7e20-4492-b640-9cosadhjsadsaxcxsxqwe',
+    name: 'Quarta Asa',
+    author: 'Rebecca Yarros',
+    summary:
+      '"Quarta Asa" de Rebecca Yarros é uma história de fantasia e romance que acompanha Violet, uma jovem obrigada a se juntar a um programa de treinamento para cavaleiros de dragões, mesmo querendo uma vida mais tranquila com livros.',
+    cover_url: '/images/books/quarta-asa.jpeg',
+    total_pages: 205,
+    categories: [
+      {
+        name: 'Ficção',
+        id: '8c4a4a4d-cbc4-4d2c-bb46-e95b0a536e09',
+      },
+      {
+        name: 'Fantasia',
+        id: 'c9f22067-4978-4a24-84a1-asdasdw23123scc',
+      },
+    ],
+  },
+
+  {
+    id: '66cb0f47-7e20-4492-b640-9cosdsdadhjsdsdasdsx',
+    name: 'JoJo',
+    author: 'Hirohiko Araki',
+    summary:
+      'A história segue a família Joestar, cujos membros descobrem que estão destinados a combater inimigos sobrenaturais usando poderes únicos chamados Stands. Cada parte explora um novo grupo de personagens e um novo universo, com a linhagem Joestar enfrentando novos desafios e inimigos. ',
+    cover_url: '/images/books/jojo.jpeg',
+    total_pages: 205,
+    categories: [
+      {
+        name: 'Ficção',
+        id: '8c4a4a4d-cbc4-4d2c-bb46-e95b0a536e09',
+      },
+
+      {
+        name: 'Homossexual',
+        id: 'c9f22067-4978-4a24-84a1-a123sda55sd2w23123scc',
+      }
     ],
   },
 ]

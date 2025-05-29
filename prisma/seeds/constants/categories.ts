@@ -1,5 +1,13 @@
 export const categories = [
   {
+    name: 'Fantasia',
+    id: 'c9f22067-4978-4a24-84a1-asdasdw23123scc',
+  },
+  {
+    name: 'Homossexual',
+    id: 'c9f22067-4978-4a24-84a1-a123sda55sd2w23123scc',
+  },
+  {
     name: 'Programação',
     id: 'c9f22067-4978-4a24-84a1-7d37f343dfc2',
   },

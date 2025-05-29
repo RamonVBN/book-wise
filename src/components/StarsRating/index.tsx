@@ -11,7 +11,7 @@ export function StarRating({param}: StarRating){
         
         Array.from({length: 5}).map((_, i) => {
                                                     
-            if ((param - ((i + 1) - 1)) > 0 && (param - ((i + 1) - 1)) < 1 ) {
+            if ((param - ((i + 1) - 1)) >= 0.3 && (param - ((i + 1) - 1)) <= 0.7 ) {
                 return (
                     <StarHalf key={i} weight="fill"/>  
                 )

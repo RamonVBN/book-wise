@@ -60,6 +60,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
             return setIsModalOpen(true)
         }
 
+
         return setIsUserRatingOpen(true)
     }
 
@@ -71,6 +72,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
 
         setIsError(false)
 
+
         await api.post('/app/users/create-rating', {
             rate: definedRate,
             description: data.description,
@@ -79,10 +81,10 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
         })
 
 
-        refetch()
         reset()
         setIsUserRatingOpen(false)
         setDefinedRate(null)
+        refetch()
     }
     
     function handleDefineRate(index: number){
@@ -141,7 +143,7 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
 
     }
     
-    const {data: booksData, refetch} = useQuery<{books: BooksProps[]}>({
+    const {data: booksData, refetch, isFetching} = useQuery<{books: BooksProps[]}>({
 
         queryKey: ['books'],
         queryFn: async () => {
@@ -268,8 +270,8 @@ export function BookDetails({closeBookDetails, bookName}: BookDetailsProps){
                             <span>Avaliações</span>
                             
                             {
-                                !isUserRead && (
-                                    <button type="button" onClick={() => handleUserRatingOpen() }>Avaliar</button>
+                                !isUserRead  && (
+                                    <button disabled={isFetching}  type="button" onClick={  () => handleUserRatingOpen()  }>Avaliar</button>
                                 )
                             }
                         </BookDetailsRatingsHeader>

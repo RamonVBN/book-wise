@@ -14,13 +14,17 @@ import Layout from "@/components/Layout"
 import { formatBookName } from "@/utils/formatBookName"
 import { StarRating } from "@/components/StarsRating"
 
+import { NextSeo } from "next-seo"
+import { Fallback } from "@/components/Fallback"
+
+
 
 export default function Home(){
 
     const session = useSession()
 
 
-    const {data: ratingData} = useQuery<{ratings: RatingProps[]}>({
+    const {data: ratingData, isLoading: isLoadingRatings} = useQuery<{ratings: RatingProps[]}>({
         queryKey: ['ratings'],
         queryFn: async () => {
 
@@ -30,7 +34,7 @@ export default function Home(){
         }
     })
 
-    const {data: booksData} = useQuery<{books: BooksProps[]}>({
+    const {data: booksData, isLoading: isLoadingBooks} = useQuery<{books: BooksProps[]}>({
     
         queryKey: ['books'],
         queryFn: async () => {
@@ -53,171 +57,194 @@ export default function Home(){
     const lastUserRating: RatingProps | null = userRatings? userRatings.toReversed()[0] : null
 
     return (
+    <>  
+    <NextSeo
+    title="Home | BookWise"
+    description="Veja as avaliações e os livros mais populares!"
+
+    />
     <Layout>
         <Container>
+                
+
+             {
+                !isLoadingRatings || !isLoadingBooks ? (
+            <>
                 <PageHeader>
                     <ChartLineUp/>
                     <h1>Início</h1>
-                </PageHeader>   
-            <HomeContainer>
-                
-                <ContentContainer>
-                    {
-                        isSigned && userRatings && lastUserRating && (
-                    <LastReadContainer>
-                        <LastReadHeader>
-                            <span>Sua última leitura</span>
-                            <LinkButton prefetch href={'/profile'} >
-                                Ver todas
-                                <CaretRight/>
-                            </LinkButton>
-                        </LastReadHeader>
-                        <LastReadBody prefetch href={'/profile'} >
-                            <img src={lastUserRating.book.coverUrl} alt="" />
-                            <LastReadContent>
-                                <div>
-                                    <div>
-                                        <span>{capitalize(formatDistanceToNow(lastUserRating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
-                                        <span>
-                                            {
-
-                                                <StarRating param={lastUserRating.rate}/>
-
-                                                // Array.from({length: 5}).map((_, i) => {
-
-                                                //     if (i + 1 > lastUserRating.rate) {
-                                                        
-                                                //         return (
-                                                //             <Star key={i}/>
-                                                //         )
-                                                //     }
-
-                                                //     return <Star key={i} weight="fill"/>
-                                                // })
-                                            }
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <h2>{lastUserRating.book.name}</h2>
-                                        <span>{lastUserRating.book.author}</span>
-                                    </div>
-                                </div>
-                                <p>{lastUserRating.description}</p>
-                            </LastReadContent>
-                        </LastReadBody>
-                    </LastReadContainer>
-                        )
-                    }
-
-                    <BooksRatingsContainer>
-                        <BooksRatingsContainerHeader>
-                            Avaliações mais recentes
-                        </BooksRatingsContainerHeader>
-
-                    {
-                        ratingData?.ratings && ratingData.ratings.toReversed().map((rating, i) => {
-                        return (
-                    <BookRating key={i}>
-                            <BookRatingUserContainer>
-                                <BookRatingUser>
-                                    <img src={rating.user.avatarUrl} alt="" />
-                                    <span>
-                                        <span>{rating.user.name}</span>
-                                        <span>{capitalize(formatDistanceToNow(rating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
-                                    </span>
-                                </BookRatingUser>
-                                <Rating>
-                                    {   
-                                        <StarRating param={rating.rate}/>
-
-                                        // Array.from({length: 5}).map((_,i) => {
-                                        //     if (i + 1 > rating.rate) {
-                                        //         return <Star key={i}/>
-                                        //     }
-                        
-                                        //     return (
-                                        //         <Star key={i} weight="fill"/>
-                                        //     )
-                                        // })
-                                    }
-                                </Rating>
-                            </BookRatingUserContainer>
-                        <BookRatingBody>
-                            <img src={rating.book.coverUrl} alt="" />
-                            <BookRatingDescription>
-                                <span>
-                                    <h2>{rating.book.name}</h2>
-                                    <span>{rating.book.author}</span>
-                                </span>
-                                <p>{rating.description}</p>
-                            </BookRatingDescription>
-                        </BookRatingBody>
-                    </BookRating>
-                        )
-                    })
-                    }
+                </PageHeader>  
+                <HomeContainer>
                     
-                </BooksRatingsContainer>
-                </ContentContainer>
+                    <ContentContainer>
+                        {
+                            isSigned && userRatings && lastUserRating && (
+                        <LastReadContainer>
+                            <LastReadHeader>
+                                <span>Sua última leitura</span>
+                                <LinkButton prefetch href={'/profile'} >
+                                    Ver todas
+                                    <CaretRight/>
+                                </LinkButton>
+                            </LastReadHeader>
+                            <LastReadBody prefetch href={'/profile'} >
+                                <img src={lastUserRating.book.coverUrl} alt="" />
+                                <LastReadContent>
+                                    <div>
+                                        <div>
+                                            <span>{capitalize(formatDistanceToNow(lastUserRating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
+                                            <span>
+                                                {
 
-                            
-                <PopBookContainer>
-                        <span>
-                        <span>Livros populares</span>
-                        <LinkButton prefetch href={'/explore'}>
-                        Ver todos
-                        <CaretRight weight="bold"/>
-                        </LinkButton>
+                                                    <StarRating param={lastUserRating.rate}/>
 
-                        </span>
-                    <PopBookBody>
-                    {
-                        top4PopBooks && top4PopBooks.map((book, i) => {
+                                                    // Array.from({length: 5}).map((_, i) => {
 
-                            const bookMediaRating = calcMediaRating(book.ratings)
+                                                    //     if (i + 1 > lastUserRating.rate) {
+                                                            
+                                                    //         return (
+                                                    //             <Star key={i}/>
+                                                    //         )
+                                                    //     }
 
+                                                    //     return <Star key={i} weight="fill"/>
+                                                    // })
+                                                }
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <h2>{lastUserRating.book.name}</h2>
+                                            <span>{lastUserRating.book.author}</span>
+                                        </div>
+                                    </div>
+                                    <p>{lastUserRating.description}</p>
+                                </LastReadContent>
+                            </LastReadBody>
+                        </LastReadContainer>
+                            )
+                        }
+
+                        <BooksRatingsContainer>
+                            <BooksRatingsContainerHeader>
+                                Avaliações mais recentes
+                            </BooksRatingsContainerHeader>
+
+                        {
+                            ratingData?.ratings && ratingData.ratings.toReversed().map((rating, i) => {
                             return (
-                                <PopBook key={i}>
-                                <img src={book.coverUrl} alt="" />
-                                <PopBookDescription>
-                                    <span>
-                                        <h2>{formatBookName(book.name)}</h2>
-                                        <span>{book.author}</span>
-                                    </span>
-        
+                        <BookRating key={i}>
+                                <BookRatingUserContainer>
+                                    <BookRatingUser>
+                                        <img src={rating.user.avatarUrl} alt="" />
+                                        <span>
+                                            <span>{rating.user.name}</span>
+                                            <span>{capitalize(formatDistanceToNow(rating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
+                                        </span>
+                                    </BookRatingUser>
                                     <Rating>
-                                    {
-                                        
-                                        <StarRating param={bookMediaRating}/>
-                                        //    Array.from({length: 5}).map((_, i) => {
-                                                
-                                        //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
-                                        //         return (
-                                        //             <StarHalf key={i} weight="fill"/>  
-                                        //         )
-                                        //     }
-                                            
-                                        //     if (i + 1 > bookMediaRating) {
+                                        {   
+                                            <StarRating param={rating.rate}/>
 
-                                                
-                                        //         return (
-                                        //             <Star key={i}/>
-                                        //         )
-                                        //     }
-
-                                        //     return <Star key={i} weight="fill"/>
-                                        // })
-                                    }
+                                            // Array.from({length: 5}).map((_,i) => {
+                                            //     if (i + 1 > rating.rate) {
+                                            //         return <Star key={i}/>
+                                            //     }
+                            
+                                            //     return (
+                                            //         <Star key={i} weight="fill"/>
+                                            //     )
+                                            // })
+                                        }
                                     </Rating>
-                                </PopBookDescription>
-                            </PopBook>
+                                </BookRatingUserContainer>
+                            <BookRatingBody>
+                                <img src={rating.book.coverUrl} alt="" />
+                                <BookRatingDescription>
+                                    <span>
+                                        <h2>{rating.book.name}</h2>
+                                        <span>{rating.book.author}</span>
+                                    </span>
+                                    <p>{rating.description}</p>
+                                </BookRatingDescription>
+                            </BookRatingBody>
+                        </BookRating>
                             )
                         })
-                    }
-                    </PopBookBody>     
-                </PopBookContainer>
-            </HomeContainer>
+                        }
+                        
+                    </BooksRatingsContainer>
+                    </ContentContainer>
+
+                                
+                    <PopBookContainer>
+                            <span>
+                            <span>Livros populares</span>
+                            <LinkButton prefetch href={'/explore'}>
+                            Ver todos
+                            <CaretRight weight="bold"/>
+                            </LinkButton>
+
+                            </span>
+                        <PopBookBody>
+                        {
+
+                            top4PopBooks && top4PopBooks.map((book, i) => {
+
+                                const bookMediaRating = calcMediaRating(book.ratings)
+
+                                return (
+                                    <PopBook key={i}>
+                                    <img src={book.coverUrl} alt="" />
+                                    <PopBookDescription>
+                                        <span>
+                                            <h2>{formatBookName(book.name)}</h2>
+                                            <span>{book.author}</span>
+                                        </span>
+            
+                                        <Rating>
+                                        {
+                                            
+                                            <StarRating param={bookMediaRating}/>
+                                            //    Array.from({length: 5}).map((_, i) => {
+                                                    
+                                            //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
+                                            //         return (
+                                            //             <StarHalf key={i} weight="fill"/>  
+                                            //         )
+                                            //     }
+                                                
+                                            //     if (i + 1 > bookMediaRating) {
+
+                                                    
+                                            //         return (
+                                            //             <Star key={i}/>
+                                            //         )
+                                            //     }
+
+                                            //     return <Star key={i} weight="fill"/>
+                                            // })
+                                        }
+                                        </Rating>
+                                    </PopBookDescription>
+                                </PopBook>
+                                )
+                            })
+                
+
+                        }
+                        </PopBookBody>     
+                    </PopBookContainer>
+                </HomeContainer>
+            </>
+                )
+                :
+                (
+                    <Fallback/>
+                )
+             }    
+            
         </Container>
     </Layout>
+    </> 
     )
 }

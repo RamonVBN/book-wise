@@ -13,6 +13,8 @@ import Layout from "@/components/Layout";
 import { AllCategories, BooksProps } from "@/@types/query-types";
 import { useSession } from "next-auth/react";
 import { StarRating } from "@/components/StarsRating";
+import { NextSeo } from "next-seo";
+import { Fallback } from "@/components/Fallback";
 
 
 const exploreFormSchema = z.object({
@@ -65,15 +67,16 @@ export default function Explore(){
         setIsBookDetailsOpen(false)
     }
 
-    const {data: booksData} = useQuery<{books: BooksProps[], categories: AllCategories}>({
+    const {data: booksData, isLoading} = useQuery<{books: BooksProps[], categories: AllCategories}>({
 
         queryKey: ['books'],
         queryFn: async () => {
-
+            
             const response = await api.get('/app/books')
 
             return response.data
         },
+        
         
     })
 
@@ -92,6 +95,11 @@ export default function Explore(){
     const userEmail = session.data?.user.email
 
     return (
+        <>
+        <NextSeo
+        title=" Explore | BookWise"
+        description="Explore o mundo dos livros junto conosco!"
+        />
         <Layout>
             {
                 isBookDetailsOpen && (
@@ -99,7 +107,7 @@ export default function Explore(){
                 )
             }
             <ExploreContainer>
-                <ExploreHeader>
+            <ExploreHeader>
 
                 <PageHeader>
                 <Binoculars/>
@@ -108,14 +116,18 @@ export default function Explore(){
                 
                 <form onSubmit={handleSubmit(handleExploreSubmit)}>
                     <label>
-                    <ExploreInput {...register('bookAuthor')}  placeholder="Buscar livro ou autor" type="text" />
+                    <ExploreInput disabled={isLoading} {...register('bookAuthor')}  placeholder="Buscar livro ou autor" type="text" />
                     </label>
                     <ExploreFormButton>
                         <MagnifyingGlass/>
                     </ExploreFormButton>
                 </form>
             </ExploreHeader>
-                    <ExploreCategoriesContainer>
+                    {
+                        !isLoading ? (
+                            <>
+                                <ExploreCategoriesContainer>
+                    <ExploreCategory onClick={() => setCategoriesFilters([])} isActive={categoriesFilters.length < 1 || categoriesFilters.length === booksData?.categories.length}>Tudo</ExploreCategory>
                         {
                             booksData?.categories && booksData.categories.map((category, i) => {
 
@@ -181,8 +193,14 @@ export default function Explore(){
                         }
                         
                     </ExploreBooksContainer>
+                    </>
+                        ) : (<Fallback/>)
+                    }
+
+                    
                     
             </ExploreContainer>
         </Layout>
+        </>
     )
 }

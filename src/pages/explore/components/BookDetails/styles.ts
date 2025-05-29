@@ -222,9 +222,15 @@ export const BookDetailsRatingsHeader = styled('span', {
         fontSize: '1rem',
         lineHeight: '$base',
         color: '$purple100',
+
+        '&:disabled': {
+
+            cursor: 'progress',
+            opacity: 0.7
+        },
         
 
-        '&:hover': {
+        '&:not(:disabled):hover': {
             backgroundColor: 'rgba(130, 129, 217, 0.06)'
         }
     }

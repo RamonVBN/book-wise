@@ -9,6 +9,7 @@ import visitLogo from '../../../assets/RocketLaunch.png'
 
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { NextSeo } from "next-seo";
 
 export default function Login(){
 
@@ -37,6 +38,11 @@ export default function Login(){
     }
 
     return (
+    <>
+    <NextSeo
+    title="Login | BookWise"
+    description="Faça login para começar sua jornada literária"
+    />
         <Container>
         
             <ImageContainer>
@@ -71,5 +77,6 @@ export default function Login(){
                 </LoginContainer>
             </AuthContainer>
         </Container>
+        </>
     )
 }

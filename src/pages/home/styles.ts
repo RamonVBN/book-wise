@@ -229,6 +229,11 @@ export const PopBookBody = styled('div', {
         width: '100%',
     },
 
+    // span: {
+    //     width: '60',
+    //     height: '60px'
+    // }
+
 })
 
 export const PopBook = styled('div', {
@@ -412,6 +417,7 @@ export const LastReadContent = styled('div', {
         lineHeight: '$base',
     }
 })
+
 
 
 

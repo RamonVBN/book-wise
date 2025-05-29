@@ -14,6 +14,9 @@ import Layout from "@/components/Layout"
 import { BooksProps, RatingProps } from "@/@types/query-types"
 import { formatCategories } from "@/utils/formatCategories"
 import { StarRating } from "@/components/StarsRating"
+import { NextSeo } from "next-seo"
+import { useRouter } from "next/router"
+import { Fallback } from "@/components/Fallback"
 
 const profileFormSchema = z.object({
     RatedBook: z.string().min(1)
@@ -30,6 +33,8 @@ export default function Profile(){
 
     const session = useSession()
 
+    const router = useRouter()
+
     const {register, handleSubmit, setFocus, reset, watch} = useForm<ProfileFormData>()
     
     function onSubmit(){
@@ -38,7 +43,11 @@ export default function Profile(){
         setFocus('RatedBook')
     }
 
-    const {data: ratingData} = useQuery<{ratings: RatingProps[]}>({
+    async function handlePossibleRedirectForConsistency(){
+        await router.push('/')
+    }
+
+    const {data: ratingData, isLoading: isLoadingRatings} = useQuery<{ratings: RatingProps[]}>({
         queryKey: ['ratings'],
         queryFn: async () => {
 
@@ -48,7 +57,7 @@ export default function Profile(){
         }
     })
 
-    const {data: booksData} = useQuery<{books: BooksProps[]}>({
+    const {data: booksData, isLoading: isLoadingBooks} = useQuery<{books: BooksProps[]}>({
 
         queryKey: ['books'],
         queryFn: async () => {
@@ -141,10 +150,24 @@ export default function Profile(){
 
     }, [])
 
+
+    if (session.status === 'unauthenticated') {
+        
+        handlePossibleRedirectForConsistency()
+    }
+
     return(
+    <>
+    <NextSeo
+    title="Profile | BookWise"
+    description="Veja suas leituras e metas pessoais!"
+    />
     <Layout>
         <Container>
-                <PageHeader>
+               {
+                !isLoadingBooks || !isLoadingRatings? (
+                    <>
+                         <PageHeader>
                     <User/>
                     <h1>Perfil</h1>
                 </PageHeader>
@@ -265,7 +288,12 @@ export default function Profile(){
                 </UserContainer>
 
             </ProfileContainer>
+            </>
+                ): (<Fallback/>)
+
+               }
         </Container>
     </Layout>
+    </>
     )
 }
