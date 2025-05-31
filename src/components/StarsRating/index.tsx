@@ -11,10 +11,14 @@ export function StarRating({param}: StarRating){
         
         Array.from({length: 5}).map((_, i) => {
                                                     
-            if ((param - ((i + 1) - 1)) >= 0.3 && (param - ((i + 1) - 1)) <= 0.7 ) {
+            if ((param - ((i + 1) - 1)) >= 0.3 && (param - ((i + 1) - 1)) <= 0.75) {
                 return (
                     <StarHalf key={i} weight="fill"/>  
                 )
+
+            }else if((param - ((i + 1) - 1)) > 0.75){
+
+                return (<Star key={i} weight="fill"/>)
             }
             
             if (i + 1 > param) {

@@ -16,6 +16,7 @@ import { StarRating } from "@/components/StarsRating"
 
 import { NextSeo } from "next-seo"
 import { Fallback } from "@/components/Fallback"
+import { RatingDescription } from "@/components/RatingDescription"
 
 
 
@@ -117,7 +118,15 @@ export default function Home(){
                                             <span>{lastUserRating.book.author}</span>
                                         </div>
                                     </div>
-                                    <p>{lastUserRating.description}</p>
+                                    <p>
+                                    {
+                                        lastUserRating.description.split(' ').length > 40 ? (
+
+                                            lastUserRating.description.split(' ').slice(0, 40).join(' ').concat('...')
+                                        ):
+                                        lastUserRating.description
+                                    }
+                                    </p>
                                 </LastReadContent>
                             </LastReadBody>
                         </LastReadContainer>
@@ -164,7 +173,7 @@ export default function Home(){
                                         <h2>{rating.book.name}</h2>
                                         <span>{rating.book.author}</span>
                                     </span>
-                                    <p>{rating.description}</p>
+                                    <RatingDescription description={rating.description}/>
                                 </BookRatingDescription>
                             </BookRatingBody>
                         </BookRating>

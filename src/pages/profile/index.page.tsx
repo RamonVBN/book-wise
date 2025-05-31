@@ -69,11 +69,12 @@ export default function Profile(){
         
     })
 
-    const name = session.data?.user.name
+    const userEmail = session.data?.user.email
+    const userName = session.data?.user.name
     const avatarUrl = session.data?.user.avatarUrl
     const createdAt = session.data?.user.created_at
 
-    const userRatings = ratingData?.ratings.toReversed().filter((rating) => rating.user.name === name)
+    const userRatings = ratingData?.ratings.toReversed().filter((rating) => rating.user.email === userEmail)
 
     const profileRatings = userRatings ? userRatings.filter((rating) => 
         rating.book.name.toLowerCase().trim().includes(watch('RatedBook') ? watch('RatedBook').trim().toLowerCase(): '') ) : []
@@ -236,7 +237,7 @@ export default function Profile(){
                             <UserProfile>
                                 <img src={avatarUrl} alt="" />
                                 <span>
-                                    <h2>{name}</h2>
+                                    <h2>{userName}</h2>
                                     <span>membro desde {getYear(createdAt? createdAt: '')}</span>
                                 </span>
                             </UserProfile>
