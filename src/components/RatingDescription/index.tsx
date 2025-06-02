@@ -16,11 +16,25 @@ export function RatingDescription({description}: RatingDescription){
     return (
         <p>
             {
-                showMore ? (
+                showMore && (
                     description
-                ):
+                )
 
-                description.split(' ').slice(0, 40).join(' ').concat('...')
+                
+                // showMore ? (
+                //     description
+                // ):
+
+                // description.split(' ').slice(0, 40).join(' ').concat('...')
+            }
+
+            {
+                !showMore && description.split(' ').length > 40 ? (
+
+                    description.split(' ').slice(0, 40).join(' ').concat('...')
+                )
+                :
+                description
             }
             
             {

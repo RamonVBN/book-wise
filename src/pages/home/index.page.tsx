@@ -123,7 +123,8 @@ export default function Home(){
                                         lastUserRating.description.split(' ').length > 40 ? (
 
                                             lastUserRating.description.split(' ').slice(0, 40).join(' ').concat('...')
-                                        ):
+                                        )
+                                        :
                                         lastUserRating.description
                                     }
                                     </p>
