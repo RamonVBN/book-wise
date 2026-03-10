@@ -7,7 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { calcMediaRating } from "@/utils/calcMediaRating";
 import { formatCategories } from "@/utils/formatCategories";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,15 +19,15 @@ import googleLogo from '../../../../../assets/logos_google-icon.png'
 import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
 
 import { api } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
-import { BooksProps } from "@/@types/query-types";
+import { InfiniteData, useQueryClient } from "@tanstack/react-query";
+import { BooksProps, BooksResponse } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
 
 type BookDetailsProps = {
 
     closeBookDetails: () => void
-    bookName: string
+    bookId: string
 }
 
 const userRatingForm = z.object({
@@ -37,7 +37,9 @@ const userRatingForm = z.object({
 type UserRatingFormData = z.infer<typeof userRatingForm>
 
 
-export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
+export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
+
+    const queryClient = useQueryClient()
 
     const { register, handleSubmit, reset } = useForm<UserRatingFormData>()
 
@@ -144,31 +146,59 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
 
     }
 
-    const { data: booksData, refetch, isFetching } = useQuery<{ books: BooksProps[] }>({
-
-        queryKey: ['books'],
-        queryFn: async () => {
-
-            const response = await api.get('/app/books')
-
-            return response.data
-        },
-
+   function findBookById(bookId: string) {
+    const queries = queryClient.getQueriesData<InfiniteData<BooksResponse>>({
+    queryKey: ['books']
     })
 
-    const book = booksData?.books?.find((book) => book.name === bookName)
+    const book = queries
+    .flatMap(([, data]) => data?.pages ?? [])
+    .flatMap((page) => page.items)
+    .find((book) => book.id === bookId)
 
-    const bookMediaRating = book ? calcMediaRating(book?.ratings) : 6
+    return book
+  }
 
-    const userEmail = session.data?.user.email
+  const book = findBookById(bookId)
+  
+  const modalRef = useRef<HTMLDivElement>(null)
 
-    const isUserRead = book?.ratings.some((rating) => rating.user.email === userEmail)
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        closeBookDetails()
+      }
+    }
+
+    function handleEsc(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeBookDetails()
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("keydown", handleEsc)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("keydown", handleEsc)
+    }
+  }, [closeBookDetails])
+
+    // const bookMediaRating = book ? calcMediaRating(book?.ratings) : 6
+
+    // const userEmail = session.data?.user.email
+
+    // const isUserRead = book?.ratings.some((rating) => rating.user.email === userEmail)
 
     return (
         <>
             {
                 isModalOpen && (
-                    <ModalOverlay>
+                    <ModalOverlay >
                         <ModalContainer>
                             <CloseButton type="button" onClick={() => setIsModalOpen
                                 (false)
@@ -193,18 +223,18 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
             }
 
             <BookDetailsOverlay>
-                <BookDetailsContainer>
+                <BookDetailsContainer ref={modalRef}>
                     <CloseButton onClick={closeBookDetails}>
                         <X />
                     </CloseButton>
                     <BookDetailsBody>
                         <BookInfo>
                             <BookInfoBody>
-                                <img src={book?.coverUrl} alt="" />
+                                <img src={book?.thumbnail} alt="" />
                                 <div>
                                     <span>
-                                        <h2>{book?.name}</h2>
-                                        <span>{book?.author}</span>
+                                        <h2>{book?.title}</h2>
+                                        <span>{book?.authors}</span>
                                     </span>
 
 
@@ -213,7 +243,7 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
 
                                             {
 
-                                                <StarRating param={bookMediaRating} />
+                                                // <StarRating param={bookMediaRating} />
 
                                                 //    Array.from({length: 5}).map((_, i) => {
 
@@ -236,7 +266,7 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                             }
                                         </span>
                                         <span>
-                                            {book?.ratings.length} {book && book?.ratings.length === 1 ? 'avaliação' : 'avaliações'}
+                                            {/* {book?.ratings.length} {book && book?.ratings.length === 1 ? 'avaliação' : 'avaliações'} */}
                                         </span>
                                     </span>
                                 </div>
@@ -250,7 +280,7 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                         <span>
                                             {book?.categories.map((category, i) => {
                                                 return (
-                                                    formatCategories(category.category.name, i)
+                                                    formatCategories(category, i)
                                                 )
                                             })}
                                         </span>
@@ -260,7 +290,7 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                     <BookOpen />
                                     <span>
                                         <span>Páginas</span>
-                                        <span>{book?.totalPages}</span>
+                                        <span>{book?.pageCount}</span>
                                     </span>
                                 </div>
                             </BookInfoFooter>
@@ -270,11 +300,11 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                             <BookDetailsRatingsHeader>
                                 <span>Avaliações</span>
 
-                                {
+                                {/* {
                                     !isUserRead && (
                                         <button disabled={isFetching} type="button" onClick={() => handleUserRatingOpen()}>Avaliar</button>
                                     )
-                                }
+                                } */}
                             </BookDetailsRatingsHeader>
 
                             <BookDetailsRatingsBody>
@@ -325,7 +355,7 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                     )
                                 }
 
-                                {
+                                {/* {
                                     book?.ratings.toReversed().map((rating, i) => {
                                         return (
                                             <BookDetailsRating isUserRating={rating.user.email === userEmail} key={i}>
@@ -364,7 +394,7 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                             </BookDetailsRating>
                                         )
                                     })
-                                }
+                                } */}
 
                             </BookDetailsRatingsBody>
                         </BookDetailsRatingsContainer>

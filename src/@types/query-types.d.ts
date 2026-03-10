@@ -23,26 +23,22 @@ export type RatingProps = {
 
 }
 
-export type BooksProps = {
 
+export type BooksProps = {
     id: string
-    name: string
-    author: string
-    coverUrl: string
-    totalPages: number,
-    categories: Category[]
-    ratings: {
-        rate: number
-        createdAt: string
-        description: string
-        user: {
-            avatarUrl: string
-            name: string
-            email: string
-        }
-    }[]
+    title: string
+    description: string
+    authors: string[]
+    categories: string[]
+    pageCount: number
+    thumbnail: string 
 }
 
+export type BooksResponse = {
+  items: BooksProps[]
+  total: number
+}
+ 
 type Category = {
     category: {
         name: string

@@ -1,24 +1,40 @@
 import { Binoculars, MagnifyingGlass, Star, StarHalf } from "phosphor-react";
 import { ExploreBook, ExploreBooksContainer, ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton, ReadMark } from "./styles";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { PageHeader } from "@/components/pageHeader";
 import { BookDetails } from "./components/BookDetails";
 import { calcMediaRating } from "@/utils/calcMediaRating";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/axios";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
-import { AllCategories, BooksProps } from "@/@types/query-types";
+import { BooksResponse } from "@/@types/query-types";
 import { useSession } from "next-auth/react";
 import { StarRating } from "@/components/StarsRating";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useInView } from "react-intersection-observer";
+import { api } from "@/lib/axios";
 
+const categories = [
+'Fiction',
+'Fantasy',
+'Science Fiction',
+'History',
+'Philosophy',
+'Technology',
+'Business',
+'Psychology',
+'Self-Help',
+'Romance',
+'Horror',
+'Mystery'
+]
 
 const exploreFormSchema = z.object({
-    bookAuthor: z.string().min(1)
+    query: z.string()
 })
 
 type ExploreFormType = z.infer<typeof exploreFormSchema>
@@ -28,19 +44,20 @@ export default function Explore(){
 
     const session = useSession()
     
-    const [categoriesFilters, setCategoriesFilters] = useState<string[]>([])
+    const [categoriesFilters, setCategoriesFilters] = useState<string[]>(['Fiction'])
 
     const [isBookDetailsOpen, setIsBookDetailsOpen] = useState(false)
 
-    const [bookDetailsName, setBookDetailsName] = useState<string>('')
+    const [bookDetailsId, setBookDetailsId] = useState<string>('')
 
-    const {register, handleSubmit, reset, watch} = useForm<ExploreFormType>({
-        resolver: zodResolver(exploreFormSchema)
+    const { ref, inView } = useInView()
+
+    const {register, watch, setFocus} = useForm<ExploreFormType>({
+        resolver: zodResolver(exploreFormSchema),
+        defaultValues: {
+            query: ''
+        }
     })
-
-    function handleExploreSubmit(){
-        reset()
-    }
 
     function handleCategoriesFilters(categoryName: string){
 
@@ -50,15 +67,14 @@ export default function Explore(){
 
             const newFilters = categoriesFilters.toSpliced(indexToRemove, 1)
 
-            return setCategoriesFilters(newFilters)
-            
+            return setCategoriesFilters(newFilters)   
         }
 
         return setCategoriesFilters((prevState) => [...prevState, categoryName])
     }
 
-    function handleOpenBookDetails(bookName: string){
-        setBookDetailsName(bookName)
+    function handleOpenBookDetails(bookId: string){
+        setBookDetailsId(bookId)
 
         setIsBookDetailsOpen(true)
     }
@@ -67,32 +83,69 @@ export default function Explore(){
         setIsBookDetailsOpen(false)
     }
 
-    const {data: booksData, isLoading} = useQuery<{books: BooksProps[], categories: AllCategories}>({
+    const debouncedQuery = useDebounce(watch('query'), 800)
 
-        queryKey: ['books'],
-        queryFn: async () => {
+    const {
+        data: booksData, 
+        isLoading, 
+        hasNextPage, 
+        fetchNextPage, 
+        isFetchingNextPage} = useInfiniteQuery<BooksResponse>({
+        queryKey: ['books', debouncedQuery, categoriesFilters],
+        queryFn: async ({pageParam = 0}) => {
+            let subjectString: string = ''
+
+            if(categoriesFilters.length > 0){
+
+                categoriesFilters.forEach((c, i) => {
+
+                subjectString += `subject:${c}`
+
+                if (i < categoriesFilters.length - 1){
+                    subjectString += '+'
+                }
+
+                })
+            }
+
+            const q = 'intitle:' + debouncedQuery + '+' + subjectString
+
+            const response = await api.get(`/app/books?q=${q}&startIndex=${pageParam}`)
             
-            const response = await api.get('/app/books')
-
             return response.data
         },
-        
-        
-    })
+        initialPageParam: 0,
+        getNextPageParam: (lastPage, pages) => {
+            const nextIndex = pages.length * 20
 
-    const filteredBooksByInput = booksData?.books?.filter((book) => watch('bookAuthor') ? book.name.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) || book.author.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) : true)
+            if (!lastPage.items || lastPage.items.length === 0) {
+                return undefined
+            }
 
-    // const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
+            if (nextIndex >= 300) {
+                return undefined
+            }
 
-    //     return book.categories.some((bookCategory) => categoriesFilters.length > 0 ? categoriesFilters.includes(bookCategory.category.name): true)
-    // })
+            return nextIndex
+        }})
 
-    const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
-
-        return categoriesFilters.every((filteredCategory) => book.categories.some((bookCategory) => bookCategory.category.name === filteredCategory))
-    })
+    const books = useMemo(() => booksData?.pages.flatMap(page => page.items) ?? [], [booksData])
 
     const userEmail = session.data?.user.email
+
+    useEffect(() => {
+        setFocus('query')
+
+        if(categoriesFilters.length == 0){
+
+            setCategoriesFilters(['Fiction'])
+        }
+
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage()
+        }
+    
+    }, [booksData, categoriesFilters, inView, hasNextPage, fetchNextPage])
 
     return (
         <>
@@ -103,7 +156,7 @@ export default function Explore(){
         <Layout>
             {
                 isBookDetailsOpen && (
-                    <BookDetails bookName={bookDetailsName} closeBookDetails={handleCloseBookDetails} />
+                    <BookDetails bookId={bookDetailsId} closeBookDetails={handleCloseBookDetails} />
                 )
             }
             <ExploreContainer>
@@ -114,9 +167,9 @@ export default function Explore(){
                 <h1>Explorar</h1>
                 </PageHeader>
                 
-                <form onSubmit={handleSubmit(handleExploreSubmit)}>
+                <form onSubmit={(e) => e.preventDefault()}>
                     <label>
-                    <ExploreInput disabled={isLoading} {...register('bookAuthor')}  placeholder="Buscar livro ou autor" type="text" />
+                    <ExploreInput {...register('query')}  placeholder="Buscar livro ou autor" type="text" />
                     </label>
                     <ExploreFormButton>
                         <MagnifyingGlass/>
@@ -126,20 +179,19 @@ export default function Explore(){
                     {
                         !isLoading ? (
                             <>
-                                <ExploreCategoriesContainer>
-                    <ExploreCategory onClick={() => setCategoriesFilters([])} isActive={categoriesFilters.length < 1 || categoriesFilters.length === booksData?.categories.length}>Tudo</ExploreCategory>
+                            <ExploreCategoriesContainer>
                         {
-                            booksData?.categories && booksData.categories.map((category, i) => {
+                            categories.map((category, i) => {
 
                                 return (
-                                    <ExploreCategory isActive={categoriesFilters.includes(category.name)} onClick={() => handleCategoriesFilters(category.name)} key={i} >{category.name}</ExploreCategory>
+                                    <ExploreCategory isActive={categoriesFilters.includes(category)} onClick={() => handleCategoriesFilters(category)} key={i} >{category}</ExploreCategory>
                                 )
                             })
                         }
                     </ExploreCategoriesContainer>
 
                     <ExploreBooksContainer>
-                        {
+                        {/* {
                             filteredBooksByCategoriesAndInput && filteredBooksByCategoriesAndInput.map((book, i) => {
 
                                 const isUserRead = book.ratings.find((rating) => rating.user.email === userEmail )
@@ -165,32 +217,48 @@ export default function Explore(){
                                             {
                                                 <StarRating param={bookMediaRating}/>
 
-                                            //     Array.from({length: 5}).map((_, i) => {
-                                                
-                                            //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
-                                            //         return (
-                                            //             <StarHalf key={i} weight="fill"/>  
-                                            //         )
-                                            //     }
-                                                
-                                            //     if (i + 1 > bookMediaRating) {
-
-                                                    
-                                            //         return (
-                                            //             <Star key={i}/>
-                                            //         )
-                                            //     }
-
-                                            //     return <Star key={i} weight="fill"/>
-                                            // })
-
                                             }
                                         </span>
                                     </div>
                                 </ExploreBook>
                                 )
                             })
+                        } */}
+
+                        {
+                            books.map((book, i) => (
+                                <ExploreBook onClick={() => handleOpenBookDetails(book.id)} key={i}>
+                                  
+                                    <img src={book.thumbnail} alt="" />
+                                    <div>
+                                        <span>
+                                            <h2>{book.title}</h2>
+                                            <span>{
+                                                book.authors && book.authors.length > 1 ? book.authors.map((name, i) => {
+                                                    if (i < book.authors.length - 1){
+                                                        return name + ', '
+                                                    } else {
+                                                        return name
+                                                    }
+                                                }) : book.authors
+                                            }</span>
+                                        </span>
+
+                                         <span>
+                                        
+                                            {
+                                                <StarRating param={5}/>
+                                            }
+                                        </span>
+                                       
+                                    </div>
+                                </ExploreBook>)) 
+                            
                         }
+
+                        <div ref={ref}>
+                            {isFetchingNextPage && <p>Carregando...</p>}
+                        </div>
                         
                     </ExploreBooksContainer>
                     </>

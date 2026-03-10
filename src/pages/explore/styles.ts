@@ -219,7 +219,11 @@ export const ExploreBook = styled('button', {
                 fontSize: '1rem',
                 fontWeight: '$bold',
                 lineHeight: '$short',
-                color: '$gray100'
+                color: '$gray100',
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden"
             },
 
             span: {

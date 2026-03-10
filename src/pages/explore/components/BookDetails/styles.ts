@@ -97,7 +97,11 @@ export const BookInfoBody= styled('div', {
                 fontWeight: '$bold',
                 fontSize: '1.125rem',
                 lineHeight: '$short',
-                color: '$gray100'
+                color: '$gray100',
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden"
             },
 
             span: {
