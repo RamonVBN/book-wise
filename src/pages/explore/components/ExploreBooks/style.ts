@@ -17,7 +17,6 @@ export const ExploreBooksContainer = styled('div', {
 
     },
 
-    
     // '@media(max-width: 900px)': {
     //     gridTemplateColumns: 'repeat(1, 1fr)',
 
@@ -118,6 +117,5 @@ export const ReadMark = styled('span', {
     fontWeight: '$bold',
     
     borderRadius: '0px 4px 0px 4px'
-
 
 })

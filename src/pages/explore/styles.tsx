@@ -1,6 +1,5 @@
 import { styled } from "@/pages/globalStyles";
 
-
 export const ExploreContainer = styled('div', {
     
     display: 'flex',
@@ -9,10 +8,9 @@ export const ExploreContainer = styled('div', {
 
     overflowY: 'scroll',
     scrollbarWidth: 'none',
-
     
-
     borderBottom: '1px solid $gray600',
+    paddingBottom: '1.25rem',
 
     '@media(max-width: 900px)': {
         paddingInline: '2rem'

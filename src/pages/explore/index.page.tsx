@@ -1,7 +1,7 @@
 import { Binoculars, MagnifyingGlass, Star, StarHalf } from "phosphor-react";
 
-import {ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles'
-import { useCallback, useEffect, useMemo, useState } from "react";
+import  {ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles.tsx'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,6 +21,9 @@ import { api } from "@/lib/axios";
 import Image from "next/image";
 import { ExploreBooksContainer } from "./components/ExploreBooks/style";
 import BookCard from "./components/ExploreBooks";
+import LoadingSpinner from "./components/LoadingSpinner.tsx";
+import BackToTop from "./components/BackToTopButton.tsx";
+
 
 const categories = [
 'Fiction',
@@ -37,12 +40,23 @@ const categories = [
 'Mystery',
 ]
 
+// Em caso de exceder o limite de requisições do Goggle Books API.
+
+const fakeData = Array.from({ length: 57 }, (_, i) => ({
+  id: `book-${i + 1}`,
+  title: `Book Title ${i + 1}`,
+  description: `This is a brief description for Book Title ${i + 1}. It covers interesting topics and insights to engage the reader.`,
+  authors: [`Author ${i % 10 + 1}`, `Co-author ${i % 5 + 1}`],
+  categories: [`Category ${i % 8 + 1}`, `Category ${i % 6 + 1}`],
+  pageCount: Math.floor(Math.random() * 400) + 50, // páginas entre 50 e 450
+  thumbnail: ''
+}))
+
 const exploreFormSchema = z.object({
     query: z.string()
 })
 
 type ExploreFormType = z.infer<typeof exploreFormSchema>
-
 
 export default function Explore(){
 
@@ -53,6 +67,10 @@ export default function Explore(){
     const [isBookDetailsOpen, setIsBookDetailsOpen] = useState(false)
 
     const [bookDetailsId, setBookDetailsId] = useState<string>('')
+
+    const exploreContainerRef = useRef<HTMLDivElement | null>(null)
+
+    const [isBackToTopButtonVisible, setIsBackToTopButtonVisible] = useState(true)
 
     const { ref, inView } = useInView({
         rootMargin: '300px'
@@ -124,6 +142,11 @@ export default function Explore(){
             return nextIndex
         }})
 
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+            const scrollTop = e.currentTarget.scrollTop
+            setIsBackToTopButtonVisible(scrollTop > 300)
+        }      
+
     const books = useMemo(() => booksData?.pages.flatMap(page => page.items) ?? [], [booksData])
 
     const userEmail = session.data?.user.email
@@ -147,6 +170,10 @@ export default function Explore(){
 
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
+    const scrollToTop = () => {
+        exploreContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
     return (
         <>
         <NextSeo
@@ -159,7 +186,7 @@ export default function Explore(){
                     <BookDetails bookId={bookDetailsId} closeBookDetails={handleCloseBookDetails} />
                 )
             }
-            <ExploreContainer>
+            <ExploreContainer onScroll={handleScroll} ref={exploreContainerRef}>
             <ExploreHeader>
 
                 <PageHeader>
@@ -180,17 +207,17 @@ export default function Explore(){
                         !isLoading ? (
                             <>
                             <ExploreCategoriesContainer>
-                        {
-                            categories.map((category, i) => {
+                            {
+                                categories.map((category, i) => {
 
                                 return (
                                     <ExploreCategory isActive={categoriesFilters.includes(category)} onClick={() => handleCategoriesFilters(category)} key={i} >{category}</ExploreCategory>
                                 )
-                            })
-                        }
-                    </ExploreCategoriesContainer>
+                                })
+                            }   
+                            </ExploreCategoriesContainer>
 
-                    <ExploreBooksContainer>
+                             <ExploreBooksContainer>
                         {/* {
                             filteredBooksByCategoriesAndInput && filteredBooksByCategoriesAndInput.map((book, i) => {
 
@@ -226,18 +253,28 @@ export default function Explore(){
                         } */}
 
                         {
-                            books.map((book) => (
+                            fakeData.map((book) => (
 
                                 <BookCard key={book.id} book={book} handleOpenBookDetails={handleOpenBookDetails}/>
                             )) 
                             
                         }
+                        
+                        {
+                            isBackToTopButtonVisible && (
+                                <BackToTop onClick={scrollToTop}/>
+                            )
+                        }
 
-                        <div ref={ref}>
-                            {isFetchingNextPage && <p>Carregando...</p>}
-                        </div>
+                        <div ref={ref}/>
                         
                     </ExploreBooksContainer>
+
+                    {
+                        isFetchingNextPage && (
+                            <LoadingSpinner/>
+                        )
+                    }
                     </>
                         ) : (<Fallback/>)
                     }
