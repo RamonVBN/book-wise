@@ -1,6 +1,7 @@
 import { Binoculars, MagnifyingGlass, Star, StarHalf } from "phosphor-react";
-import { ExploreBook, ExploreBooksContainer, ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton, ReadMark } from "./styles";
-import { useEffect, useMemo, useState } from "react";
+
+import {ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles'
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,6 +18,9 @@ import { Fallback } from "@/components/Fallback";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useInView } from "react-intersection-observer";
 import { api } from "@/lib/axios";
+import Image from "next/image";
+import { ExploreBooksContainer } from "./components/ExploreBooks/style";
+import BookCard from "./components/ExploreBooks";
 
 const categories = [
 'Fiction',
@@ -30,7 +34,7 @@ const categories = [
 'Self-Help',
 'Romance',
 'Horror',
-'Mystery'
+'Mystery',
 ]
 
 const exploreFormSchema = z.object({
@@ -50,7 +54,9 @@ export default function Explore(){
 
     const [bookDetailsId, setBookDetailsId] = useState<string>('')
 
-    const { ref, inView } = useInView()
+    const { ref, inView } = useInView({
+        rootMargin: '300px'
+    })
 
     const {register, watch, setFocus} = useForm<ExploreFormType>({
         resolver: zodResolver(exploreFormSchema),
@@ -73,11 +79,10 @@ export default function Explore(){
         return setCategoriesFilters((prevState) => [...prevState, categoryName])
     }
 
-    function handleOpenBookDetails(bookId: string){
+    const handleOpenBookDetails = useCallback((bookId: string) => {
         setBookDetailsId(bookId)
-
         setIsBookDetailsOpen(true)
-    }
+    }, [])
 
     function handleCloseBookDetails(){
         setIsBookDetailsOpen(false)
@@ -91,30 +96,20 @@ export default function Explore(){
         hasNextPage, 
         fetchNextPage, 
         isFetchingNextPage} = useInfiniteQuery<BooksResponse>({
-        queryKey: ['books', debouncedQuery, categoriesFilters],
+        queryKey: ['books', debouncedQuery, categoriesFilters.join(',')],
         queryFn: async ({pageParam = 0}) => {
-            let subjectString: string = ''
 
-            if(categoriesFilters.length > 0){
+            const subjectString = categoriesFilters.map(c => `subject:${c}`).join('+')
 
-                categoriesFilters.forEach((c, i) => {
-
-                subjectString += `subject:${c}`
-
-                if (i < categoriesFilters.length - 1){
-                    subjectString += '+'
-                }
-
-                })
-            }
-
-            const q = 'intitle:' + debouncedQuery + '+' + subjectString
+            const q = debouncedQuery.length > 0 ? encodeURIComponent(`intitle:"${debouncedQuery}"` )
+            : encodeURIComponent(subjectString)
 
             const response = await api.get(`/app/books?q=${q}&startIndex=${pageParam}`)
             
             return response.data
         },
         initialPageParam: 0,
+        refetchOnWindowFocus: false,
         getNextPageParam: (lastPage, pages) => {
             const nextIndex = pages.length * 20
 
@@ -135,17 +130,22 @@ export default function Explore(){
 
     useEffect(() => {
         setFocus('query')
+    }, [setFocus])
 
-        if(categoriesFilters.length == 0){
-
+    useEffect(() => {
+        if (categoriesFilters.length === 0) {
             setCategoriesFilters(['Fiction'])
         }
+    }, [categoriesFilters])
 
-        if (inView && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage()
-        }
-    
-    }, [booksData, categoriesFilters, inView, hasNextPage, fetchNextPage])
+    useEffect(() => {
+        if (!inView) return
+        if (!hasNextPage) return
+        if (isFetchingNextPage) return
+
+        fetchNextPage()
+
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
     return (
         <>
@@ -226,33 +226,10 @@ export default function Explore(){
                         } */}
 
                         {
-                            books.map((book, i) => (
-                                <ExploreBook onClick={() => handleOpenBookDetails(book.id)} key={i}>
-                                  
-                                    <img src={book.thumbnail} alt="" />
-                                    <div>
-                                        <span>
-                                            <h2>{book.title}</h2>
-                                            <span>{
-                                                book.authors && book.authors.length > 1 ? book.authors.map((name, i) => {
-                                                    if (i < book.authors.length - 1){
-                                                        return name + ', '
-                                                    } else {
-                                                        return name
-                                                    }
-                                                }) : book.authors
-                                            }</span>
-                                        </span>
+                            books.map((book) => (
 
-                                         <span>
-                                        
-                                            {
-                                                <StarRating param={5}/>
-                                            }
-                                        </span>
-                                       
-                                    </div>
-                                </ExploreBook>)) 
+                                <BookCard key={book.id} book={book} handleOpenBookDetails={handleOpenBookDetails}/>
+                            )) 
                             
                         }
 
@@ -264,9 +241,6 @@ export default function Explore(){
                     </>
                         ) : (<Fallback/>)
                     }
-
-                    
-                    
             </ExploreContainer>
         </Layout>
         </>

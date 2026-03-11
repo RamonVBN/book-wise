@@ -24,7 +24,7 @@ export type RatingProps = {
 }
 
 
-export type BooksProps = {
+export type BookProps = {
     id: string
     title: string
     description: string
@@ -35,7 +35,7 @@ export type BooksProps = {
 }
 
 export type BooksResponse = {
-  items: BooksProps[]
+  items: BookProps[]
   total: number
 }
  

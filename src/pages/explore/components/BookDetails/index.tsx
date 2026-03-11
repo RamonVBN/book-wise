@@ -87,7 +87,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
         reset()
         setIsUserRatingOpen(false)
         setDefinedRate(null)
-        refetch()
+        // refetch()
     }
 
     function handleDefineRate(index: number) {
@@ -236,11 +236,8 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                         <h2>{book?.title}</h2>
                                         <span>{book?.authors}</span>
                                     </span>
-
-
                                     <span>
                                         <span>
-
                                             {
 
                                                 // <StarRating param={bookMediaRating} />

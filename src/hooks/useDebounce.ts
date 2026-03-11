@@ -5,7 +5,7 @@ export function useDebounce(value: string, delay: number) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedValue(value.trim().replace(' ', '+'))
+      setDebouncedValue(`${value.trim().replace(' ', '+')}`)
     }, delay)
 
     return () => clearTimeout(timer)
