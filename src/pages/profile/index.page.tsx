@@ -75,16 +75,28 @@ export default function Profile(){
         }, 0)
     }, [ratings])
 
-    const userTotalAuthors = useMemo(() => {
+    const userTotalAuthorsList = useMemo(() => {
 
         return ratings.map((rating) => {
-        
-            return rating.book.author.split(',').length
+            
+            const authorsList = rating.book.author.split(',')
+            
+            return authorsList
 
-        }).reduce((acc: number, current): number => {
-        
-            return acc + current
-        }, 0)
+        }).reduce((acc: string[], current): string[] => {
+            
+            current.map((author) => {
+
+                if(acc.includes(author)) {
+                    return
+                } else {
+                    acc.push(author)
+                }  
+            })
+
+            return acc
+
+        }, [])
 
     }, [ratings])
 
@@ -235,7 +247,7 @@ export default function Profile(){
                                 <UserStats>
                                 <UserList/>
                                     <span>
-                                        <h3>{userTotalAuthors}</h3>
+                                        <h3>{userTotalAuthorsList.length}</h3>
                                         <span>Autores lidos</span>
                                     </span>
                                 </UserStats>

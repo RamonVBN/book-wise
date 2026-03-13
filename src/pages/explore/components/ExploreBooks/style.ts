@@ -16,12 +16,6 @@ export const ExploreBooksContainer = styled('div', {
         gridTemplateColumns: 'repeat(2, 1fr)',
 
     },
-
-    // '@media(max-width: 900px)': {
-    //     gridTemplateColumns: 'repeat(1, 1fr)',
-
-    // }
-
 })
 
 export const ExploreBook = styled('button', {
@@ -40,7 +34,6 @@ export const ExploreBook = styled('button', {
     borderRadius: '8px',
     backgroundColor: '$gray700',
 
-    // maxWidth: '19.9375rem',
     height: '11.5rem',
 
     '&:hover': {
@@ -49,8 +42,8 @@ export const ExploreBook = styled('button', {
 
     img: {
         borderRadius: '0.25rem',
-        height: '100%',
-        width: '6.75rem',
+        height: 'auto',
+        width: 'auto',
     },
 
     div: {
@@ -58,8 +51,6 @@ export const ExploreBook = styled('button', {
         display:'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-
-        height: '100%',
 
         'span:first-child': {
 
@@ -78,7 +69,11 @@ export const ExploreBook = styled('button', {
                 fontSize: '0.875rem',
                 fontWeight: '$regular',
                 lineHeight: '$base',
-                color: '$gray400'
+                color: '$gray400',
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden"
             }
         },
 

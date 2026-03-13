@@ -18,7 +18,6 @@ import { Fallback } from "@/components/Fallback";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useInView } from "react-intersection-observer";
 import { api } from "@/lib/axios";
-import Image from "next/image";
 import { ExploreBooksContainer } from "./components/ExploreBooks/style";
 import BookCard from "./components/ExploreBooks";
 import LoadingSpinner from "./components/LoadingSpinner.tsx";
@@ -42,15 +41,15 @@ const categories = [
 
 // Em caso de exceder o limite de requisições do Goggle Books API.
 
-const fakeData = Array.from({ length: 57 }, (_, i) => ({
-  id: `book-${i + 1}`,
-  title: `Book Title ${i + 1}`,
-  description: `This is a brief description for Book Title ${i + 1}. It covers interesting topics and insights to engage the reader.`,
-  authors: [`Author ${i % 10 + 1}`, `Co-author ${i % 5 + 1}`],
-  categories: [`Category ${i % 8 + 1}`, `Category ${i % 6 + 1}`],
-  pageCount: Math.floor(Math.random() * 400) + 50, // páginas entre 50 e 450
-  thumbnail: ''
-}))
+// const fakeData = Array.from({ length: 57 }, (_, i) => ({
+//   id: `book-${i + 1}`,
+//   title: `Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} v Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1}`,
+//   description: `This is a brief description for Book Title ${i + 1}. It covers interesting topics and insights to engage the reader.`,
+//   authors: [`Author ${i % 10 + 1}`, `Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}`],
+//   categories: [`Category ${i % 8 + 1}`, `Category ${i % 6 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} ,  Co-author ${i % 5 + 1} ,`],
+//   pageCount: Math.floor(Math.random() * 400) + 50, // páginas entre 50 e 450
+//   thumbnail: ''
+// }))
 
 const exploreFormSchema = z.object({
     query: z.string()
@@ -70,7 +69,7 @@ export default function Explore(){
 
     const exploreContainerRef = useRef<HTMLDivElement | null>(null)
 
-    const [isBackToTopButtonVisible, setIsBackToTopButtonVisible] = useState(true)
+    const [isBackToTopButtonVisible, setIsBackToTopButtonVisible] = useState(false)
 
     const { ref, inView } = useInView({
         rootMargin: '300px'
@@ -119,7 +118,7 @@ export default function Explore(){
 
             const subjectString = categoriesFilters.map(c => `subject:${c}`).join('+')
 
-            const q = debouncedQuery.length > 0 ? encodeURIComponent(`intitle:"${debouncedQuery}"` )
+            const q = debouncedQuery.length > 0 ? encodeURIComponent(`intitle:"${debouncedQuery}+${subjectString}"` )
             : encodeURIComponent(subjectString)
 
             const response = await api.get(`/app/books?q=${q}&startIndex=${pageParam}`)
@@ -156,10 +155,10 @@ export default function Explore(){
     }, [setFocus])
 
     useEffect(() => {
-        if (categoriesFilters.length === 0) {
+        if (categoriesFilters.length === 0  && (watch('query').trim().length === 0 ) ) {
             setCategoriesFilters(['Fiction'])
         }
-    }, [categoriesFilters])
+    }, [categoriesFilters, watch('query')])
 
     useEffect(() => {
         if (!inView) return
@@ -218,40 +217,6 @@ export default function Explore(){
                             </ExploreCategoriesContainer>
 
                              <ExploreBooksContainer>
-                        {/* {
-                            filteredBooksByCategoriesAndInput && filteredBooksByCategoriesAndInput.map((book, i) => {
-
-                                const isUserRead = book.ratings.find((rating) => rating.user.email === userEmail )
-
-                                const bookMediaRating = calcMediaRating(book.ratings)
-
-                                return (
-                                <ExploreBook onClick={() => handleOpenBookDetails(book.name)} key={i}>
-                                    {
-                                        isUserRead && (
-                                            <ReadMark>LIDO</ReadMark>
-                                        )
-                                    }
-                                    <img src={book.coverUrl} alt="" />
-                                    <div>
-                                        <span>
-                                            <h2>{book.name}</h2>
-                                            <span>{book.author}</span>
-                                        </span>
-
-                                        <span>
-                                        
-                                            {
-                                                <StarRating param={bookMediaRating}/>
-
-                                            }
-                                        </span>
-                                    </div>
-                                </ExploreBook>
-                                )
-                            })
-                        } */}
-
                         {
                             books.map((book) => (
 
@@ -259,7 +224,6 @@ export default function Explore(){
                             )) 
                             
                         }
-                        
                         {
                             isBackToTopButtonVisible && (
                                 <BackToTop onClick={scrollToTop}/>

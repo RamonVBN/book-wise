@@ -1,10 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { z } from 'zod'
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { q, startIndex = 0 } = req.query
+
+  const querySchema = z.object({
+    q: z.string(),
+    startIndex: z.string().refine((startIndex) => !Number.isNaN(startIndex))
+  })
+
+  const { q, startIndex = 0 } = querySchema.parse(req.query)
   
   const response = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=${q}&langRestrict=pt&orderBy=relevance&startIndex=${startIndex}&maxResults=20&key=${process.env.GOOGLE_BOOKS_API_KEY}`
