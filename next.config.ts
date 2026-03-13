@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   pageExtensions: ['page.tsx', 'api.ts'],
 
   images: {
-    domains: ["books.google.com"],
+    domains: ["books.google.com", "lh3.googleusercontent.com"],
   },
   
 };

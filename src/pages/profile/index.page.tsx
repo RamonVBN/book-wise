@@ -17,6 +17,7 @@ import { StarRating } from "@/components/StarsRating"
 import { NextSeo } from "next-seo"
 import { useRouter } from "next/router"
 import { Fallback } from "@/components/Fallback"
+import Image from "next/image"
 
 const profileFormSchema = z.object({
     RatedBook: z.string().min(1)
@@ -177,7 +178,7 @@ export default function Profile(){
                                     </RatedBookTime>
                                 <RatedBook>
                                     <RatedBookInfo>
-                                        <img src={rating.book.coverUrl} alt="" />
+                                        <Image width={98} height={134} src={rating.book.coverUrl} alt="" />
                                         <div>
                                             <span>
                                             <h2>{rating.book.title}</h2>
@@ -185,11 +186,7 @@ export default function Profile(){
                                             </span>
                                             
                                             <span>
-                                            {
-
                                                 <StarRating param={rating.rate}/>
-
-                                            }
                                             </span>
                                         </div>
                                     </RatedBookInfo>
@@ -204,7 +201,12 @@ export default function Profile(){
 
                 <UserContainer>
                             <UserProfile>
-                                <img src={avatarUrl} alt="" />
+
+                                {avatarUrl && (
+                                    <Image width={72} height={72} src={avatarUrl} alt="" />
+                                )
+                                }
+
                                 <span>
                                     <h2>{userName}</h2>
                                     <span>membro desde {getYear(createdAt ? createdAt: '')}</span>

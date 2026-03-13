@@ -352,14 +352,13 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                         </UserRatingContainer>
                                     )
                                 }
-
                                 {
                                     bookRatings && bookRatings.toReversed().map((rating, i) => {
                                         return (
                                             <BookDetailsRating isUserRating={rating.user.email === userEmail} key={i}>
                                                 <div>
                                                     <div>
-                                                        <img src={rating.user.avatarUrl} alt="" />
+                                                        <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />
                                                         <span>
                                                             <h3>{rating.user.name}</h3>
                                                             <span>{capitalize(formatDistanceToNow(rating.createdAt, { addSuffix: true, locale: ptBR }))}</span>
@@ -367,24 +366,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                                     </div>
 
                                                     <span>
-
-                                                        {
-                                                            <StarRating param={rating.rate} />
-                                                            // Array.from({length: 5}).map((_, i) => {
-
-                                                            //     if (i + 1 > rating.rate) {
-
-                                                            //     return (
-                                                            //     <Star key={i}/>
-                                                            //     )
-                                                            //     }
-
-                                                            //     return (
-                                                            //         <Star key={i} weight="fill"/>
-                                                            //     )
-                                                            // })
-                                                        }
-
+                                                        <StarRating param={rating.rate} />
                                                     </span>
                                                 </div>
 
@@ -393,7 +375,6 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                         )
                                     })
                                 }
-
                             </BookDetailsRatingsBody>
                         </BookDetailsRatingsContainer>
                     </BookDetailsBody>

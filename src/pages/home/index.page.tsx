@@ -17,6 +17,7 @@ import { StarRating } from "@/components/StarsRating"
 import { NextSeo } from "next-seo"
 import { Fallback } from "@/components/Fallback"
 import { RatingDescription } from "@/components/RatingDescription"
+import Image from "next/image"
 
 export default function Home(){
 
@@ -65,7 +66,7 @@ export default function Home(){
                                 </LinkButton>
                             </LastReadHeader>
                             <LastReadBody prefetch href={'/profile'} >
-                                <img src={homeData.lastUserReading.book.coverUrl} alt="" />
+                                <Image width={108} height={152} src={homeData.lastUserReading.book.coverUrl} alt="" />
                                 <LastReadContent>
                                     <div>
                                         <div>
@@ -106,7 +107,7 @@ export default function Home(){
                         <BookRating key={rating.id}>
                                 <BookRatingUserContainer>
                                     <BookRatingUser>
-                                        <img src={rating.user.avatarUrl} alt="" />
+                                        <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />
                                         <span>
                                             <span>{rating.user.name}</span>
                                             <span>{capitalize(formatDistanceToNow(rating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
@@ -117,7 +118,7 @@ export default function Home(){
                                     </Rating>
                                 </BookRatingUserContainer>
                             <BookRatingBody>
-                                <img src={rating.book.coverUrl} alt="" />
+                                <Image width={108} height={152} src={rating.book.coverUrl} alt="" />
                                 <BookRatingDescription>
                                     <span>
                                         <h2>{rating.book.title}</h2>
@@ -153,7 +154,7 @@ export default function Home(){
 
                                 return (
                                     <PopBook key={book.id}>
-                                    <img src={book.coverUrl} alt="" />
+                                    <Image width={64} height={94} src={book.coverUrl} alt="" />
                                     <PopBookDescription>
                                         <span>
                                             <h2>{formatBookName(book.title)}</h2>

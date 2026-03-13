@@ -2,10 +2,10 @@ import Image from "next/image";
 import { ExploreBook, ReadMark } from "./style";
 import React from "react";
 import { StarRating } from "@/components/StarsRating";
-import { BookProps } from "@/@types/query-types";
+import { GoogleBookProps } from "@/@types/query-types";
 
 const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} : 
-    {book: BookProps, 
+    {book: GoogleBookProps, 
     handleOpenBookDetails: (bookId: string) => void
     }){
     return (
