@@ -10,12 +10,9 @@ export default async function handler(
     `https://www.googleapis.com/books/v1/volumes?q=${q}&langRestrict=pt&orderBy=relevance&startIndex=${startIndex}&maxResults=20&key=${process.env.GOOGLE_BOOKS_API_KEY}`
   )
 
-  try {
-    const data = await response.json()
+  const data = await response.json()
 
-    console.log(data)
-
-    const books = (data.items ?? [])
+  const books = (data.items ?? [])
     ?.filter((book: any) =>  book.volumeInfo && book.volumeInfo.imageLinks?.thumbnail && book.volumeInfo.pageCount > 0 )
     .map((book: any) => ({
       id: book.id,
@@ -31,9 +28,5 @@ export default async function handler(
     items: books,
     total: data.totalItems
   })
-  } catch (error) {
-    throw error
-  }
-
  
 }

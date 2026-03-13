@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { ProfileButton,  ProfileMainContainer, ProfileForm, ProfileInput, UserSeparator, UserStats, UserStatsContainer,  RatedBook, RatedBookInfo, RatedBooksContainer, RatedBookTime, UserContainer, UserProfile, Container, ProfileContainer } from "./styles"
@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/axios"
 import { useSession } from "next-auth/react"
 import Layout from "@/components/Layout"
-import { BooksProps, RatingProps } from "@/@types/query-types"
+import { BookProps, RatingProps } from "@/@types/query-types"
 import { formatCategories } from "@/utils/formatCategories"
 import { StarRating } from "@/components/StarsRating"
 import { NextSeo } from "next-seo"
@@ -43,118 +43,103 @@ export default function Profile(){
         setFocus('RatedBook')
     }
 
-    async function handlePossibleRedirectForConsistency(){
+    async function handlePossibleRedirect(){
         await router.push('/')
     }
 
-    const {data: ratingData, isLoading: isLoadingRatings} = useQuery<{ratings: RatingProps[]}>({
+    const userId = session.data?.user.id
+    const userName = session.data?.user.name
+    const avatarUrl = session.data?.user.avatarUrl
+    const createdAt = session.data?.user.createdAt
+
+    const {data: ratingData, isLoading: isLoadingRatings} = useQuery<RatingProps[]>({
         queryKey: ['ratings'],
         queryFn: async () => {
 
-           const response = await api.get('/app/users/ratings')
+           const response = await api.get(`/app/users/ratings?userId=${userId}`)
 
            return response.data
-        }
-    })
-
-    const {data: booksData, isLoading: isLoadingBooks} = useQuery<{books: BooksProps[]}>({
-
-        queryKey: ['books'],
-        queryFn: async () => {
-
-            const response = await api.get('/app/books')
-
-            return response.data
         },
-        
+        enabled: !!userId
     })
 
-    const userEmail = session.data?.user.email
-    const userName = session.data?.user.name
-    const avatarUrl = session.data?.user.avatarUrl
-    const createdAt = session.data?.user.created_at
+    const ratings = Array.isArray(ratingData) ? ratingData : []
 
-    const userRatings = ratingData?.ratings.toReversed().filter((rating) => rating.user.email === userEmail)
-
-    const profileRatings = userRatings ? userRatings.filter((rating) => 
-        rating.book.name.toLowerCase().trim().includes(watch('RatedBook') ? watch('RatedBook').trim().toLowerCase(): '') ) : []
-
-    const userRatedBooks = booksData?.books.filter((book) => {
-        
-        return userRatings?.some((rating) => rating.book.name === book.name)
-    })
+    const ratingsByInput = ratings.filter((rating) => 
+        rating.book.title.toLowerCase().trim().includes(watch('RatedBook') ? watch('RatedBook').trim().toLowerCase() : '')) 
     
-    const userTotalPages = userRatedBooks?.reduce((acc, current) => {
-        return acc += current.totalPages
-    }, 0)
+    const userTotalPages = useMemo(() => {
+        return ratings.reduce((acc, current) => {
+            return acc + current.book.pageCount
+        }, 0)
+    }, [ratings])
 
-    const userTotalAuthors = userRatedBooks?.map((ratedBook) => {
+    const userTotalAuthors = useMemo(() => {
+
+        return ratings.map((rating) => {
         
-        return ratedBook.author
+            return rating.book.author.split(',').length
 
-    }).reduce((acc: string[], current): string[] => {
+        }).reduce((acc: number, current): number => {
+        
+            return acc + current
+        }, 0)
 
-        if (acc.includes(current)) {
+    }, [ratings])
+
+    const mostReadCategories = useMemo(() => {
+        return ratings.reduce((acc: MostReadCategory[], current): MostReadCategory[] => {
+
+            current.book.categories.split(',').map((category) => {
+
+                if (acc.some((item) => item.categoryName === category)) {
+                    
+                    const index = acc.findIndex((item) => item.categoryName === category)
+                    
+                    acc[index].count += 1
+
+                } else {
+
+                    acc.push({
+                        categoryName: category,
+                        count: 1
+                    })
+                }
+            })
 
             return acc
-        }
-        
-        acc.push(current)
-        return acc
-    }, [])
-
-    const MostReadCategories = userRatedBooks?.reduce((acc: MostReadCategory[], current): MostReadCategory[] => {
-
-        current.categories.map((category) => {
-
-            if (acc.some((item) => item.categoryName === category.category.name)) {
-                
-                const index = acc.findIndex((item) => item.categoryName === category.category.name)
-                
-                acc[index].count += 1
-
-            }else {
-
-                acc.push({
-                    categoryName: category.category.name,
-                    count: 1
-                })
-            }
-        })
-
-        return acc
-        
-    }, []).reduce((acc:MostReadCategory[], current, index): MostReadCategory[] => {
-
-        if (index !== 0) {
             
-            if (acc.every((category) => category.count < current.count)) {
-                
-                acc = []
-                
-                acc.push(current)
+            }, []).reduce((acc: MostReadCategory[], current, index): MostReadCategory[] => {
 
-            }else if (acc.every((category) => category.count === current.count)) {
+            if (index !== 0) {
                 
-                acc.push(current)
+                if (acc.every((category) => category.count < current.count)) {
+                    
+                    acc = []
+                    
+                    acc.push(current)
 
+                }else if (acc.every((category) => category.count === current.count)) {
+                    
+                    acc.push(current)
+
+                }
+
+                
+            } else {
+
+                acc.push(current)
             }
 
-            
-        } else {
 
-            acc.push(current)
-        }
+            return acc
 
-
-        return acc
-
-    }, [])
-
+        }, [])
+    }, [ratings])
 
     if (session.status === 'unauthenticated') {
         
-        handlePossibleRedirectForConsistency()
+        handlePossibleRedirect()
     }
 
     return(
@@ -166,9 +151,9 @@ export default function Profile(){
     <Layout>
         <Container>
                {
-                !isLoadingBooks || !isLoadingRatings? (
+                isLoadingRatings ? (<Fallback/>) : (
                     <>
-                         <PageHeader>
+                    <PageHeader>
                     <User/>
                     <h1>Perfil</h1>
                 </PageHeader>
@@ -183,52 +168,36 @@ export default function Profile(){
                 </ProfileButton>
                 </ProfileForm>
             
-                <RatedBooksContainer>
-                    
+                <RatedBooksContainer>                  
                     {
-                        profileRatings && profileRatings.map((profileRating, i) => {
+                        ratingsByInput.map((rating) => (
 
-                            return (
-                                <div key={i}>
-                                <RatedBookTime>{capitalize(formatDistanceToNow(profileRating.createdAt, {addSuffix: true, locale: ptBR}))}
+                            <div key={rating.id}>
+                                <RatedBookTime>{capitalize(formatDistanceToNow(rating.createdAt, {addSuffix: true, locale: ptBR}))}
                                     </RatedBookTime>
                                 <RatedBook>
                                     <RatedBookInfo>
-                                        <img src={profileRating.book.coverUrl} alt="" />
+                                        <img src={rating.book.coverUrl} alt="" />
                                         <div>
                                             <span>
-                                            <h2>{profileRating.book.name}</h2>
-                                            <span>{profileRating.book.author}</span>
+                                            <h2>{rating.book.title}</h2>
+                                            <span>{rating.book.author}</span>
                                             </span>
                                             
                                             <span>
                                             {
 
-                                                <StarRating param={profileRating.rate}/>
+                                                <StarRating param={rating.rate}/>
 
-                                                // Array.from({length: 5}).map((_,i) => {
-                                                    
-                                                //     if (i + 1 > profileRating.rate) {
-                                                        
-                                                //         return (
-                                                //         <Star key={i} />
-                                                //     )
-                                                //     }
-                    
-                                                //     return (
-                                                //         <Star key={i} weight="fill"/>
-                                                //     )
-                                                // })
                                             }
                                             </span>
                                         </div>
                                     </RatedBookInfo>
                     
-                                    <p>{profileRating.book.summary}</p>
+                                    <p>{rating.review}</p>
                                 </RatedBook>
                                 </div> 
-                            )
-                        })
+                        ))
                     }
                 </RatedBooksContainer>
                 </ProfileMainContainer>
@@ -238,7 +207,7 @@ export default function Profile(){
                                 <img src={avatarUrl} alt="" />
                                 <span>
                                     <h2>{userName}</h2>
-                                    <span>membro desde {getYear(createdAt? createdAt: '')}</span>
+                                    <span>membro desde {getYear(createdAt ? createdAt: '')}</span>
                                 </span>
                             </UserProfile>
 
@@ -256,7 +225,7 @@ export default function Profile(){
                                 <UserStats>
                                     <Books />
                                     <span>
-                                        <h3>{userRatedBooks?.length}</h3>
+                                        <h3>{ratingData?.length}</h3>
                                         <span>Livros avaliados</span>
                                     </span>
                                 </UserStats>
@@ -264,7 +233,7 @@ export default function Profile(){
                                 <UserStats>
                                 <UserList/>
                                     <span>
-                                        <h3>{userTotalAuthors?.length}</h3>
+                                        <h3>{userTotalAuthors}</h3>
                                         <span>Autores lidos</span>
                                     </span>
                                 </UserStats>
@@ -274,7 +243,7 @@ export default function Profile(){
                                     <span>
                                         <h3>
                                             {
-                                                MostReadCategories?.map((category, i) => {
+                                                mostReadCategories?.map((category, i) => {
 
                                                     return (
                                                         formatCategories(category.categoryName, i)
@@ -290,9 +259,8 @@ export default function Profile(){
 
             </ProfileContainer>
             </>
-                ): (<Fallback/>)
-
-               }
+                ) 
+            }
         </Container>
     </Layout>
     </>

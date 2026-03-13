@@ -1,6 +1,5 @@
 import { styled } from "@/pages/globalStyles";
 
-
 export const PageHeader = styled('div', {
 
     display: 'flex',
@@ -20,7 +19,5 @@ export const PageHeader = styled('div', {
         width: '2rem',
         height: '2rem'
     },
-
-    
 
 })

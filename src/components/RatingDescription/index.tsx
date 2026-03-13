@@ -7,10 +7,8 @@ type RatingDescription = {
     description: string
 }
 
-
 export function RatingDescription({description}: RatingDescription){
-
-
+    
     const [showMore, setShowMore] = useState(false)
 
     return (

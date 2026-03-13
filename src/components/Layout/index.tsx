@@ -22,7 +22,6 @@ type Navigation = {
 
 // Query types
 
-
 export default function Layout({children}: {children: ReactNode}){
 
     const [navigation] = useState<Navigation[]>([

@@ -1,12 +1,12 @@
 
 type Ratings = {
     rate: number
-        createdAt: string
-        description: string
-        user: {
-            avatarUrl: string
-            name: string
-        }
+    createdAt: string
+    review: string
+    user: {
+        avatarUrl: string
+        name: string
+    }
 }
 
 export function calcMediaRating(ratings: Ratings[]){

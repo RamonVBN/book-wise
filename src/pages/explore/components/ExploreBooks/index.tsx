@@ -11,9 +11,10 @@ const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} :
     return (
         <ExploreBook onClick={() => handleOpenBookDetails(book.id)}>
                                           
-            {/* <Image width={108} height={152} loading="lazy" src={book.thumbnail} alt="" /> */}
-
-            <div style={{width: '108px', height: '152px', border: '1px solid white' }}></div>
+            <Image width={108} height={152} loading="lazy" src={book.thumbnail} alt="" />
+{/* 
+            <div style={{width: '108px', height: '152px', border: '1px solid white' }}></div> */}
+            
             <div>
                 <span>
                     <h2>{book.title}</h2>

@@ -253,7 +253,7 @@ export default function Explore(){
                         } */}
 
                         {
-                            fakeData.map((book) => (
+                            books.map((book) => (
 
                                 <BookCard key={book.id} book={book} handleOpenBookDetails={handleOpenBookDetails}/>
                             )) 

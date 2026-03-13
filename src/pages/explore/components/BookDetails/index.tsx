@@ -19,8 +19,8 @@ import googleLogo from '../../../../../assets/logos_google-icon.png'
 import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
 
 import { api } from "@/lib/axios";
-import { InfiniteData, useQueryClient } from "@tanstack/react-query";
-import { BooksProps, BooksResponse } from "@/@types/query-types";
+import { InfiniteData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BookProps, BooksResponse, RatingProps } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
 
@@ -31,7 +31,7 @@ type BookDetailsProps = {
 }
 
 const userRatingForm = z.object({
-    description: z.string()
+    review: z.string()
 })
 
 type UserRatingFormData = z.infer<typeof userRatingForm>
@@ -63,7 +63,6 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
             return setIsModalOpen(true)
         }
 
-
         return setIsUserRatingOpen(true)
     }
 
@@ -75,19 +74,28 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
 
         setIsError(false)
 
+        try {
+            
+            await api.post('/app/users/ratings', {
+                rate: definedRate,
+                review: data.review,
+                bookId: book?.id,
+                title: book?.title,
+                author: book?.authors.join(','),
+                coverUrl: book?.thumbnail,
+                pageCount: book?.pageCount,
+                categories: book?.categories.join(',')
+            })
 
-        await api.post('/app/users/create-rating', {
-            rate: definedRate,
-            description: data.description,
-            bookId: book?.id,
-            userId: session.data?.user.id
-        })
-
+        } catch (error) {
+            
+            console.log(error)
+        }
 
         reset()
         setIsUserRatingOpen(false)
         setDefinedRate(null)
-        // refetch()
+        refetch()
     }
 
     function handleDefineRate(index: number) {
@@ -146,7 +154,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
 
     }
 
-   function findBookById(bookId: string) {
+    function findBookById(bookId: string) {
     const queries = queryClient.getQueriesData<InfiniteData<BooksResponse>>({
     queryKey: ['books']
     })
@@ -157,42 +165,56 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
     .find((book) => book.id === bookId)
 
     return book
-  }
-
-  const book = findBookById(bookId)
-  
-  const modalRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        closeBookDetails()
-      }
     }
 
-    function handleEsc(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        closeBookDetails()
-      }
+    const book = findBookById(bookId)
+    
+    const modalRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+        if (
+            modalRef.current &&
+            !modalRef.current.contains(event.target as Node)
+        ) {
+            closeBookDetails()
+        }
+        }
+
+        function handleEsc(event: KeyboardEvent) {
+        if (event.key === "Escape") {
+            closeBookDetails()
+        }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+        document.addEventListener("keydown", handleEsc)
+
+        return () => {
+        document.removeEventListener("mousedown", handleClickOutside)
+        document.removeEventListener("keydown", handleEsc)
+        }
+    }, [closeBookDetails])
+
+    const { data: bookRatings, refetch } = useQuery<RatingProps[]>({
+    queryKey: ["ratings", bookId],
+    queryFn: async () => {
+    const response = await api.get(`/app/users/ratings?bookId=${bookId}`)
+        return response.data
+    },
+    enabled: !!bookId
+    })
+
+    const bookMediaRating = bookRatings ? calcMediaRating(bookRatings) : 6
+
+    const userEmail = session.data?.user.email
+
+    const isUserRead = bookRatings && bookRatings.some((rating) => rating.user.email === userEmail)
+
+    if (!book){
+
+        return
     }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    document.addEventListener("keydown", handleEsc)
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.removeEventListener("keydown", handleEsc)
-    }
-  }, [closeBookDetails])
-
-    // const bookMediaRating = book ? calcMediaRating(book?.ratings) : 6
-
-    // const userEmail = session.data?.user.email
-
-    // const isUserRead = book?.ratings.some((rating) => rating.user.email === userEmail)
 
     return (
         <>
@@ -230,7 +252,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                     <BookDetailsBody>
                         <BookInfo>
                             <BookInfoBody>
-                                <img src={book?.thumbnail} alt="" />
+                                <Image loading="eager" quality={100} width={171.65} height={242} src={book.thumbnail} alt="" />
                                 <div>
                                     <span>
                                         <h2>{book?.title}</h2>
@@ -238,32 +260,10 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                     </span>
                                     <span>
                                         <span>
-                                            {
-
-                                                // <StarRating param={bookMediaRating} />
-
-                                                //    Array.from({length: 5}).map((_, i) => {
-
-                                                //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
-                                                //         return (
-                                                //             <StarHalf key={i} weight="fill"/>  
-                                                //         )
-                                                //     }
-
-                                                //     if (i + 1 > bookMediaRating) {
-
-
-                                                //         return (
-                                                //             <Star key={i}/>
-                                                //         )
-                                                //     }
-
-                                                //     return <Star key={i} weight="fill"/>
-                                                // })
-                                            }
+                                            <StarRating param={bookMediaRating} />
                                         </span>
                                         <span>
-                                            {/* {book?.ratings.length} {book && book?.ratings.length === 1 ? 'avaliação' : 'avaliações'} */}
+                                            {bookRatings && bookRatings.length} {bookRatings && bookRatings.length === 1 ? 'avaliação' : 'avaliações'}
                                         </span>
                                     </span>
                                 </div>
@@ -297,11 +297,12 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                             <BookDetailsRatingsHeader>
                                 <span>Avaliações</span>
 
-                                {/* {
+                                {
                                     !isUserRead && (
-                                        <button disabled={isFetching} type="button" onClick={() => handleUserRatingOpen()}>Avaliar</button>
+                                        <button  type="button" onClick={() => handleUserRatingOpen()}>Avaliar</button>
                                     )
-                                } */}
+                                }
+
                             </BookDetailsRatingsHeader>
 
                             <BookDetailsRatingsBody>
@@ -337,7 +338,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
 
 
                                             <form onSubmit={handleSubmit(handleRatingSubmit)}>
-                                                <textarea {...register('description')} placeholder="Escreva sua avaliação" />
+                                                <textarea {...register('review')} placeholder="Escreva sua avaliação" />
                                                 <span>
                                                     <CancelButton type="button" onClick={() => setIsUserRatingOpen(false)}>
                                                         <X />
@@ -352,8 +353,8 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                     )
                                 }
 
-                                {/* {
-                                    book?.ratings.toReversed().map((rating, i) => {
+                                {
+                                    bookRatings && bookRatings.toReversed().map((rating, i) => {
                                         return (
                                             <BookDetailsRating isUserRating={rating.user.email === userEmail} key={i}>
                                                 <div>
@@ -387,11 +388,11 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                                     </span>
                                                 </div>
 
-                                                <RatingDescription description={rating.description}/>
+                                                <RatingDescription description={rating.review}/>
                                             </BookDetailsRating>
                                         )
                                     })
-                                } */}
+                                }
 
                             </BookDetailsRatingsBody>
                         </BookDetailsRatingsContainer>

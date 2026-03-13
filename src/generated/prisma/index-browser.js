@@ -126,36 +126,38 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   avatarUrl: 'avatarUrl',
-  created_at: 'created_at'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.BookScalarFieldEnum = {
   id: 'id',
-  name: 'name',
+  title: 'title',
   author: 'author',
-  summary: 'summary',
   coverUrl: 'coverUrl',
-  totalPages: 'totalPages',
+  pageCount: 'pageCount',
+  categories: 'categories',
   createdAt: 'createdAt'
 };
 
-exports.Prisma.CategoryScalarFieldEnum = {
+exports.Prisma.UserBookScalarFieldEnum = {
   id: 'id',
-  name: 'name'
-};
-
-exports.Prisma.CategoriesOnBooksScalarFieldEnum = {
+  userId: 'userId',
   bookId: 'bookId',
-  categoryId: 'categoryId'
+  status: 'status',
+  isFavorite: 'isFavorite',
+  currentPage: 'currentPage',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.RatingScalarFieldEnum = {
   id: 'id',
   rate: 'rate',
-  description: 'description',
+  review: 'review',
   createdAt: 'createdAt',
-  bookId: 'bookId',
-  userId: 'userId'
+  userId: 'userId',
+  bookId: 'bookId'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -194,13 +196,17 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.ReadingStatus = exports.$Enums.ReadingStatus = {
+  WANT_TO_READ: 'WANT_TO_READ',
+  READING: 'READING',
+  READ: 'READ',
+  ABANDONED: 'ABANDONED'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
   Book: 'Book',
-  Category: 'Category',
-  CategoriesOnBooks: 'CategoriesOnBooks',
+  UserBook: 'UserBook',
   Rating: 'Rating',
   Account: 'Account',
   Session: 'Session'

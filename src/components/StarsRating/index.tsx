@@ -6,7 +6,6 @@ type StarRating = {
 
 export function StarRating({param}: StarRating){
 
-
     return (
         
         Array.from({length: 5}).map((_, i) => {
