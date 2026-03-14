@@ -31,34 +31,21 @@ export type BookProps = {
     categories: string[]
     pageCount: number
     coverUrl: string 
+    avgRating: number
+    ratingsCount: number
+    ratingsSum: number
+    read: boolean
     ratings: RatingProps[]
-}
-
-export type GoogleBookProps = {
-    id: string
-    title: string
-    description: string
-    authors: string[]
-    categories: string[]
-    pageCount: number
-    thumbnail: string 
-    ratings: RatingProps[]
-}
-
-export interface PopularBook extends BookProps {
-  _count: {
-    ratings: number
-  }
 }
 
 export type HomeDataResponse = {
     recentRatings: RatingProps[]
-    popularBooks: PopularBook[]
+    popularBooks: BookProps[]
     lastUserReading: RatingProps | null
 }
 
 export type BooksResponse = {
-  items: GoogleBookProps[]
+  items: BookProps[]
   total: number
 }
  

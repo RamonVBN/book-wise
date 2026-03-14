@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 
 type GetRatingProps = {
-
-    bookId: string | undefined
-    userId: string | undefined
+  bookId: string | undefined
+  userId: string | undefined
 }
 
 export async function getRatings({bookId, userId}: GetRatingProps) {

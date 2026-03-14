@@ -5,7 +5,6 @@ import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsR
 import { capitalize } from "@/utils/capitalize";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
-import { calcMediaRating } from "@/utils/calcMediaRating";
 import { formatCategories } from "@/utils/formatCategories";
 import { useEffect, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
@@ -82,7 +81,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                 bookId: book?.id,
                 title: book?.title,
                 author: book?.authors.join(','),
-                coverUrl: book?.thumbnail,
+                coverUrl: book?.coverUrl,
                 pageCount: book?.pageCount,
                 categories: book?.categories.join(',')
             })
@@ -96,6 +95,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
         setIsUserRatingOpen(false)
         setDefinedRate(null)
         refetch()
+        
     }
 
     function handleDefineRate(index: number) {
@@ -205,12 +205,6 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
     enabled: !!bookId
     })
 
-    const bookMediaRating = bookRatings ? calcMediaRating(bookRatings) : 6
-
-    const userEmail = session.data?.user.email
-
-    const isUserRead = bookRatings && bookRatings.some((rating) => rating.user.email === userEmail)
-
     if (!book){
 
         return
@@ -252,7 +246,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                     <BookDetailsBody>
                         <BookInfo>
                             <BookInfoBody>
-                                <Image loading="eager" quality={100} width={171.65} height={242} src={book.thumbnail} alt="" />
+                                <Image loading="eager" quality={100} width={171.65} height={242} src={book.coverUrl} alt="" />
                                 <div>
                                     <span>
                                         <h2>{book?.title}</h2>
@@ -260,10 +254,10 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                     </span>
                                     <span>
                                         <span>
-                                            <StarRating param={bookMediaRating} />
+                                            <StarRating param={book.avgRating} />
                                         </span>
                                         <span>
-                                            {bookRatings && bookRatings.length} {bookRatings && bookRatings.length === 1 ? 'avaliação' : 'avaliações'}
+                                            {book.ratingsCount} {book.ratingsCount === 1 ? 'avaliação' : 'avaliações'}
                                         </span>
                                     </span>
                                 </div>
@@ -298,7 +292,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                 <span>Avaliações</span>
 
                                 {
-                                    !isUserRead && (
+                                    !book.read && (
                                         <button  type="button" onClick={() => handleUserRatingOpen()}>Avaliar</button>
                                     )
                                 }
@@ -355,7 +349,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
                                 {
                                     bookRatings && bookRatings.toReversed().map((rating, i) => {
                                         return (
-                                            <BookDetailsRating isUserRating={rating.user.email === userEmail} key={i}>
+                                            <BookDetailsRating isUserRating={book.read} key={i}>
                                                 <div>
                                                     <div>
                                                         <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />

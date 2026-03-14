@@ -3,7 +3,6 @@ import createRatings from "@/services/createRating"
 import { NextApiRequest, NextApiResponse } from "next"
 import { getServerSession } from "next-auth"
 import { z } from 'zod'
-import { categories } from "../../prisma/seeds/constants/categories"
 
 export async function createRatingController(req: NextApiRequest, res: NextApiResponse) {
 

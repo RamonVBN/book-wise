@@ -5,11 +5,10 @@ import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
 import { capitalize } from "@/utils/capitalize"
 import { PageHeader } from "@/components/pageHeader"
-import { calcMediaRating } from "@/utils/calcMediaRating"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/axios"
 import { useSession } from "next-auth/react"
-import { BookProps, HomeDataResponse, PopularBook, RatingProps } from "@/@types/query-types"
+import { HomeDataResponse, RatingProps } from "@/@types/query-types"
 import Layout from "@/components/Layout"
 import { formatBookName } from "@/utils/formatBookName"
 import { StarRating } from "@/components/StarsRating"
@@ -102,7 +101,7 @@ export default function Home(){
                             </BooksRatingsContainerHeader>
 
                         {
-                            homeData && homeData.recentRatings && homeData.recentRatings.toReversed().map((rating, i) => {
+                            homeData && homeData.recentRatings && homeData.recentRatings.toReversed().map((rating) => {
                             return (
                         <BookRating key={rating.id}>
                                 <BookRatingUserContainer>
@@ -150,8 +149,6 @@ export default function Home(){
 
                             homeData && homeData.popularBooks && homeData.popularBooks.map((book) => {
 
-                                const bookMediaRating = calcMediaRating(book.ratings)
-
                                 return (
                                     <PopBook key={book.id}>
                                     <Image width={64} height={94} src={book.coverUrl} alt="" />
@@ -162,7 +159,7 @@ export default function Home(){
                                         </span>
             
                                         <Rating>  
-                                            <StarRating param={bookMediaRating}/>
+                                            <StarRating param={book.avgRating}/>
                                         </Rating>
                                     </PopBookDescription>
                                 </PopBook>
@@ -181,7 +178,6 @@ export default function Home(){
                     <Fallback/>
                 )
              }    
-            
         </Container>
     </Layout>
     </> 

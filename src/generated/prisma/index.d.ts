@@ -2621,10 +2621,16 @@ export namespace Prisma {
 
   export type BookAvgAggregateOutputType = {
     pageCount: number | null
+    avgRating: number | null
+    ratingsCount: number | null
+    ratingsSum: number | null
   }
 
   export type BookSumAggregateOutputType = {
     pageCount: number | null
+    avgRating: number | null
+    ratingsCount: number | null
+    ratingsSum: number | null
   }
 
   export type BookMinAggregateOutputType = {
@@ -2634,6 +2640,9 @@ export namespace Prisma {
     coverUrl: string | null
     pageCount: number | null
     categories: string | null
+    avgRating: number | null
+    ratingsCount: number | null
+    ratingsSum: number | null
     createdAt: Date | null
   }
 
@@ -2644,6 +2653,9 @@ export namespace Prisma {
     coverUrl: string | null
     pageCount: number | null
     categories: string | null
+    avgRating: number | null
+    ratingsCount: number | null
+    ratingsSum: number | null
     createdAt: Date | null
   }
 
@@ -2654,6 +2666,9 @@ export namespace Prisma {
     coverUrl: number
     pageCount: number
     categories: number
+    avgRating: number
+    ratingsCount: number
+    ratingsSum: number
     createdAt: number
     _all: number
   }
@@ -2661,10 +2676,16 @@ export namespace Prisma {
 
   export type BookAvgAggregateInputType = {
     pageCount?: true
+    avgRating?: true
+    ratingsCount?: true
+    ratingsSum?: true
   }
 
   export type BookSumAggregateInputType = {
     pageCount?: true
+    avgRating?: true
+    ratingsCount?: true
+    ratingsSum?: true
   }
 
   export type BookMinAggregateInputType = {
@@ -2674,6 +2695,9 @@ export namespace Prisma {
     coverUrl?: true
     pageCount?: true
     categories?: true
+    avgRating?: true
+    ratingsCount?: true
+    ratingsSum?: true
     createdAt?: true
   }
 
@@ -2684,6 +2708,9 @@ export namespace Prisma {
     coverUrl?: true
     pageCount?: true
     categories?: true
+    avgRating?: true
+    ratingsCount?: true
+    ratingsSum?: true
     createdAt?: true
   }
 
@@ -2694,6 +2721,9 @@ export namespace Prisma {
     coverUrl?: true
     pageCount?: true
     categories?: true
+    avgRating?: true
+    ratingsCount?: true
+    ratingsSum?: true
     createdAt?: true
     _all?: true
   }
@@ -2791,6 +2821,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating: number
+    ratingsCount: number
+    ratingsSum: number
     createdAt: Date
     _count: BookCountAggregateOutputType | null
     _avg: BookAvgAggregateOutputType | null
@@ -2820,6 +2853,9 @@ export namespace Prisma {
     coverUrl?: boolean
     pageCount?: boolean
     categories?: boolean
+    avgRating?: boolean
+    ratingsCount?: boolean
+    ratingsSum?: boolean
     createdAt?: boolean
     ratings?: boolean | Book$ratingsArgs<ExtArgs>
     userBooks?: boolean | Book$userBooksArgs<ExtArgs>
@@ -2833,6 +2869,9 @@ export namespace Prisma {
     coverUrl?: boolean
     pageCount?: boolean
     categories?: boolean
+    avgRating?: boolean
+    ratingsCount?: boolean
+    ratingsSum?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["book"]>
 
@@ -2843,6 +2882,9 @@ export namespace Prisma {
     coverUrl?: boolean
     pageCount?: boolean
     categories?: boolean
+    avgRating?: boolean
+    ratingsCount?: boolean
+    ratingsSum?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["book"]>
 
@@ -2853,10 +2895,13 @@ export namespace Prisma {
     coverUrl?: boolean
     pageCount?: boolean
     categories?: boolean
+    avgRating?: boolean
+    ratingsCount?: boolean
+    ratingsSum?: boolean
     createdAt?: boolean
   }
 
-  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "coverUrl" | "pageCount" | "categories" | "createdAt", ExtArgs["result"]["book"]>
+  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "coverUrl" | "pageCount" | "categories" | "avgRating" | "ratingsCount" | "ratingsSum" | "createdAt", ExtArgs["result"]["book"]>
   export type BookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ratings?: boolean | Book$ratingsArgs<ExtArgs>
     userBooks?: boolean | Book$userBooksArgs<ExtArgs>
@@ -2878,6 +2923,9 @@ export namespace Prisma {
       coverUrl: string
       pageCount: number
       categories: string
+      avgRating: number
+      ratingsCount: number
+      ratingsSum: number
       createdAt: Date
     }, ExtArgs["result"]["book"]>
     composites: {}
@@ -3310,6 +3358,9 @@ export namespace Prisma {
     readonly coverUrl: FieldRef<"Book", 'String'>
     readonly pageCount: FieldRef<"Book", 'Int'>
     readonly categories: FieldRef<"Book", 'String'>
+    readonly avgRating: FieldRef<"Book", 'Float'>
+    readonly ratingsCount: FieldRef<"Book", 'Int'>
+    readonly ratingsSum: FieldRef<"Book", 'Float'>
     readonly createdAt: FieldRef<"Book", 'DateTime'>
   }
     
@@ -8291,6 +8342,9 @@ export namespace Prisma {
     coverUrl: 'coverUrl',
     pageCount: 'pageCount',
     categories: 'categories',
+    avgRating: 'avgRating',
+    ratingsCount: 'ratingsCount',
+    ratingsSum: 'ratingsSum',
     createdAt: 'createdAt'
   };
 
@@ -8424,6 +8478,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
    * Reference to a field of type 'ReadingStatus'
    */
   export type EnumReadingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReadingStatus'>
@@ -8441,20 +8509,6 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -8540,6 +8594,9 @@ export namespace Prisma {
     coverUrl?: StringFilter<"Book"> | string
     pageCount?: IntFilter<"Book"> | number
     categories?: StringFilter<"Book"> | string
+    avgRating?: FloatFilter<"Book"> | number
+    ratingsCount?: IntFilter<"Book"> | number
+    ratingsSum?: FloatFilter<"Book"> | number
     createdAt?: DateTimeFilter<"Book"> | Date | string
     ratings?: RatingListRelationFilter
     userBooks?: UserBookListRelationFilter
@@ -8552,6 +8609,9 @@ export namespace Prisma {
     coverUrl?: SortOrder
     pageCount?: SortOrder
     categories?: SortOrder
+    avgRating?: SortOrder
+    ratingsCount?: SortOrder
+    ratingsSum?: SortOrder
     createdAt?: SortOrder
     ratings?: RatingOrderByRelationAggregateInput
     userBooks?: UserBookOrderByRelationAggregateInput
@@ -8567,6 +8627,9 @@ export namespace Prisma {
     coverUrl?: StringFilter<"Book"> | string
     pageCount?: IntFilter<"Book"> | number
     categories?: StringFilter<"Book"> | string
+    avgRating?: FloatFilter<"Book"> | number
+    ratingsCount?: IntFilter<"Book"> | number
+    ratingsSum?: FloatFilter<"Book"> | number
     createdAt?: DateTimeFilter<"Book"> | Date | string
     ratings?: RatingListRelationFilter
     userBooks?: UserBookListRelationFilter
@@ -8579,6 +8642,9 @@ export namespace Prisma {
     coverUrl?: SortOrder
     pageCount?: SortOrder
     categories?: SortOrder
+    avgRating?: SortOrder
+    ratingsCount?: SortOrder
+    ratingsSum?: SortOrder
     createdAt?: SortOrder
     _count?: BookCountOrderByAggregateInput
     _avg?: BookAvgOrderByAggregateInput
@@ -8597,6 +8663,9 @@ export namespace Prisma {
     coverUrl?: StringWithAggregatesFilter<"Book"> | string
     pageCount?: IntWithAggregatesFilter<"Book"> | number
     categories?: StringWithAggregatesFilter<"Book"> | string
+    avgRating?: FloatWithAggregatesFilter<"Book"> | number
+    ratingsCount?: IntWithAggregatesFilter<"Book"> | number
+    ratingsSum?: FloatWithAggregatesFilter<"Book"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Book"> | Date | string
   }
 
@@ -8976,6 +9045,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating?: number
+    ratingsCount?: number
+    ratingsSum?: number
     createdAt?: Date | string
     ratings?: RatingCreateNestedManyWithoutBookInput
     userBooks?: UserBookCreateNestedManyWithoutBookInput
@@ -8988,6 +9060,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating?: number
+    ratingsCount?: number
+    ratingsSum?: number
     createdAt?: Date | string
     ratings?: RatingUncheckedCreateNestedManyWithoutBookInput
     userBooks?: UserBookUncheckedCreateNestedManyWithoutBookInput
@@ -9000,6 +9075,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ratings?: RatingUpdateManyWithoutBookNestedInput
     userBooks?: UserBookUpdateManyWithoutBookNestedInput
@@ -9012,6 +9090,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ratings?: RatingUncheckedUpdateManyWithoutBookNestedInput
     userBooks?: UserBookUncheckedUpdateManyWithoutBookNestedInput
@@ -9024,6 +9105,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating?: number
+    ratingsCount?: number
+    ratingsSum?: number
     createdAt?: Date | string
   }
 
@@ -9034,6 +9118,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9044,6 +9131,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9516,6 +9606,17 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type BookCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
@@ -9523,11 +9624,17 @@ export namespace Prisma {
     coverUrl?: SortOrder
     pageCount?: SortOrder
     categories?: SortOrder
+    avgRating?: SortOrder
+    ratingsCount?: SortOrder
+    ratingsSum?: SortOrder
     createdAt?: SortOrder
   }
 
   export type BookAvgOrderByAggregateInput = {
     pageCount?: SortOrder
+    avgRating?: SortOrder
+    ratingsCount?: SortOrder
+    ratingsSum?: SortOrder
   }
 
   export type BookMaxOrderByAggregateInput = {
@@ -9537,6 +9644,9 @@ export namespace Prisma {
     coverUrl?: SortOrder
     pageCount?: SortOrder
     categories?: SortOrder
+    avgRating?: SortOrder
+    ratingsCount?: SortOrder
+    ratingsSum?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -9547,11 +9657,17 @@ export namespace Prisma {
     coverUrl?: SortOrder
     pageCount?: SortOrder
     categories?: SortOrder
+    avgRating?: SortOrder
+    ratingsCount?: SortOrder
+    ratingsSum?: SortOrder
     createdAt?: SortOrder
   }
 
   export type BookSumOrderByAggregateInput = {
     pageCount?: SortOrder
+    avgRating?: SortOrder
+    ratingsCount?: SortOrder
+    ratingsSum?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -9568,6 +9684,22 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type EnumReadingStatusFilter<$PrismaModel = never> = {
@@ -9711,17 +9843,6 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type FloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
   export type RatingUserIdBookIdCompoundUniqueInput = {
     userId: string
     bookId: string
@@ -9760,22 +9881,6 @@ export namespace Prisma {
 
   export type RatingSumOrderByAggregateInput = {
     rate?: SortOrder
-  }
-
-  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type AccountProviderProviderAccountIdCompoundUniqueInput = {
@@ -10073,6 +10178,14 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type RatingUpdateManyWithoutBookNestedInput = {
     create?: XOR<RatingCreateWithoutBookInput, RatingUncheckedCreateWithoutBookInput> | RatingCreateWithoutBookInput[] | RatingUncheckedCreateWithoutBookInput[]
     connectOrCreate?: RatingCreateOrConnectWithoutBookInput | RatingCreateOrConnectWithoutBookInput[]
@@ -10187,14 +10300,6 @@ export namespace Prisma {
     create?: XOR<BookCreateWithoutRatingsInput, BookUncheckedCreateWithoutRatingsInput>
     connectOrCreate?: BookCreateOrConnectWithoutRatingsInput
     connect?: BookWhereUniqueInput
-  }
-
-  export type FloatFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type UserUpdateOneRequiredWithoutRatingsNestedInput = {
@@ -10350,6 +10455,17 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -10366,7 +10482,7 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type NestedFloatFilter<$PrismaModel = never> = {
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
     notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -10374,7 +10490,12 @@ export namespace Prisma {
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type NestedEnumReadingStatusFilter<$PrismaModel = never> = {
@@ -10457,22 +10578,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type AccountCreateWithoutUserInput = {
@@ -10838,6 +10943,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating?: number
+    ratingsCount?: number
+    ratingsSum?: number
     createdAt?: Date | string
     ratings?: RatingCreateNestedManyWithoutBookInput
   }
@@ -10849,6 +10957,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating?: number
+    ratingsCount?: number
+    ratingsSum?: number
     createdAt?: Date | string
     ratings?: RatingUncheckedCreateNestedManyWithoutBookInput
   }
@@ -10911,6 +11022,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ratings?: RatingUpdateManyWithoutBookNestedInput
   }
@@ -10922,6 +11036,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ratings?: RatingUncheckedUpdateManyWithoutBookNestedInput
   }
@@ -10962,6 +11079,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating?: number
+    ratingsCount?: number
+    ratingsSum?: number
     createdAt?: Date | string
     userBooks?: UserBookCreateNestedManyWithoutBookInput
   }
@@ -10973,6 +11093,9 @@ export namespace Prisma {
     coverUrl: string
     pageCount: number
     categories: string
+    avgRating?: number
+    ratingsCount?: number
+    ratingsSum?: number
     createdAt?: Date | string
     userBooks?: UserBookUncheckedCreateNestedManyWithoutBookInput
   }
@@ -11035,6 +11158,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userBooks?: UserBookUpdateManyWithoutBookNestedInput
   }
@@ -11046,6 +11172,9 @@ export namespace Prisma {
     coverUrl?: StringFieldUpdateOperationsInput | string
     pageCount?: IntFieldUpdateOperationsInput | number
     categories?: StringFieldUpdateOperationsInput | string
+    avgRating?: FloatFieldUpdateOperationsInput | number
+    ratingsCount?: IntFieldUpdateOperationsInput | number
+    ratingsSum?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userBooks?: UserBookUncheckedUpdateManyWithoutBookNestedInput
   }

@@ -16,35 +16,55 @@ export default async function createRatings(
     {userId, bookId, rate, review, author, coverUrl, pageCount, title, categories
 }: CreateRatingProps){
 
-    const isBookExists = await prisma.book.findUnique({
-        where: {
-            id: bookId
-        }
+    return prisma.$transaction(async (tx) => {
+
+    let book = await tx.book.findUnique({
+      where: {
+        id: bookId
+      }
     })
 
-    if (!isBookExists) {
+    if (!book) {
+      book = await tx.book.create({
+        data: {
+          id: bookId,
+          title,
+          coverUrl,
+          avgRating: rate,
+          ratingsCount: 1,
+          ratingsSum: rate,
+          author,
+          pageCount,
+          categories  
+        }
+      })
+    } else {
 
-        await prisma.book.create({
-            data: {
-                id: bookId,
-                author,
-                coverUrl,
-                pageCount,
-                title,
-                categories
-            }
-        })
+      const newRatingsCount = book.ratingsCount + 1
+      const newRatingsSum = book.ratingsSum + rate
+      const newAvg = newRatingsSum / newRatingsCount
 
+      book = await tx.book.update({
+        where: {
+          id: book.id
+        },
+        data: {
+          ratingsCount: newRatingsCount,
+          ratingsSum: newRatingsSum,
+          avgRating: newAvg
+        }
+      })
     }
 
-    await prisma.rating.create({
-        data: {
-           rate, 
-           review,
-           userId,
-           bookId,
-        }
+    await tx.rating.create({
+      data: {
+        userId,
+        bookId: book.id,
+        rate,
+        review,
+      }
     })
 
     return
+  })
 }

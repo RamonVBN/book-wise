@@ -40,6 +40,10 @@ model Book {
   coverUrl     String @map("cover_url")
   pageCount    Int     @map("page_count")
   categories   String
+  
+  avgRating     Float  @default(0)
+  ratingsCount  Int    @default(0)
+  ratingsSum    Float @default(0)
 
   createdAt    DateTime @default(now()) @map("created_at")
 

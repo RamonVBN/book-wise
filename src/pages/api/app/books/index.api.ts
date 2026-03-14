@@ -1,10 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession } from 'next-auth'
 import { z } from 'zod'
+import { authOptions } from '../../auth/[...nextauth].api'
+import { prisma } from '@/lib/prisma'
+import { BookProps } from '@/@types/query-types'
+
+interface BookStats {
+
+  avgRating: number
+  ratingsCount: number
+  read: boolean
+}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+
+  const session = await getServerSession(req, res, authOptions)
+
+  const userId = session?.user.id
 
   const querySchema = z.object({
     q: z.string(),
@@ -19,20 +34,71 @@ export default async function handler(
 
   const data = await response.json()
 
-  const books = (data.items ?? [])
+  console.log(data)
+
+  const books : BookProps[] = (data.items ?? [])
     ?.filter((book: any) =>  book.volumeInfo && book.volumeInfo.imageLinks?.thumbnail && book.volumeInfo.pageCount > 0 )
     .map((book: any) => ({
       id: book.id,
       title: book.volumeInfo.title,
       authors: book.volumeInfo.authors ?? [],
       description: book.volumeInfo.description ?? null,
-      thumbnail: book.volumeInfo.imageLinks?.thumbnail ?? null,
+      coverUrl: book.volumeInfo.imageLinks?.thumbnail ?? null,
       pageCount: book.volumeInfo.pageCount,
       categories: book.volumeInfo.categories
     })) ?? []
 
+    const googleIds = books.map((book: {id: string}) => book.id)
+
+    const dbBooks = await prisma.book.findMany({
+      where: {
+        id: {
+          in: googleIds
+        }
+      },
+      include: {
+        ratings: {
+          where: {
+            userId
+          },
+          select: {
+            id: true
+          }
+        }
+      }
+    })
+
+    const booksMap: Record<string, BookStats> = {}
+
+    dbBooks.forEach(book => {
+      booksMap[book.id] = {
+        avgRating: book.avgRating,
+        ratingsCount: book.ratingsCount,
+        read: book.ratings.length > 0
+      }
+    })
+
+    const result = books.map(book => {
+      
+    const stats = booksMap[book.id]
+    return {
+      id: book.id,
+      title: book.title,
+      authors: book.authors,
+      description: book.description,
+      coverUrl: book.coverUrl,
+      pageCount: book.pageCount,
+      categories: book.categories,
+      
+      avgRating: stats?.avgRating ?? 0,
+      ratingsCount: stats?.ratingsCount ?? 0,
+      read: stats?.read ?? false
+    }
+
+})
+
     res.status(200).json({
-    items: books,
+    items: result,
     total: data.totalItems
   })
  

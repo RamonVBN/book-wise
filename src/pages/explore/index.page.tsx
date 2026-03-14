@@ -1,4 +1,4 @@
-import { Binoculars, MagnifyingGlass, Star, StarHalf } from "phosphor-react";
+import { Binoculars, MagnifyingGlass } from "phosphor-react";
 
 import  {ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles.tsx'
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -7,12 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { PageHeader } from "@/components/pageHeader";
 import { BookDetails } from "./components/BookDetails";
-import { calcMediaRating } from "@/utils/calcMediaRating";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { BooksResponse } from "@/@types/query-types";
 import { useSession } from "next-auth/react";
-import { StarRating } from "@/components/StarsRating";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -22,7 +20,6 @@ import { ExploreBooksContainer } from "./components/ExploreBooks/style";
 import BookCard from "./components/ExploreBooks";
 import LoadingSpinner from "./components/LoadingSpinner.tsx";
 import BackToTop from "./components/BackToTopButton.tsx";
-
 
 const categories = [
 'Fiction',

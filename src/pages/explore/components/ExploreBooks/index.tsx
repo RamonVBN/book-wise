@@ -2,16 +2,23 @@ import Image from "next/image";
 import { ExploreBook, ReadMark } from "./style";
 import React from "react";
 import { StarRating } from "@/components/StarsRating";
-import { GoogleBookProps } from "@/@types/query-types";
+import { BookProps } from "@/@types/query-types";
 
 const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} : 
-    {book: GoogleBookProps, 
-    handleOpenBookDetails: (bookId: string) => void
-    }){
+    {book: BookProps, 
+    handleOpenBookDetails: (bookId: string) => void}
+    )
+    {
     return (
         <ExploreBook onClick={() => handleOpenBookDetails(book.id)}>
+
+             {
+                book.read && (
+                <ReadMark>LIDO</ReadMark>
+                )
+                }
                                           
-            <Image width={108} height={152} loading="lazy" src={book.thumbnail}  alt="" />
+            <Image width={108} height={152} loading="lazy" src={book.coverUrl}  alt="" />
             
             <div>
                 <span>
@@ -28,7 +35,7 @@ const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} :
                 </span>
 
                 <span>
-                    <StarRating param={5}/>
+                    <StarRating param={book.avgRating}/>
                 </span> 
             </div>
         </ExploreBook>

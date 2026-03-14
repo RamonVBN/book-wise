@@ -23,9 +23,6 @@ export async function getHomeData({ userId }: GetHomeDataProps) {
       },
     },
     include: {
-      _count: {
-        select: { ratings: true }
-      },
       ratings: true
     }
   })
