@@ -179,7 +179,7 @@ export default function Explore(){
         <Layout>
             {
                 isBookDetailsOpen && (
-                    <BookDetails bookId={bookDetailsId} closeBookDetails={handleCloseBookDetails} />
+                    <BookDetails debouncedQuery={debouncedQuery} categoriesFilters={categoriesFilters.join(',')} bookId={bookDetailsId} closeBookDetails={handleCloseBookDetails} />
                 )
             }
             <ExploreContainer onScroll={handleScroll} ref={exploreContainerRef}>

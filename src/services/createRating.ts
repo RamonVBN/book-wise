@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { error } from "console";
 
 type CreateRatingProps = {
     userId: string
@@ -65,6 +66,6 @@ export default async function createRatings(
       }
     })
 
-    return
+    return 
   })
 }

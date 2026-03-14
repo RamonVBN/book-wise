@@ -9,6 +9,7 @@ interface BookStats {
 
   avgRating: number
   ratingsCount: number
+  ratingsSum: number
   read: boolean
 }
 
@@ -16,6 +17,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+
+  if(req.method !== 'GET') {
+
+    return res.status(405).json({message: 'Method not allowed'})
+  }
 
   const session = await getServerSession(req, res, authOptions)
 
@@ -74,6 +80,7 @@ export default async function handler(
       booksMap[book.id] = {
         avgRating: book.avgRating,
         ratingsCount: book.ratingsCount,
+        ratingsSum: book.ratingsSum,
         read: book.ratings.length > 0
       }
     })
@@ -92,6 +99,7 @@ export default async function handler(
       
       avgRating: stats?.avgRating ?? 0,
       ratingsCount: stats?.ratingsCount ?? 0,
+      ratingsSum: stats?.ratingsSum ?? 0,
       read: stats?.read ?? false
     }
 

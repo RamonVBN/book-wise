@@ -101,7 +101,7 @@ export default function Home(){
                             </BooksRatingsContainerHeader>
 
                         {
-                            homeData && homeData.recentRatings && homeData.recentRatings.toReversed().map((rating) => {
+                            homeData && homeData.recentRatings && homeData.recentRatings.map((rating) => {
                             return (
                         <BookRating key={rating.id}>
                                 <BookRatingUserContainer>

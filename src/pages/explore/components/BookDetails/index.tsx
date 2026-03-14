@@ -18,7 +18,7 @@ import googleLogo from '../../../../../assets/logos_google-icon.png'
 import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
 
 import { api } from "@/lib/axios";
-import { InfiniteData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { InfiniteData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BookProps, BooksResponse, RatingProps } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
@@ -27,6 +27,14 @@ type BookDetailsProps = {
 
     closeBookDetails: () => void
     bookId: string
+    debouncedQuery: string,
+    categoriesFilters: string
+}
+
+type BooksQueryData = {
+  pages: {
+    items: BookProps[]
+  }[]
 }
 
 const userRatingForm = z.object({
@@ -36,7 +44,7 @@ const userRatingForm = z.object({
 type UserRatingFormData = z.infer<typeof userRatingForm>
 
 
-export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
+export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categoriesFilters }: BookDetailsProps) {
 
     const queryClient = useQueryClient()
 
@@ -71,31 +79,7 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
             return setIsError(true)
         }
 
-        setIsError(false)
-
-        try {
-            
-            await api.post('/app/users/ratings', {
-                rate: definedRate,
-                review: data.review,
-                bookId: book?.id,
-                title: book?.title,
-                author: book?.authors.join(','),
-                coverUrl: book?.coverUrl,
-                pageCount: book?.pageCount,
-                categories: book?.categories.join(',')
-            })
-
-        } catch (error) {
-            
-            console.log(error)
-        }
-
-        reset()
-        setIsUserRatingOpen(false)
-        setDefinedRate(null)
-        refetch()
-        
+        createRatingMutation(data)
     }
 
     function handleDefineRate(index: number) {
@@ -203,6 +187,67 @@ export function BookDetails({ closeBookDetails, bookId }: BookDetailsProps) {
         return response.data
     },
     enabled: !!bookId
+    })
+
+    const {mutate: createRatingMutation} = useMutation({
+        mutationFn: async (data: UserRatingFormData) => {
+            return await api.post('/app/users/ratings', {
+                rate: definedRate,
+                review: data.review,
+                bookId: book?.id,
+                title: book?.title,
+                author: book?.authors.join(','),
+                coverUrl: book?.coverUrl,
+                pageCount: book?.pageCount,
+                categories: book?.categories.join(',')
+            })
+        },
+        onMutate: async () => {
+
+            await queryClient.cancelQueries({queryKey: ['books', debouncedQuery, categoriesFilters]})
+
+            const previousBooks = queryClient.getQueryData(['books', debouncedQuery, categoriesFilters])
+
+            queryClient.setQueryData<BooksQueryData>(['books', debouncedQuery, categoriesFilters], (oldData) => {
+
+            if (!oldData) return oldData
+
+            return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((book) => {
+
+                    if (book.id !== bookId) return book
+
+                    const newRatingsCount = book.ratingsCount + 1
+                    const newRatingsSum = book.ratingsSum + definedRate!
+                    const newAvg = newRatingsSum / newRatingsCount
+
+                    return {
+                    ...book,
+                    avgRating: newAvg,
+                    ratingsSum: newRatingsSum,
+                    ratingsCount: newRatingsCount,
+                    read: true
+                    }
+                })
+                }))
+            }
+            })
+
+            return { previousBooks } 
+        },
+        onError: (err, __, context) => {
+            console.log(err)
+            queryClient.setQueryData(['books', debouncedQuery, categoriesFilters], context?.previousBooks)
+        },
+        onSuccess(){
+            reset()
+            setIsUserRatingOpen(false)
+            setDefinedRate(null)
+            refetch()
+        }
     })
 
     if (!book){
