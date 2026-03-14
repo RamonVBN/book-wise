@@ -24,11 +24,11 @@ import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
 
 type BookDetailsProps = {
-
+    
     closeBookDetails: () => void
     bookId: string
     debouncedQuery: string,
-    categoriesFilters: string
+    categoriesFilters: string,
 }
 
 type BooksQueryData = {
@@ -314,9 +314,9 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                     <span>
                                         <span>Categoria(s)</span>
                                         <span>
-                                            {book?.categories.map((category, i) => {
+                                            {book?.categories.map((c, i) => {
                                                 return (
-                                                    formatCategories(category, i)
+                                                    formatCategories(c, i)
                                                 )
                                             })}
                                         </span>

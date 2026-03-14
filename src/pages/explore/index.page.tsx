@@ -10,7 +10,6 @@ import { BookDetails } from "./components/BookDetails";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { BooksResponse } from "@/@types/query-types";
-import { useSession } from "next-auth/react";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -22,18 +21,18 @@ import LoadingSpinner from "./components/LoadingSpinner.tsx";
 import BackToTop from "./components/BackToTopButton.tsx";
 
 const categories = [
-'Fiction',
-'Fantasy',
-'Science Fiction',
-'History',
-'Philosophy',
-'Technology',
-'Business',
-'Psychology',
-'Self-Help',
-'Romance',
-'Horror',
-'Mystery',
+    {queryName: 'Fiction', name: 'Ficção'},
+    {queryName: 'Fantasy', name: 'Fantasia'},
+    {queryName: 'Science Fiction', name: 'Ficção Científica'},
+    {queryName: 'History', name: 'História'},
+    {queryName: 'Philosophy', name: 'Filosofia'},
+    {queryName: 'Technology', name: 'Tecnologia'},
+    {queryName: 'Business', name: 'Negócios'},
+    {queryName: 'Psychology', name: 'Psicologia'},
+    {queryName: 'Self-Help', name: 'Autoajuda'},
+    {queryName: 'Romance', name: 'Romance'},
+    {queryName: 'Horror', name: 'Horror'},
+    {queryName: 'Mystery', name: 'Mistério'}
 ]
 
 // Em caso de exceder o limite de requisições do Goggle Books API.
@@ -55,8 +54,6 @@ const exploreFormSchema = z.object({
 type ExploreFormType = z.infer<typeof exploreFormSchema>
 
 export default function Explore(){
-
-    const session = useSession()
     
     const [categoriesFilters, setCategoriesFilters] = useState<string[]>(['Fiction'])
 
@@ -145,8 +142,6 @@ export default function Explore(){
 
     const books = useMemo(() => booksData?.pages.flatMap(page => page.items) ?? [], [booksData])
 
-    const userEmail = session.data?.user.email
-
     useEffect(() => {
         setFocus('query')
     }, [setFocus])
@@ -207,7 +202,7 @@ export default function Explore(){
                                 categories.map((category, i) => {
 
                                 return (
-                                    <ExploreCategory isActive={categoriesFilters.includes(category)} onClick={() => handleCategoriesFilters(category)} key={i} >{category}</ExploreCategory>
+                                    <ExploreCategory isActive={categoriesFilters.includes(category.queryName)} onClick={() => handleCategoriesFilters(category.queryName)} key={i} >{category.name}</ExploreCategory>
                                 )
                                 })
                             }   
