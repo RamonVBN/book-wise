@@ -48,6 +48,14 @@ export type BooksResponse = {
   items: BookProps[]
   total: number
 }
+
+export type BookStats = {
+
+  avgRating: number
+  ratingsCount: number
+  ratingsSum: number
+  read: boolean
+}
  
 type Category = {
     category: {
@@ -55,6 +63,3 @@ type Category = {
     }
 }
 
-export type AllCategories = {
-    name: string
-}[]

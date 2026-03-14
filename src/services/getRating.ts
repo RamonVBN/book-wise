@@ -16,7 +16,6 @@ export async function getRatings({bookId, userId}: GetRatingProps) {
       user: true,
       book: true
     },
-    take: 10,
     orderBy: {
       createdAt: "desc"
     }
