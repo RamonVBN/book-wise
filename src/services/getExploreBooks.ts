@@ -18,7 +18,7 @@ const response = await fetch(
   console.log(userId)
 
   const books : BookProps[] = (data.items ?? [])
-    ?.filter((book: any) =>  book.volumeInfo && book.volumeInfo.imageLinks?.thumbnail && book.volumeInfo.pageCount > 0 )
+    ?.filter((book: any) =>  book.volumeInfo && book.volumeInfo.categories && book.volumeInfo.imageLinks?.thumbnail && book.volumeInfo.pageCount > 0 )
     .map((book: any) => ({
       id: book.id,
       title: book.volumeInfo.title,

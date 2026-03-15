@@ -375,7 +375,6 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
                                             </div>
 
-
                                             <form onSubmit={handleSubmit(handleRatingSubmit)}>
                                                 <textarea {...register('review')} placeholder="Escreva sua avaliação" />
                                                 <span>
@@ -392,9 +391,9 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                     )
                                 }
                                 {
-                                    bookRatings && bookRatings.toReversed().map((rating, i) => {
+                                    bookRatings && bookRatings.map((rating, i) => {
                                         return (
-                                            <BookDetailsRating isUserRating={book.read} key={i}>
+                                            <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={i}>
                                                 <div>
                                                     <div>
                                                         <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />

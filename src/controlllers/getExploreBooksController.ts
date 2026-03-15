@@ -9,11 +9,6 @@ export async function getExploreBooksController(
   res: NextApiResponse
 ) {
 
-  if(req.method !== 'GET') {
-
-    return res.status(405).json({message: 'Method not allowed'})
-  }
-
   const session = await getServerSession(req, res, authOptions)
 
   const userId = session?.user.id
