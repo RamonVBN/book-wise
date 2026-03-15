@@ -153,22 +153,33 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
     const book = findBookById(bookId)
     
+    const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
     const modalRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-        if (
-            modalRef.current &&
-            !modalRef.current.contains(event.target as Node)
-        ) {
-            closeBookDetails()
-        }
+            
+            if (isModalOpen && modalRef.current &&
+            !modalRef.current.contains(event.target as Node)) {
+                return setIsModalOpen(false)
+            }
+
+            if (!isModalOpen && bookDetailsContainerRef.current && 
+                !bookDetailsContainerRef.current.contains(event.target as Node)) {
+                
+                return closeBookDetails()
+            }   
         }
 
         function handleEsc(event: KeyboardEvent) {
-        if (event.key === "Escape") {
-            closeBookDetails()
-        }
+            if (event.key === "Escape") {
+
+
+                if (isModalOpen){
+                    return setIsModalOpen(false)
+                }
+                return closeBookDetails()   
+            }
         }
 
         document.addEventListener("mousedown", handleClickOutside)
@@ -178,7 +189,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
         document.removeEventListener("mousedown", handleClickOutside)
         document.removeEventListener("keydown", handleEsc)
         }
-    }, [closeBookDetails])
+    }, [closeBookDetails, isModalOpen, bookDetailsContainerRef, modalRef])
 
     const { data: bookRatings, refetch } = useQuery<RatingProps[]>({
     queryKey: ["ratings", bookId],
@@ -260,7 +271,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
             {
                 isModalOpen && (
                     <ModalOverlay >
-                        <ModalContainer>
+                        <ModalContainer ref={modalRef}>
                             <CloseButton type="button" onClick={() => setIsModalOpen
                                 (false)
                             }>
@@ -284,7 +295,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
             }
 
             <BookDetailsOverlay>
-                <BookDetailsContainer ref={modalRef}>
+                <BookDetailsContainer ref={bookDetailsContainerRef}>
                     <CloseButton onClick={closeBookDetails}>
                         <X />
                     </CloseButton>
