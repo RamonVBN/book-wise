@@ -112,7 +112,6 @@ export function UserRatingForm(
 
         reset()
         setDefinedRate(null)
-        
         return
     }
 

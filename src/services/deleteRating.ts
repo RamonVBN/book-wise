@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-type CreateRatingProps = {
+type DeleteRatingProps = {
     userId: string
     ratingId: string
     bookId: string,
@@ -9,7 +9,7 @@ type CreateRatingProps = {
 
 export default async function deleteRating(
     {userId, ratingId, bookId, rate
-}: CreateRatingProps){
+}: DeleteRatingProps){
 
     await prisma.rating.delete({
         where: {

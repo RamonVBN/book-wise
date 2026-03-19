@@ -1,6 +1,7 @@
 import { createRatingController } from "@/controlllers/createRatingController"
 import { deleteRatingController } from "@/controlllers/deleteRatingController"
 import { getRatingsController } from "@/controlllers/getRatingsController"
+import { updateRatingController } from "@/controlllers/updateRatingController"
 import { NextApiRequest, NextApiResponse } from "next"
 
 
@@ -18,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'PUT') {
-    return 
+    return updateRatingController(req, res)
   }
 
   return res.status(405).end()

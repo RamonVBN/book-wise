@@ -9,6 +9,7 @@ type RatingBookProps = {
 }
 
 type RatingUserProps = {
+    id: string
     name: string
     avatarUrl: string
     email: string

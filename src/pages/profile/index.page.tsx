@@ -56,7 +56,7 @@ export default function Profile(){
     const createdAt = session.data?.user.createdAt
 
     const {data: ratingData, isLoading: isLoadingRatings} = useQuery<RatingProps[]>({
-        queryKey: ['ratings'],
+        queryKey: ['ratings', userId],
         queryFn: async () => {
 
            const response = await api.get(`/app/users/ratings?userId=${userId}`)

@@ -126,3 +126,53 @@ export const RatedBookTime = styled('span', {
     lineHeight: '$base',
     color: '$gray300',
 })
+
+export const ModalBody = styled('div', {
+
+    height: '120px',
+
+    color: '$gray100',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent:'space-between',
+    alignItems: 'center',
+    gap: '24px',
+
+    p: {
+        fontWeight: '$bold'
+    },
+    
+
+    div: {
+        display: 'flex',
+        flexDirection: 'row',
+
+        button: {
+            display: 'flex',
+            justifyItems: 'center',
+            alignItems: 'center',
+
+            all: 'unset',
+            cursor: 'pointer',
+            height: '3rem',
+            boxSizing: 'border-box',
+
+            padding: '0.5rem',
+
+            backgroundColor: '$gray600',
+            borderRadius: '4px',
+
+
+            '&:hover': {
+                backgroundColor: '$gray500'
+            }
+        },
+
+        'button:first-child': {
+            backgroundColor: '#B91C1C',
+            '&:hover': {
+                backgroundColor: '#EF4444'
+            }
+        }
+    }
+})

@@ -17,13 +17,6 @@ export function RatingDescription({description}: RatingDescription){
                 showMore && (
                     description
                 )
-
-                
-                // showMore ? (
-                //     description
-                // ):
-
-                // description.split(' ').slice(0, 40).join(' ').concat('...')
             }
 
             {

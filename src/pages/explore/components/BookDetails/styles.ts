@@ -338,62 +338,6 @@ export const BookDetailsRating = styled('div', {
     }
 })
 
-export const ModalOverlay = styled('div', {
-
-    position: 'absolute',
-    zIndex: 11,
-    top: 0,
-    right: 0,
-
-    width: '100vw',
-    height: '100vh',
-
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-
-
-
-})
-
-export const ModalContainer = styled('div', {
-    position: 'relative',
-
-    padding: '3.5rem 4.5rem',
-    borderRadius: '12px',
-    backgroundColor: '$gray700',
-
-    width: '32.25rem',
-
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2.5rem',
-
-    h3: {
-        fontWeight: '$bold',
-        fontSize: '1rem',
-        lineHeight: '$short',
-        color: '$gray200',
-        textAlign: 'center'
-    },
-
-    div: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-    },
-
-    'button:has(svg)': {
-       position: 'absolute',
-       top: 16,
-       right: 16
-    }
-
-})
-
-
 
 
 

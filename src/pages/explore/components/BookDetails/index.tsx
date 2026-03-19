@@ -1,6 +1,6 @@
 import { BookmarkSimple, BookOpen, X } from "phosphor-react";
 
-import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton,  ModalOverlay, ModalContainer} from "./styles";
+import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton} from "./styles";
 
 import { capitalize } from "@/utils/capitalize";
 import { formatDistanceToNow } from "date-fns";
@@ -21,6 +21,7 @@ import { BookProps, BooksResponse, RatingProps } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
 import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm";
+import { Modal } from "@/components/Modal";
 
 type BookDetailsProps = {
     closeBookDetails: () => void
@@ -192,43 +193,6 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
         }
     })
 
-    const {mutate: deleteRatingMutation} = useMutation({
-        mutationFn: async (ratingId: string) => {
-            return await api.delete(`/app/users/ratings?ratingId=${ratingId}`)
-        },
-        onMutate: async (ratingId) => {
-
-            await queryClient.cancelQueries({queryKey: ["ratings", bookId]})
-
-            const previousRatings = queryClient.getQueryData(["ratings", bookId])
-
-            queryClient.setQueryData<RatingProps[]>(["ratings", bookId], (oldData) => {
-
-                console.log(oldData)
-
-                if (!oldData) return oldData
-
-                return oldData.filter((rating) => rating.id !== ratingId)
-
-                })
-
-                return { previousRatings } 
-        },
-        onError: (err, __, context) => {
-            console.log(err)
-            queryClient.setQueryData(["ratings", bookId], context?.previousRatings)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({
-                queryKey: ['ratings', bookId],
-            })
-
-            queryClient.invalidateQueries({
-                queryKey: ['books', debouncedQuery, categoriesFilters],
-            })
-        }
-    })
-
     if (!book){
 
         return
@@ -238,13 +202,12 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
         <>
             {
                 isModalOpen && (
-                    <ModalOverlay >
-                        <ModalContainer ref={modalRef}>
-                            <CloseButton type="button" onClick={() => setIsModalOpen
+                    <Modal ref={modalRef}>
+                        <CloseButton type="button" onClick={() => setIsModalOpen
                                 (false)
                             }>
                                 <X />
-                            </CloseButton>
+                        </CloseButton>
                             <h3>Faça login para deixar sua avaliação</h3>
                             <div>
                                 <ProviderButton onClick={async () => signIn('google')}>
@@ -257,8 +220,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                     Entrar com Github
                                 </ProviderButton>
                             </div>
-                        </ModalContainer>
-                    </ModalOverlay>
+                    </Modal>
                 )
             }
 
@@ -336,7 +298,6 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                         return (
                                             <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={rating.id}>
                                                 <div>
-                                                    <button onClick={() => deleteRatingMutation(rating.id)} style={{cursor: 'pointer'}}>deletar</button>
                                                     <div>
                                                         <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />
                                                         <span>
