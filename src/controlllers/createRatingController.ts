@@ -1,5 +1,5 @@
 import { authOptions } from "@/pages/api/auth/[...nextauth].api"
-import createRatings from "@/services/createRating"
+import createRating from "@/services/createRating"
 import { NextApiRequest, NextApiResponse } from "next"
 import { getServerSession } from "next-auth"
 import { z } from 'zod'
@@ -25,7 +25,7 @@ export async function createRatingController(req: NextApiRequest, res: NextApiRe
   
   const { bookId, rate, review, author, coverUrl, pageCount, title, categories } = bodySchema.parse(req.body)
   
-  await createRatings({
+  await createRating({
     userId: session.user.id,
     bookId,
     rate,

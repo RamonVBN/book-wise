@@ -1,6 +1,6 @@
-import { BookmarkSimple, BookOpen, Check, Star, StarHalf, X } from "phosphor-react";
+import { BookmarkSimple, BookOpen, X } from "phosphor-react";
 
-import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton, UserRatingContainer, CancelButton, ConfirmButton, ModalOverlay, ModalContainer, FormError } from "./styles";
+import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton,  ModalOverlay, ModalContainer} from "./styles";
 
 import { capitalize } from "@/utils/capitalize";
 import { formatDistanceToNow } from "date-fns";
@@ -8,8 +8,6 @@ import { ptBR } from "date-fns/locale/pt-BR";
 import { formatCategories } from "@/utils/formatCategories";
 import { useEffect, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { ProviderButton } from "@/pages/login/styles";
 
 import Image from "next/image";
@@ -22,9 +20,9 @@ import { InfiniteData, useMutation, useQuery, useQueryClient } from "@tanstack/r
 import { BookProps, BooksResponse, RatingProps } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
+import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm";
 
 type BookDetailsProps = {
-    
     closeBookDetails: () => void
     bookId: string
     debouncedQuery: string,
@@ -37,28 +35,13 @@ type BooksQueryData = {
   }[]
 }
 
-const userRatingForm = z.object({
-    review: z.string()
-})
-
-type UserRatingFormData = z.infer<typeof userRatingForm>
-
-
 export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categoriesFilters }: BookDetailsProps) {
 
     const queryClient = useQueryClient()
 
-    const { register, handleSubmit, reset } = useForm<UserRatingFormData>()
-
     const session = useSession()
 
     const [isUserRatingOpen, setIsUserRatingOpen] = useState(false)
-
-    const [rateHover, setRateHover] = useState(0)
-
-    const [definedRate, setDefinedRate] = useState<number | null>(null)
-
-    const [isError, setIsError] = useState(false)
 
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -73,69 +56,14 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
         return setIsUserRatingOpen(true)
     }
 
-    async function handleRatingSubmit(data: UserRatingFormData) {
+    function handleCloseUserRatingForm(){
 
-        if (!definedRate) {
-            return setIsError(true)
-        }
+        return setIsUserRatingOpen(false)
+    }
+
+    async function handleRatingSubmit(data: UserRatingSubmitData) {
 
         createRatingMutation(data)
-    }
-
-    function handleDefineRate(index: number) {
-
-        if (definedRate === index) {
-            return setDefinedRate(null)
-        }
-
-        if (index) {
-
-            return setDefinedRate(index)
-        }
-    }
-
-    function handleMouseOver(index: number, e: React.MouseEvent<HTMLDivElement>) {
-
-        const { left, width } = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - left;
-        const half = width / 2;
-        const isHalf = x > half;
-        const value = index + (isHalf ? 1 : 0.5);
-
-        setRateHover(value)
-    }
-
-    function handleRate() {
-
-        const value = definedRate ?? rateHover
-
-        const starRate = Array.from({ length: 5 })
-
-        return starRate.map((_, i) => {
-
-            if (value >= i + 1) {
-
-                return (
-                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseLeave={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i, e)}>
-                        <Star weight='fill' />
-                    </div>
-                )
-            } else if (value >= i + 0.5) {
-                return (
-                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseOut={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i, e)}>
-                        <StarHalf weight='fill' />
-                    </div>
-                )
-            } else {
-                return (
-                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseOut={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i, e)}>
-                        <Star weight='regular' />
-                    </div>
-                )
-            }
-
-        })
-
     }
 
     function findBookById(bookId: string) {
@@ -201,9 +129,9 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
     })
 
     const {mutate: createRatingMutation} = useMutation({
-        mutationFn: async (data: UserRatingFormData) => {
+        mutationFn: async (data: UserRatingSubmitData) => {
             return await api.post('/app/users/ratings', {
-                rate: definedRate,
+                rate: data.rate,
                 review: data.review,
                 bookId: book?.id,
                 title: book?.title,
@@ -213,7 +141,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                 categories: book?.categories.join(',')
             })
         },
-        onMutate: async () => {
+        onMutate: async (data) => {
 
             await queryClient.cancelQueries({queryKey: ['books', debouncedQuery, categoriesFilters]})
 
@@ -232,7 +160,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                     if (book.id !== bookId) return book
 
                     const newRatingsCount = book.ratingsCount + 1
-                    const newRatingsSum = book.ratingsSum + definedRate!
+                    const newRatingsSum = book.ratingsSum + data.rate!
                     const newAvg = newRatingsSum / newRatingsCount
 
                     return {
@@ -254,10 +182,50 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
             queryClient.setQueryData(['books', debouncedQuery, categoriesFilters], context?.previousBooks)
         },
         onSuccess(){
-            reset()
             setIsUserRatingOpen(false)
-            setDefinedRate(null)
             refetch()
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['books', debouncedQuery, categoriesFilters],
+            })
+        }
+    })
+
+    const {mutate: deleteRatingMutation} = useMutation({
+        mutationFn: async (ratingId: string) => {
+            return await api.delete(`/app/users/ratings?ratingId=${ratingId}`)
+        },
+        onMutate: async (ratingId) => {
+
+            await queryClient.cancelQueries({queryKey: ["ratings", bookId]})
+
+            const previousRatings = queryClient.getQueryData(["ratings", bookId])
+
+            queryClient.setQueryData<RatingProps[]>(["ratings", bookId], (oldData) => {
+
+                console.log(oldData)
+
+                if (!oldData) return oldData
+
+                return oldData.filter((rating) => rating.id !== ratingId)
+
+                })
+
+                return { previousRatings } 
+        },
+        onError: (err, __, context) => {
+            console.log(err)
+            queryClient.setQueryData(["ratings", bookId], context?.previousRatings)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['ratings', bookId],
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: ['books', debouncedQuery, categoriesFilters],
+            })
         }
     })
 
@@ -359,53 +327,16 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
                                 {
                                     isUserRatingOpen && (
-                                        <UserRatingContainer>
-                                            <div>
-
-                                                <span>
-                                                    <img src={session.data?.user?.avatarUrl} alt="" />
-                                                    <h2>{session.data?.user?.name}</h2>
-                                                </span>
-
-                                                <span>
-
-                                                    <span>
-                                                        {
-                                                            handleRate()
-                                                        }
-
-                                                    </span>
-
-                                                    <span>
-
-                                                        <FormError isError={isError}>Selecione uma nota.</FormError>
-
-                                                    </span>
-
-                                                </span>
-
-                                            </div>
-
-                                            <form onSubmit={handleSubmit(handleRatingSubmit)}>
-                                                <textarea {...register('review')} placeholder="Escreva sua avaliação" />
-                                                <span>
-                                                    <CancelButton type="button" onClick={() => setIsUserRatingOpen(false)}>
-                                                        <X />
-                                                    </CancelButton>
-
-                                                    <ConfirmButton type="submit">
-                                                        <Check />
-                                                    </ConfirmButton>
-                                                </span>
-                                            </form>
-                                        </UserRatingContainer>
+                                        <UserRatingForm handleCloseUserRatingForm={handleCloseUserRatingForm} handleRatingSubmit={handleRatingSubmit} avatarUrl={session.data?.user.avatarUrl} userName={session.data?.user.name} />
                                     )
                                 }
+
                                 {
-                                    bookRatings && bookRatings.map((rating, i) => {
+                                    bookRatings && bookRatings.map((rating) => {
                                         return (
-                                            <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={i}>
+                                            <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={rating.id}>
                                                 <div>
+                                                    <button onClick={() => deleteRatingMutation(rating.id)} style={{cursor: 'pointer'}}>deletar</button>
                                                     <div>
                                                         <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />
                                                         <span>

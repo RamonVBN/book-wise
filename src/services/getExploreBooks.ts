@@ -15,7 +15,7 @@ const response = await fetch(
 
   const data = await response.json()
 
-  console.log(data)
+  // console.log(data)
 
   const books : BookProps[] = (data.items ?? [])
     ?.filter((book: any) =>  book.volumeInfo && book.volumeInfo.categories && book.volumeInfo.imageLinks?.thumbnail && book.volumeInfo.pageCount > 0 )

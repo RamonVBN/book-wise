@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { ProfileButton,  ProfileMainContainer, ProfileForm, ProfileInput, UserSeparator, UserStats, UserStatsContainer,  RatedBook, RatedBookInfo, RatedBooksContainer, RatedBookTime, UserContainer, UserProfile, Container, ProfileContainer } from "./styles"
@@ -11,13 +11,15 @@ import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/axios"
 import { useSession } from "next-auth/react"
 import Layout from "@/components/Layout"
-import { BookProps, RatingProps } from "@/@types/query-types"
+import { RatingProps } from "@/@types/query-types"
 import { formatCategories } from "@/utils/formatCategories"
 import { StarRating } from "@/components/StarsRating"
 import { NextSeo } from "next-seo"
 import { useRouter } from "next/router"
 import { Fallback } from "@/components/Fallback"
 import Image from "next/image"
+import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm"
+import { RatedBookCard } from "./components/RatedBookCard"
 
 const profileFormSchema = z.object({
     RatedBook: z.string().min(1)
@@ -180,35 +182,18 @@ export default function Profile(){
                     <MagnifyingGlass/>
                 </ProfileButton>
                 </ProfileForm>
-            
-                <RatedBooksContainer>                  
-                    {
-                        ratingsByInput.map((rating) => (
-
-                            <div key={rating.id}>
-                                <RatedBookTime>{capitalize(formatDistanceToNow(rating.createdAt, {addSuffix: true, locale: ptBR}))}
-                                    </RatedBookTime>
-                                <RatedBook>
-                                    <RatedBookInfo>
-                                        <Image width={98} height={134} src={rating.book.coverUrl} alt="" />
-                                        <div>
-                                            <span>
-                                            <h2>{rating.book.title}</h2>
-                                            <span>{rating.book.author}</span>
-                                            </span>
-                                            
-                                            <span>
-                                                <StarRating param={rating.rate}/>
-                                            </span>
-                                        </div>
-                                    </RatedBookInfo>
                     
-                                    <p>{rating.review}</p>
-                                </RatedBook>
-                                </div> 
-                        ))
-                    }
-                </RatedBooksContainer>
+                    <RatedBooksContainer>
+                        {
+                            ratingsByInput.map((rating) => {
+
+                                return (
+                                    <RatedBookCard key={rating.id} rating={rating}/>
+                                )
+                            })
+                        }
+                    </RatedBooksContainer>
+                
                 </ProfileMainContainer>
 
                 <UserContainer>
