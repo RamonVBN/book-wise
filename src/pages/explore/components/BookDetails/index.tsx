@@ -22,6 +22,7 @@ import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
 import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm";
 import { Modal } from "@/components/Modal";
+import { ReadingStatusSelect } from "../ReadingStatusSelect";
 
 type BookDetailsProps = {
     closeBookDetails: () => void
@@ -85,40 +86,40 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
     const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
     const modalRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
+    // useEffect(() => {
+    //     function handleClickOutside(event: MouseEvent) {
             
-            if (isModalOpen && modalRef.current &&
-            !modalRef.current.contains(event.target as Node)) {
-                return setIsModalOpen(false)
-            }
+    //         if (isModalOpen && modalRef.current &&
+    //         !modalRef.current.contains(event.target as Node)) {
+    //             return setIsModalOpen(false)
+    //         }
 
-            if (!isModalOpen && bookDetailsContainerRef.current && 
-                !bookDetailsContainerRef.current.contains(event.target as Node)) {
+    //         if (!isModalOpen && bookDetailsContainerRef.current && 
+    //             !bookDetailsContainerRef.current.contains(event.target as Node)) {
                 
-                return closeBookDetails()
-            }   
-        }
+    //             return closeBookDetails()
+    //         }   
+    //     }
 
-        function handleEsc(event: KeyboardEvent) {
-            if (event.key === "Escape") {
+    //     function handleEsc(event: KeyboardEvent) {
+    //         if (event.key === "Escape") {
 
 
-                if (isModalOpen){
-                    return setIsModalOpen(false)
-                }
-                return closeBookDetails()   
-            }
-        }
+    //             if (isModalOpen){
+    //                 return setIsModalOpen(false)
+    //             }
+    //             return closeBookDetails()   
+    //         }
+    //     }
 
-        document.addEventListener("mousedown", handleClickOutside)
-        document.addEventListener("keydown", handleEsc)
+    //     document.addEventListener("mousedown", handleClickOutside)
+    //     document.addEventListener("keydown", handleEsc)
 
-        return () => {
-        document.removeEventListener("mousedown", handleClickOutside)
-        document.removeEventListener("keydown", handleEsc)
-        }
-    }, [closeBookDetails, isModalOpen, bookDetailsContainerRef, modalRef])
+    //     return () => {
+    //     document.removeEventListener("mousedown", handleClickOutside)
+    //     document.removeEventListener("keydown", handleEsc)
+    //     }
+    // }, [closeBookDetails, isModalOpen, bookDetailsContainerRef, modalRef])
 
     const { data: bookRatings, refetch } = useQuery<RatingProps[]>({
     queryKey: ["ratings", bookId],
@@ -192,6 +193,10 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
             })
         }
     })
+
+    function onChange(status: string) {
+        console.log(status)
+    }
 
     if (!book){
 
@@ -269,6 +274,10 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                         <span>Páginas</span>
                                         <span>{book?.pageCount}</span>
                                     </span>
+                                </div>
+
+                                <div>
+                                    <ReadingStatusSelect onChange={onChange}/>
                                 </div>
                             </BookInfoFooter>
                         </BookInfo>
