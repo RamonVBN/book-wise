@@ -1,6 +1,5 @@
 import { styled } from "@/pages/globalStyles";
 
-
 export const ShowMoreButton = styled('button', {
 
   

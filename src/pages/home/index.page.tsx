@@ -5,11 +5,10 @@ import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
 import { capitalize } from "@/utils/capitalize"
 import { PageHeader } from "@/components/pageHeader"
-import { calcMediaRating } from "@/utils/calcMediaRating"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/axios"
 import { useSession } from "next-auth/react"
-import { BooksProps, RatingProps } from "@/@types/query-types"
+import { HomeDataResponse, RatingProps } from "@/@types/query-types"
 import Layout from "@/components/Layout"
 import { formatBookName } from "@/utils/formatBookName"
 import { StarRating } from "@/components/StarsRating"
@@ -17,59 +16,36 @@ import { StarRating } from "@/components/StarsRating"
 import { NextSeo } from "next-seo"
 import { Fallback } from "@/components/Fallback"
 import { RatingDescription } from "@/components/RatingDescription"
-
-
+import Image from "next/image"
 
 export default function Home(){
 
     const session = useSession()
 
-
-    const {data: ratingData, isLoading: isLoadingRatings} = useQuery<{ratings: RatingProps[]}>({
+    const {data: homeData, isLoading: isLoadingHomeData} = useQuery<HomeDataResponse>({
         queryKey: ['ratings'],
         queryFn: async () => {
 
-           const response = await api.get('/app/users/ratings')
+           const response = await api.get('/app/home')
 
            return response.data
         }
     })
 
-    const {data: booksData, isLoading: isLoadingBooks} = useQuery<{books: BooksProps[]}>({
-    
-        queryKey: ['books'],
-        queryFn: async () => {
-
-            const response = await api.get('/app/books')
-
-            return response.data
-        },
-            
-    })
-
-    const userEmail = session.data?.user.email
+    // const userEmail = session.data?.user.email
 
     const isSigned = session.status  === 'authenticated'
-
-    const top4PopBooks = booksData?.books.slice(0, 4)
-
-    const userRatings = ratingData?.ratings?.filter((rating) => rating.user.email === userEmail)
-
-    const lastUserRating: RatingProps | null = userRatings? userRatings.toReversed()[0] : null
 
     return (
     <>  
     <NextSeo
     title="Home | BookWise"
     description="Veja as avaliações e os livros mais populares!"
-
     />
     <Layout>
-        <Container>
-                
-
-             {
-                !isLoadingRatings || !isLoadingBooks ? (
+        <Container>               
+            {
+                !isLoadingHomeData ? (
             <>
                 <PageHeader>
                     <ChartLineUp/>
@@ -79,7 +55,7 @@ export default function Home(){
                     
                     <ContentContainer>
                         {
-                            isSigned && userRatings && lastUserRating && (
+                            isSigned && homeData?.lastUserReading && (
                         <LastReadContainer>
                             <LastReadHeader>
                                 <span>Sua última leitura</span>
@@ -89,43 +65,28 @@ export default function Home(){
                                 </LinkButton>
                             </LastReadHeader>
                             <LastReadBody prefetch href={'/profile'} >
-                                <img src={lastUserRating.book.coverUrl} alt="" />
+                                <Image width={108} height={152} src={homeData.lastUserReading.book.coverUrl} alt="" />
                                 <LastReadContent>
                                     <div>
                                         <div>
-                                            <span>{capitalize(formatDistanceToNow(lastUserRating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
+                                            <span>{capitalize(formatDistanceToNow(homeData.lastUserReading.createdAt, {locale: ptBR, addSuffix: true}))}</span>
                                             <span>
-                                                {
-
-                                                    <StarRating param={lastUserRating.rate}/>
-
-                                                    // Array.from({length: 5}).map((_, i) => {
-
-                                                    //     if (i + 1 > lastUserRating.rate) {
-                                                            
-                                                    //         return (
-                                                    //             <Star key={i}/>
-                                                    //         )
-                                                    //     }
-
-                                                    //     return <Star key={i} weight="fill"/>
-                                                    // })
-                                                }
+                                                <StarRating param={homeData.lastUserReading.rate}/>   
                                             </span>
                                         </div>
                                         <div>
-                                            <h2>{lastUserRating.book.name}</h2>
-                                            <span>{lastUserRating.book.author}</span>
+                                            <h2>{homeData.lastUserReading.book.title}</h2>
+                                            <span>{homeData.lastUserReading.book.author}</span>
                                         </div>
                                     </div>
                                     <p>
                                     {
-                                        lastUserRating.description.split(' ').length > 40 ? (
+                                        homeData.lastUserReading.review.split(' ').length > 40 ? (
 
-                                            lastUserRating.description.split(' ').slice(0, 40).join(' ').concat('...')
+                                            homeData.lastUserReading.review.split(' ').slice(0, 40).join(' ').concat('...')
                                         )
                                         :
-                                        lastUserRating.description
+                                        homeData.lastUserReading.review
                                     }
                                     </p>
                                 </LastReadContent>
@@ -140,41 +101,29 @@ export default function Home(){
                             </BooksRatingsContainerHeader>
 
                         {
-                            ratingData?.ratings && ratingData.ratings.toReversed().map((rating, i) => {
+                            homeData && homeData.recentRatings && homeData.recentRatings.map((rating) => {
                             return (
-                        <BookRating key={i}>
+                        <BookRating key={rating.id}>
                                 <BookRatingUserContainer>
                                     <BookRatingUser>
-                                        <img src={rating.user.avatarUrl} alt="" />
+                                        <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />
                                         <span>
                                             <span>{rating.user.name}</span>
                                             <span>{capitalize(formatDistanceToNow(rating.createdAt, {locale: ptBR, addSuffix: true}))}</span>
                                         </span>
                                     </BookRatingUser>
                                     <Rating>
-                                        {   
-                                            <StarRating param={rating.rate}/>
-
-                                            // Array.from({length: 5}).map((_,i) => {
-                                            //     if (i + 1 > rating.rate) {
-                                            //         return <Star key={i}/>
-                                            //     }
-                            
-                                            //     return (
-                                            //         <Star key={i} weight="fill"/>
-                                            //     )
-                                            // })
-                                        }
+                                        <StarRating param={rating.rate}/>
                                     </Rating>
                                 </BookRatingUserContainer>
                             <BookRatingBody>
-                                <img src={rating.book.coverUrl} alt="" />
+                                <Image width={108} height={152} src={rating.book.coverUrl} alt="" />
                                 <BookRatingDescription>
                                     <span>
-                                        <h2>{rating.book.name}</h2>
+                                        <h2>{rating.book.title}</h2>
                                         <span>{rating.book.author}</span>
                                     </span>
-                                    <RatingDescription description={rating.description}/>
+                                    <RatingDescription description={rating.review}/>
                                 </BookRatingDescription>
                             </BookRatingBody>
                         </BookRating>
@@ -198,42 +147,19 @@ export default function Home(){
                         <PopBookBody>
                         {
 
-                            top4PopBooks && top4PopBooks.map((book, i) => {
-
-                                const bookMediaRating = calcMediaRating(book.ratings)
+                            homeData && homeData.popularBooks && homeData.popularBooks.map((book) => {
 
                                 return (
-                                    <PopBook key={i}>
-                                    <img src={book.coverUrl} alt="" />
+                                    <PopBook key={book.id}>
+                                    <Image width={64} height={94} src={book.coverUrl} alt="" />
                                     <PopBookDescription>
                                         <span>
-                                            <h2>{formatBookName(book.name)}</h2>
-                                            <span>{book.author}</span>
+                                            <h2>{formatBookName(book.title)}</h2>
+                                            <span>{book.authors}</span>
                                         </span>
             
-                                        <Rating>
-                                        {
-                                            
-                                            <StarRating param={bookMediaRating}/>
-                                            //    Array.from({length: 5}).map((_, i) => {
-                                                    
-                                            //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
-                                            //         return (
-                                            //             <StarHalf key={i} weight="fill"/>  
-                                            //         )
-                                            //     }
-                                                
-                                            //     if (i + 1 > bookMediaRating) {
-
-                                                    
-                                            //         return (
-                                            //             <Star key={i}/>
-                                            //         )
-                                            //     }
-
-                                            //     return <Star key={i} weight="fill"/>
-                                            // })
-                                        }
+                                        <Rating>  
+                                            <StarRating param={book.avgRating}/>
                                         </Rating>
                                     </PopBookDescription>
                                 </PopBook>
@@ -252,7 +178,6 @@ export default function Home(){
                     <Fallback/>
                 )
              }    
-            
         </Container>
     </Layout>
     </> 

@@ -2,12 +2,14 @@
 
 type RatingBookProps = {
     author: string
-    name: string
-    coverUrl: string,
-    summary: string
+    title: string
+    coverUrl: string
+    pageCount: number
+    categories: string
 }
 
 type RatingUserProps = {
+    id: string
     name: string
     avatarUrl: string
     email: string
@@ -16,39 +18,49 @@ type RatingUserProps = {
 export type RatingProps = {
     id: string
     rate : number
-    description: string
-    createdAt: string
+    review: string
     book: RatingBookProps
     user: RatingUserProps
-
+    createdAt: string
 }
 
-export type BooksProps = {
-
+export type BookProps = {
     id: string
-    name: string
-    author: string
-    coverUrl: string
-    totalPages: number,
-    categories: Category[]
-    ratings: {
-        rate: number
-        createdAt: string
-        description: string
-        user: {
-            avatarUrl: string
-            name: string
-            email: string
-        }
-    }[]
+    title: string
+    description: string
+    authors: string[]
+    categories: string[]
+    pageCount: number
+    coverUrl: string 
+    avgRating: number
+    ratingsCount: number
+    ratingsSum: number
+    read: boolean
+    ratings: RatingProps[]
 }
 
+export type HomeDataResponse = {
+    recentRatings: RatingProps[]
+    popularBooks: BookProps[]
+    lastUserReading: RatingProps | null
+}
+
+export type BooksResponse = {
+  items: BookProps[]
+  total: number
+}
+
+export type BookStats = {
+
+  avgRating: number
+  ratingsCount: number
+  ratingsSum: number
+  read: boolean
+}
+ 
 type Category = {
     category: {
         name: string
     }
 }
 
-export type AllCategories = {
-    name: string
-}[]

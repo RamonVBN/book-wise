@@ -10,18 +10,10 @@ import { ReactNode, useState } from "react";
 
 import { useRouter } from "next/router";
 
-// type LayoutProps = {
-//     name: string
-//     avatarUrl: string
-//     email: string
-// }
 
 type Navigation = {
     buttonName: string
 }
-
-// Query types
-
 
 export default function Layout({children}: {children: ReactNode}){
 
@@ -85,7 +77,7 @@ export default function Layout({children}: {children: ReactNode}){
                         isSigned ? (
                             
                             <SignOutButton onClick={handleSignOut}>
-                                <img width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
+                                <Image width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
                                 <span>{session.data.user.name}</span>
                                 <SignOut size={20}/>
                             </SignOutButton>
@@ -103,28 +95,7 @@ export default function Layout({children}: {children: ReactNode}){
             </MenuContainer> 
         
             <MainContainer>
-
                 {children}
-{/*                                
-                    {
-                        navigation[0].active && (
-
-                            <Home handleNavigation={handleMenuNavigationButtons} />
-                        )
-                    }
-
-                    {
-                        navigation[1].active && (
-                            <Explore />
-                        )
-                    }
-                    
-                    {
-                        navigation[2].active && (
-                            <Profile/>
-                        )
-                    } */}
-
             </MainContainer>
         </AppContainer>
     )

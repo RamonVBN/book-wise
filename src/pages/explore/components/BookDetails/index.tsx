@@ -1,16 +1,13 @@
-import { BookmarkSimple, BookOpen, Check, Star, StarHalf, X } from "phosphor-react";
+import { BookmarkSimple, BookOpen, X } from "phosphor-react";
 
-import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton, UserRatingContainer, CancelButton, ConfirmButton, ModalOverlay, ModalContainer, FormError } from "./styles";
+import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton} from "./styles";
 
 import { capitalize } from "@/utils/capitalize";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
-import { calcMediaRating } from "@/utils/calcMediaRating";
 import { formatCategories } from "@/utils/formatCategories";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { ProviderButton } from "@/pages/login/styles";
 
 import Image from "next/image";
@@ -19,37 +16,33 @@ import googleLogo from '../../../../../assets/logos_google-icon.png'
 import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
 
 import { api } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
-import { BooksProps } from "@/@types/query-types";
+import { InfiniteData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BookProps, BooksResponse, RatingProps } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
+import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm";
+import { Modal } from "@/components/Modal";
 
 type BookDetailsProps = {
-
     closeBookDetails: () => void
-    bookName: string
+    bookId: string
+    debouncedQuery: string,
+    categoriesFilters: string,
 }
 
-const userRatingForm = z.object({
-    description: z.string()
-})
+type BooksQueryData = {
+  pages: {
+    items: BookProps[]
+  }[]
+}
 
-type UserRatingFormData = z.infer<typeof userRatingForm>
+export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categoriesFilters }: BookDetailsProps) {
 
-
-export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
-
-    const { register, handleSubmit, reset } = useForm<UserRatingFormData>()
+    const queryClient = useQueryClient()
 
     const session = useSession()
 
     const [isUserRatingOpen, setIsUserRatingOpen] = useState(false)
-
-    const [rateHover, setRateHover] = useState(0)
-
-    const [definedRate, setDefinedRate] = useState<number | null>(null)
-
-    const [isError, setIsError] = useState(false)
 
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -61,120 +54,160 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
             return setIsModalOpen(true)
         }
 
-
         return setIsUserRatingOpen(true)
     }
 
-    async function handleRatingSubmit(data: UserRatingFormData) {
+    function handleCloseUserRatingForm(){
 
-        if (!definedRate) {
-            return setIsError(true)
-        }
-
-        setIsError(false)
-
-
-        await api.post('/app/users/create-rating', {
-            rate: definedRate,
-            description: data.description,
-            bookId: book?.id,
-            userId: session.data?.user.id
-        })
-
-
-        reset()
-        setIsUserRatingOpen(false)
-        setDefinedRate(null)
-        refetch()
+        return setIsUserRatingOpen(false)
     }
 
-    function handleDefineRate(index: number) {
+    async function handleRatingSubmit(data: UserRatingSubmitData) {
 
-        if (definedRate === index) {
-            return setDefinedRate(null)
-        }
-
-        if (index) {
-
-            return setDefinedRate(index)
-        }
+        createRatingMutation(data)
     }
 
-    function handleMouseOver(index: number, e: React.MouseEvent<HTMLDivElement>) {
-
-        const { left, width } = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - left;
-        const half = width / 2;
-        const isHalf = x > half;
-        const value = index + (isHalf ? 1 : 0.5);
-
-        setRateHover(value)
-    }
-
-    function handleRate() {
-
-        const value = definedRate ?? rateHover
-
-        const starRate = Array.from({ length: 5 })
-
-        return starRate.map((_, i) => {
-
-            if (value >= i + 1) {
-
-                return (
-                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseLeave={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i, e)}>
-                        <Star weight='fill' />
-                    </div>
-                )
-            } else if (value >= i + 0.5) {
-                return (
-                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseOut={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i, e)}>
-                        <StarHalf weight='fill' />
-                    </div>
-                )
-            } else {
-                return (
-                    <div key={i} onClick={() => handleDefineRate(rateHover)} onMouseOut={() => setRateHover(0)} onMouseOver={(e) => handleMouseOver(i, e)}>
-                        <Star weight='regular' />
-                    </div>
-                )
-            }
-
-        })
-
-    }
-
-    const { data: booksData, refetch, isFetching } = useQuery<{ books: BooksProps[] }>({
-
-        queryKey: ['books'],
-        queryFn: async () => {
-
-            const response = await api.get('/app/books')
-
-            return response.data
-        },
-
+    function findBookById(bookId: string) {
+    const queries = queryClient.getQueriesData<InfiniteData<BooksResponse>>({
+    queryKey: ['books']
     })
 
-    const book = booksData?.books?.find((book) => book.name === bookName)
+    const book = queries
+    .flatMap(([, data]) => data?.pages ?? [])
+    .flatMap((page) => page.items)
+    .find((book) => book.id === bookId)
 
-    const bookMediaRating = book ? calcMediaRating(book?.ratings) : 6
+    return book
+    }
 
-    const userEmail = session.data?.user.email
+    const book = findBookById(bookId)
+    
+    const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
+    const modalRef = useRef<HTMLDivElement>(null)
 
-    const isUserRead = book?.ratings.some((rating) => rating.user.email === userEmail)
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            
+            if (isModalOpen && modalRef.current &&
+            !modalRef.current.contains(event.target as Node)) {
+                return setIsModalOpen(false)
+            }
+
+            if (!isModalOpen && bookDetailsContainerRef.current && 
+                !bookDetailsContainerRef.current.contains(event.target as Node)) {
+                
+                return closeBookDetails()
+            }   
+        }
+
+        function handleEsc(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+
+
+                if (isModalOpen){
+                    return setIsModalOpen(false)
+                }
+                return closeBookDetails()   
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+        document.addEventListener("keydown", handleEsc)
+
+        return () => {
+        document.removeEventListener("mousedown", handleClickOutside)
+        document.removeEventListener("keydown", handleEsc)
+        }
+    }, [closeBookDetails, isModalOpen, bookDetailsContainerRef, modalRef])
+
+    const { data: bookRatings, refetch } = useQuery<RatingProps[]>({
+    queryKey: ["ratings", bookId],
+    queryFn: async () => {
+    const response = await api.get(`/app/users/ratings?bookId=${bookId}`)
+        return response.data
+    },
+    enabled: !!bookId
+    })
+
+    const {mutate: createRatingMutation} = useMutation({
+        mutationFn: async (data: UserRatingSubmitData) => {
+            return await api.post('/app/users/ratings', {
+                rate: data.rate,
+                review: data.review,
+                bookId: book?.id,
+                title: book?.title,
+                author: book?.authors.join(','),
+                coverUrl: book?.coverUrl,
+                pageCount: book?.pageCount,
+                categories: book?.categories.join(',')
+            })
+        },
+        onMutate: async (data) => {
+
+            await queryClient.cancelQueries({queryKey: ['books', debouncedQuery, categoriesFilters]})
+
+            const previousBooks = queryClient.getQueryData(['books', debouncedQuery, categoriesFilters])
+
+            queryClient.setQueryData<BooksQueryData>(['books', debouncedQuery, categoriesFilters], (oldData) => {
+
+            if (!oldData) return oldData
+
+            return {
+                ...oldData,
+                pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((book) => {
+
+                    if (book.id !== bookId) return book
+
+                    const newRatingsCount = book.ratingsCount + 1
+                    const newRatingsSum = book.ratingsSum + data.rate!
+                    const newAvg = newRatingsSum / newRatingsCount
+
+                    return {
+                    ...book,
+                    avgRating: newAvg,
+                    ratingsSum: newRatingsSum,
+                    ratingsCount: newRatingsCount,
+                    read: true
+                    }
+                })
+                }))
+            }
+            })
+
+            return { previousBooks } 
+        },
+        onError: (err, __, context) => {
+            console.log(err)
+            queryClient.setQueryData(['books', debouncedQuery, categoriesFilters], context?.previousBooks)
+        },
+        onSuccess(){
+            setIsUserRatingOpen(false)
+            refetch()
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['books', debouncedQuery, categoriesFilters],
+            })
+        }
+    })
+
+    if (!book){
+
+        return
+    }
 
     return (
         <>
             {
                 isModalOpen && (
-                    <ModalOverlay>
-                        <ModalContainer>
-                            <CloseButton type="button" onClick={() => setIsModalOpen
+                    <Modal ref={modalRef}>
+                        <CloseButton type="button" onClick={() => setIsModalOpen
                                 (false)
                             }>
                                 <X />
-                            </CloseButton>
+                        </CloseButton>
                             <h3>Faça login para deixar sua avaliação</h3>
                             <div>
                                 <ProviderButton onClick={async () => signIn('google')}>
@@ -187,56 +220,30 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                     Entrar com Github
                                 </ProviderButton>
                             </div>
-                        </ModalContainer>
-                    </ModalOverlay>
+                    </Modal>
                 )
             }
 
             <BookDetailsOverlay>
-                <BookDetailsContainer>
+                <BookDetailsContainer ref={bookDetailsContainerRef}>
                     <CloseButton onClick={closeBookDetails}>
                         <X />
                     </CloseButton>
                     <BookDetailsBody>
                         <BookInfo>
                             <BookInfoBody>
-                                <img src={book?.coverUrl} alt="" />
+                                <Image loading="eager" quality={100} width={171.65} height={242} src={book.coverUrl} alt="" />
                                 <div>
                                     <span>
-                                        <h2>{book?.name}</h2>
-                                        <span>{book?.author}</span>
+                                        <h2>{book?.title}</h2>
+                                        <span>{book?.authors}</span>
                                     </span>
-
-
                                     <span>
                                         <span>
-
-                                            {
-
-                                                <StarRating param={bookMediaRating} />
-
-                                                //    Array.from({length: 5}).map((_, i) => {
-
-                                                //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
-                                                //         return (
-                                                //             <StarHalf key={i} weight="fill"/>  
-                                                //         )
-                                                //     }
-
-                                                //     if (i + 1 > bookMediaRating) {
-
-
-                                                //         return (
-                                                //             <Star key={i}/>
-                                                //         )
-                                                //     }
-
-                                                //     return <Star key={i} weight="fill"/>
-                                                // })
-                                            }
+                                            <StarRating param={book.avgRating} />
                                         </span>
                                         <span>
-                                            {book?.ratings.length} {book && book?.ratings.length === 1 ? 'avaliação' : 'avaliações'}
+                                            {book.ratingsCount} {book.ratingsCount === 1 ? 'avaliação' : 'avaliações'}
                                         </span>
                                     </span>
                                 </div>
@@ -248,9 +255,9 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                     <span>
                                         <span>Categoria(s)</span>
                                         <span>
-                                            {book?.categories.map((category, i) => {
+                                            {book?.categories.map((c, i) => {
                                                 return (
-                                                    formatCategories(category.category.name, i)
+                                                    formatCategories(c, i)
                                                 )
                                             })}
                                         </span>
@@ -260,7 +267,7 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                     <BookOpen />
                                     <span>
                                         <span>Páginas</span>
-                                        <span>{book?.totalPages}</span>
+                                        <span>{book?.pageCount}</span>
                                     </span>
                                 </div>
                             </BookInfoFooter>
@@ -271,67 +278,28 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                 <span>Avaliações</span>
 
                                 {
-                                    !isUserRead && (
-                                        <button disabled={isFetching} type="button" onClick={() => handleUserRatingOpen()}>Avaliar</button>
+                                    !book.read && (
+                                        <button  type="button" onClick={() => handleUserRatingOpen()}>Avaliar</button>
                                     )
                                 }
+
                             </BookDetailsRatingsHeader>
 
                             <BookDetailsRatingsBody>
 
                                 {
                                     isUserRatingOpen && (
-                                        <UserRatingContainer>
-                                            <div>
-
-                                                <span>
-                                                    <img src={session.data?.user?.avatarUrl} alt="" />
-                                                    <h2>{session.data?.user?.name}</h2>
-                                                </span>
-
-                                                <span>
-
-                                                    <span>
-                                                        {
-                                                            handleRate()
-                                                        }
-
-                                                    </span>
-
-                                                    <span>
-
-                                                        <FormError isError={isError}>Selecione uma nota.</FormError>
-
-                                                    </span>
-
-                                                </span>
-
-                                            </div>
-
-
-                                            <form onSubmit={handleSubmit(handleRatingSubmit)}>
-                                                <textarea {...register('description')} placeholder="Escreva sua avaliação" />
-                                                <span>
-                                                    <CancelButton type="button" onClick={() => setIsUserRatingOpen(false)}>
-                                                        <X />
-                                                    </CancelButton>
-
-                                                    <ConfirmButton type="submit">
-                                                        <Check />
-                                                    </ConfirmButton>
-                                                </span>
-                                            </form>
-                                        </UserRatingContainer>
+                                        <UserRatingForm handleCloseUserRatingForm={handleCloseUserRatingForm} handleRatingSubmit={handleRatingSubmit} avatarUrl={session.data?.user.avatarUrl} userName={session.data?.user.name} />
                                     )
                                 }
 
                                 {
-                                    book?.ratings.toReversed().map((rating, i) => {
+                                    bookRatings && bookRatings.map((rating) => {
                                         return (
-                                            <BookDetailsRating isUserRating={rating.user.email === userEmail} key={i}>
+                                            <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={rating.id}>
                                                 <div>
                                                     <div>
-                                                        <img src={rating.user.avatarUrl} alt="" />
+                                                        <Image width={40} height={40} src={rating.user.avatarUrl} alt="" />
                                                         <span>
                                                             <h3>{rating.user.name}</h3>
                                                             <span>{capitalize(formatDistanceToNow(rating.createdAt, { addSuffix: true, locale: ptBR }))}</span>
@@ -339,33 +307,15 @@ export function BookDetails({ closeBookDetails, bookName }: BookDetailsProps) {
                                                     </div>
 
                                                     <span>
-
-                                                        {
-                                                            <StarRating param={rating.rate} />
-                                                            // Array.from({length: 5}).map((_, i) => {
-
-                                                            //     if (i + 1 > rating.rate) {
-
-                                                            //     return (
-                                                            //     <Star key={i}/>
-                                                            //     )
-                                                            //     }
-
-                                                            //     return (
-                                                            //         <Star key={i} weight="fill"/>
-                                                            //     )
-                                                            // })
-                                                        }
-
+                                                        <StarRating param={rating.rate} />
                                                     </span>
                                                 </div>
 
-                                                <RatingDescription description={rating.description}/>
+                                                <RatingDescription description={rating.review}/>
                                             </BookDetailsRating>
                                         )
                                     })
                                 }
-
                             </BookDetailsRatingsBody>
                         </BookDetailsRatingsContainer>
                     </BookDetailsBody>

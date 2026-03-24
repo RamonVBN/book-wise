@@ -1,46 +1,80 @@
-import { Binoculars, MagnifyingGlass, Star, StarHalf } from "phosphor-react";
-import { ExploreBook, ExploreBooksContainer, ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton, ReadMark } from "./styles";
-import { useState } from "react";
+import { Binoculars, MagnifyingGlass } from "phosphor-react";
+
+import  {ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles.tsx'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { PageHeader } from "@/components/pageHeader";
 import { BookDetails } from "./components/BookDetails";
-import { calcMediaRating } from "@/utils/calcMediaRating";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/axios";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
-import { AllCategories, BooksProps } from "@/@types/query-types";
-import { useSession } from "next-auth/react";
-import { StarRating } from "@/components/StarsRating";
+import { BooksResponse } from "@/@types/query-types";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useInView } from "react-intersection-observer";
+import { api } from "@/lib/axios";
+import { ExploreBooksContainer } from "./components/ExploreBooks/style";
+import BookCard from "./components/ExploreBooks";
+import LoadingSpinner from "./components/LoadingSpinner.tsx";
+import BackToTop from "./components/BackToTopButton.tsx";
 
+const categories = [
+    {queryName: 'Fiction', name: 'Ficção'},
+    {queryName: 'Fantasy', name: 'Fantasia'},
+    {queryName: 'Science Fiction', name: 'Ficção Científica'},
+    {queryName: 'History', name: 'História'},
+    {queryName: 'Philosophy', name: 'Filosofia'},
+    {queryName: 'Technology', name: 'Tecnologia'},
+    {queryName: 'Business', name: 'Negócios'},
+    {queryName: 'Psychology', name: 'Psicologia'},
+    {queryName: 'Self-Help', name: 'Autoajuda'},
+    {queryName: 'Romance', name: 'Romance'},
+    {queryName: 'Horror', name: 'Horror'},
+    {queryName: 'Mystery', name: 'Mistério'}
+]
+
+// Em caso de exceder o limite de requisições do Goggle Books API.
+
+// const fakeData = Array.from({ length: 57 }, (_, i) => ({
+//   id: `book-${i + 1}`,
+//   title: `Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} v Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1}`,
+//   description: `This is a brief description for Book Title ${i + 1}. It covers interesting topics and insights to engage the reader.`,
+//   authors: [`Author ${i % 10 + 1}`, `Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}`],
+//   categories: [`Category ${i % 8 + 1}`, `Category ${i % 6 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} ,  Co-author ${i % 5 + 1} ,`],
+//   pageCount: Math.floor(Math.random() * 400) + 50, // páginas entre 50 e 450
+//   thumbnail: ''
+// }))
 
 const exploreFormSchema = z.object({
-    bookAuthor: z.string().min(1)
+    query: z.string()
 })
 
 type ExploreFormType = z.infer<typeof exploreFormSchema>
 
-
-export default function Explore(){
-
-    const session = useSession()
+export default function Explore() {
     
-    const [categoriesFilters, setCategoriesFilters] = useState<string[]>([])
+    const [categoriesFilters, setCategoriesFilters] = useState<string[]>(['Fiction'])
 
     const [isBookDetailsOpen, setIsBookDetailsOpen] = useState(false)
 
-    const [bookDetailsName, setBookDetailsName] = useState<string>('')
+    const [bookDetailsId, setBookDetailsId] = useState<string>('')
 
-    const {register, handleSubmit, reset, watch} = useForm<ExploreFormType>({
-        resolver: zodResolver(exploreFormSchema)
+    const exploreContainerRef = useRef<HTMLDivElement | null>(null)
+
+    const [isBackToTopButtonVisible, setIsBackToTopButtonVisible] = useState(false)
+
+    const { ref, inView } = useInView({
+        rootMargin: '300px'
     })
 
-    function handleExploreSubmit(){
-        reset()
-    }
+    const {register, watch, setFocus} = useForm<ExploreFormType>({
+        resolver: zodResolver(exploreFormSchema),
+        defaultValues: {
+            query: ''
+        }
+    })
 
     function handleCategoriesFilters(categoryName: string){
 
@@ -50,49 +84,87 @@ export default function Explore(){
 
             const newFilters = categoriesFilters.toSpliced(indexToRemove, 1)
 
-            return setCategoriesFilters(newFilters)
-            
+            return setCategoriesFilters(newFilters)   
         }
 
         return setCategoriesFilters((prevState) => [...prevState, categoryName])
     }
 
-    function handleOpenBookDetails(bookName: string){
-        setBookDetailsName(bookName)
-
+    const handleOpenBookDetails = useCallback((bookId: string) => {
+        setBookDetailsId(bookId)
         setIsBookDetailsOpen(true)
-    }
+    }, [])
 
     function handleCloseBookDetails(){
         setIsBookDetailsOpen(false)
     }
 
-    const {data: booksData, isLoading} = useQuery<{books: BooksProps[], categories: AllCategories}>({
+    const debouncedQuery = useDebounce(watch('query'), 800)
 
-        queryKey: ['books'],
-        queryFn: async () => {
+    const {
+        data: booksData, 
+        isLoading, 
+        hasNextPage, 
+        fetchNextPage, 
+        isFetchingNextPage} = useInfiniteQuery<BooksResponse>({
+        queryKey: ['books', debouncedQuery, categoriesFilters.join(',')],
+        queryFn: async ({pageParam = 0}) => {
+
+            const subjectString = categoriesFilters.map(c => `subject:${c}`).join('+')
+
+            const q = debouncedQuery.length > 0 ? encodeURIComponent(`intitle:"${debouncedQuery}+${subjectString}"` )
+            : encodeURIComponent(subjectString)
+
+            const response = await api.get(`/app/books?q=${q}&startIndex=${pageParam}`)
             
-            const response = await api.get('/app/books')
-
             return response.data
         },
-        
-        
-    })
+        initialPageParam: 0,
+        staleTime: 5 * 60 * 1000, // 5 minutos
+        refetchOnWindowFocus: false,
+        getNextPageParam: (lastPage, pages) => {
+            const nextIndex = pages.length * 20
 
-    const filteredBooksByInput = booksData?.books?.filter((book) => watch('bookAuthor') ? book.name.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) || book.author.trim().toLowerCase().includes(watch('bookAuthor').trim().toLowerCase()) : true)
+            if (!lastPage.items || lastPage.items.length === 0) {
+                return undefined
+            }
 
-    // const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
+            if (nextIndex >= 300) {
+                return undefined
+            }
 
-    //     return book.categories.some((bookCategory) => categoriesFilters.length > 0 ? categoriesFilters.includes(bookCategory.category.name): true)
-    // })
+            return nextIndex
+        }})
 
-    const filteredBooksByCategoriesAndInput = filteredBooksByInput?.filter((book) => {
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+            const scrollTop = e.currentTarget.scrollTop
+            setIsBackToTopButtonVisible(scrollTop > 300)
+        }      
 
-        return categoriesFilters.every((filteredCategory) => book.categories.some((bookCategory) => bookCategory.category.name === filteredCategory))
-    })
+    const books = useMemo(() => booksData?.pages.flatMap(page => page.items) ?? [], [booksData])
 
-    const userEmail = session.data?.user.email
+    useEffect(() => {
+        setFocus('query')
+    }, [setFocus])
+
+    useEffect(() => {
+        if (categoriesFilters.length === 0  && (watch('query').trim().length === 0 ) ) {
+            setCategoriesFilters(['Fiction'])
+        }
+    }, [categoriesFilters, watch('query')])
+
+    useEffect(() => {
+        if (!inView) return
+        if (!hasNextPage) return
+        if (isFetchingNextPage) return
+
+        fetchNextPage()
+        return 
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+
+    const scrollToTop = () => {
+        exploreContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+    }
 
     return (
         <>
@@ -103,10 +175,10 @@ export default function Explore(){
         <Layout>
             {
                 isBookDetailsOpen && (
-                    <BookDetails bookName={bookDetailsName} closeBookDetails={handleCloseBookDetails} />
+                    <BookDetails debouncedQuery={debouncedQuery} categoriesFilters={categoriesFilters.join(',')} bookId={bookDetailsId} closeBookDetails={handleCloseBookDetails} />
                 )
             }
-            <ExploreContainer>
+            <ExploreContainer onScroll={handleScroll} ref={exploreContainerRef}>
             <ExploreHeader>
 
                 <PageHeader>
@@ -114,9 +186,9 @@ export default function Explore(){
                 <h1>Explorar</h1>
                 </PageHeader>
                 
-                <form onSubmit={handleSubmit(handleExploreSubmit)}>
+                <form onSubmit={(e) => e.preventDefault()}>
                     <label>
-                    <ExploreInput disabled={isLoading} {...register('bookAuthor')}  placeholder="Buscar livro ou autor" type="text" />
+                    <ExploreInput {...register('query')}  placeholder="Buscar livro ou autor" type="text" />
                     </label>
                     <ExploreFormButton>
                         <MagnifyingGlass/>
@@ -126,79 +198,43 @@ export default function Explore(){
                     {
                         !isLoading ? (
                             <>
-                                <ExploreCategoriesContainer>
-                    <ExploreCategory onClick={() => setCategoriesFilters([])} isActive={categoriesFilters.length < 1 || categoriesFilters.length === booksData?.categories.length}>Tudo</ExploreCategory>
-                        {
-                            booksData?.categories && booksData.categories.map((category, i) => {
+                            <ExploreCategoriesContainer>
+                            {
+                                categories.map((category, i) => {
 
                                 return (
-                                    <ExploreCategory isActive={categoriesFilters.includes(category.name)} onClick={() => handleCategoriesFilters(category.name)} key={i} >{category.name}</ExploreCategory>
+                                    <ExploreCategory isActive={categoriesFilters.includes(category.queryName)} onClick={() => handleCategoriesFilters(category.queryName)} key={i} >{category.name}</ExploreCategory>
                                 )
-                            })
-                        }
-                    </ExploreCategoriesContainer>
+                                })
+                            }   
+                            </ExploreCategoriesContainer>
 
-                    <ExploreBooksContainer>
+                             <ExploreBooksContainer>
                         {
-                            filteredBooksByCategoriesAndInput && filteredBooksByCategoriesAndInput.map((book, i) => {
+                            books.map((book) => (
 
-                                const isUserRead = book.ratings.find((rating) => rating.user.email === userEmail )
-
-                                const bookMediaRating = calcMediaRating(book.ratings)
-
-                                return (
-                                <ExploreBook onClick={() => handleOpenBookDetails(book.name)} key={i}>
-                                    {
-                                        isUserRead && (
-                                            <ReadMark>LIDO</ReadMark>
-                                        )
-                                    }
-                                    <img src={book.coverUrl} alt="" />
-                                    <div>
-                                        <span>
-                                            <h2>{book.name}</h2>
-                                            <span>{book.author}</span>
-                                        </span>
-
-                                        <span>
-                                        
-                                            {
-                                                <StarRating param={bookMediaRating}/>
-
-                                            //     Array.from({length: 5}).map((_, i) => {
-                                                
-                                            //     if ((bookMediaRating - ((i + 1) - 1)) > 0 && (bookMediaRating - ((i + 1) - 1)) < 1 ) {
-                                            //         return (
-                                            //             <StarHalf key={i} weight="fill"/>  
-                                            //         )
-                                            //     }
-                                                
-                                            //     if (i + 1 > bookMediaRating) {
-
-                                                    
-                                            //         return (
-                                            //             <Star key={i}/>
-                                            //         )
-                                            //     }
-
-                                            //     return <Star key={i} weight="fill"/>
-                                            // })
-
-                                            }
-                                        </span>
-                                    </div>
-                                </ExploreBook>
-                                )
-                            })
+                                <BookCard key={book.id} book={book} handleOpenBookDetails={handleOpenBookDetails}/>
+                            )) 
+                            
                         }
+                        {
+                            isBackToTopButtonVisible && (
+                                <BackToTop onClick={scrollToTop}/>
+                            )
+                        }
+
+                        <div ref={ref}/>
                         
                     </ExploreBooksContainer>
+
+                    {
+                        isFetchingNextPage && (
+                            <LoadingSpinner/>
+                        )
+                    }
                     </>
                         ) : (<Fallback/>)
                     }
-
-                    
-                    
             </ExploreContainer>
         </Layout>
         </>

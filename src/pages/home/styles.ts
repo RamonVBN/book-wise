@@ -50,6 +50,8 @@ export const BooksRatingsContainer = styled('div', {
     flexDirection: 'column',
 
     borderBottom: '1px solid $gray600',
+
+    paddingBottom: '12px',
     
     gap: '0.75rem'
 
