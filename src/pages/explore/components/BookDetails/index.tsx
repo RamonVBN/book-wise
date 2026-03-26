@@ -57,8 +57,10 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
     const [isModalOpen, setIsModalOpen] = useState(false)
 
+    const [isSelectOpen, setIsSelectOpen] = useState(false)
+
     const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
-    const modalRef = useRef<HTMLDivElement>(null)
+    const loginModalRef = useRef<HTMLDivElement>(null)
 
 
     function handleUserRatingOpen() {
@@ -95,49 +97,37 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
     }
 
     const book = findBookById(bookId)
+
     
+    function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
 
-    useEffect(() => {
+        const target = event.target as HTMLElement
+        
+        if (
+            isModalOpen &&
+            loginModalRef.current &&
+            !loginModalRef.current.contains(target)
+            ) {
+            return setIsModalOpen(false)
+        }
 
-        function handleClickOutside(event: MouseEvent) {
-
-            const target = event.target as HTMLElement
+        if (!isModalOpen && bookDetailsContainerRef.current && 
+            !bookDetailsContainerRef.current.contains(event.target as Node)) {
             
-            if (
-                isModalOpen &&
-                modalRef.current &&
-                !modalRef.current.contains(target)
-                ) {
+            return closeBookDetails()
+        }   
+    }
+
+    function handleEsc(event: React.KeyboardEvent<HTMLDivElement>) {
+        if (event.key === "Escape") {
+
+            if (isModalOpen){
                 return setIsModalOpen(false)
             }
-
-            if (!isModalOpen && bookDetailsContainerRef.current && 
-                !bookDetailsContainerRef.current.contains(event.target as Node)) {
-                
-                return closeBookDetails()
-            }   
+            return closeBookDetails()   
         }
-
-        function handleEsc(event: KeyboardEvent) {
-            if (event.key === "Escape") {
-
-
-                if (isModalOpen){
-                    return setIsModalOpen(false)
-                }
-                return closeBookDetails()   
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside)
-        document.addEventListener("keydown", handleEsc)
-
-        return () => {
-        document.removeEventListener("mousedown", handleClickOutside)
-        document.removeEventListener("keydown", handleEsc)
-        }
-    }, [closeBookDetails, isModalOpen, bookDetailsContainerRef, modalRef])
-
+    }
+    
     const { data: bookRatings, refetch } = useQuery<RatingQueryData>({
     queryKey: ["ratings", bookId],
     queryFn: async () => {
@@ -211,8 +201,9 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
         }
     })
 
-    const {mutate: updateReadingStatusMutation} = useMutation({
+    const {mutate: updateReadingStatusMutation, isPending: isUpdatingReadingStatus} = useMutation({
         mutationFn: async ({status, isFavorite = false}:{status?: ReadingStatus, isFavorite: boolean}) => {
+            
             return await api.patch('/app/userBook', {
                 readStatus: status,
                 isFavorite: isFavorite,
@@ -253,8 +244,16 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
             queryClient.invalidateQueries({
                 queryKey: ['ratings', bookId],
             })
+
+            queryClient.invalidateQueries({
+                queryKey: ['books', debouncedQuery, categoriesFilters],
+            })
         }
     })
+
+    function handleSelectOpenChange(isOpen: boolean) {
+        setIsSelectOpen(!isOpen)
+    }
 
     function onSelectChange(status: ReadingStatus) {
         updateReadingStatusMutation({status, isFavorite: isFavoriteBook})
@@ -270,6 +269,11 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
     const isFavoriteBook = bookRatings?.userStatus?.isFavorite ?? false
 
+    useEffect(() => {
+       
+        bookDetailsContainerRef.current?.focus()
+    }, [])
+
     if (!book){
 
         return
@@ -279,7 +283,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
         <>
             {
                 isModalOpen && (
-                    <Modal ref={modalRef}>
+                    <Modal ref={loginModalRef}>
                         <CloseButton type="button" onClick={() => setIsModalOpen
                                 (false)
                             }>
@@ -301,8 +305,8 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                 )
             }
 
-            <BookDetailsOverlay>
-                <BookDetailsContainer ref={bookDetailsContainerRef}>
+            <BookDetailsOverlay onPointerDown={(e) => handleClickOutside(e)}>
+                <BookDetailsContainer tabIndex={-1} onKeyDown={(e) => handleEsc(e)} ref={bookDetailsContainerRef}>
                     <CloseButton onClick={closeBookDetails}>
                         <X />
                     </CloseButton>
@@ -349,11 +353,17 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                 </div>
 
                                 <div>
-                                    <ReadingStatusSelect containerRef={bookDetailsContainerRef} value={bookStatus} onChange={onSelectChange}/>
+                                    <ReadingStatusSelect 
+                                    disabled={isUpdatingReadingStatus}  
+                                    handleSelectOpenChange={handleSelectOpenChange} 
+                                    isSelectOpen={isSelectOpen} 
+                                    containerRef={bookDetailsContainerRef} 
+                                    value={bookStatus} 
+                                    onChange={onSelectChange}/>
                                 </div>
 
                                 <div>
-                                    <FavoriteButton isFavorite={isFavoriteBook} setIsFavorite={onFavoriteButtonClick} />
+                                    <FavoriteButton disabled={isUpdatingReadingStatus} isFavorite={isFavoriteBook} setIsFavorite={onFavoriteButtonClick} />
                                 </div>
                             </BookInfoFooter>
                         </BookInfo>

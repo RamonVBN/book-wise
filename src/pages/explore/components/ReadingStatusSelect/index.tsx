@@ -8,16 +8,22 @@ type ReadingStatusSelectProps = {
   value?: ReadingStatus
   onChange: (status: ReadingStatus) => void
   containerRef: React.RefObject<HTMLDivElement | null>
+  isSelectOpen: boolean
+  handleSelectOpenChange: (isOpen: boolean) => void
+  disabled: boolean
 }
 
     
 export function ReadingStatusSelect({
   value,
   onChange,
-  containerRef
+  containerRef,
+  isSelectOpen,
+  handleSelectOpenChange,
+  disabled
 }: ReadingStatusSelectProps) {
   return (
-    <Select.Root  value={value} onValueChange={onChange}>
+    <Select.Root disabled={disabled} open={isSelectOpen} onOpenChange={() => handleSelectOpenChange(isSelectOpen)}  value={value} onValueChange={onChange}>
       <Trigger status={value}>
         <Select.Value placeholder="Adicionar" />
         <Select.Icon>
@@ -26,8 +32,7 @@ export function ReadingStatusSelect({
       </Trigger>
 
       <Select.Portal container={containerRef?.current} >
-        <Content position="popper"
- >
+        <Content position="popper">
           <Select.Viewport>
 
             <Item value="WANT_TO_READ">

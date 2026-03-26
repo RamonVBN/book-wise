@@ -12,7 +12,13 @@ export const FavoriteButtonContainer = styled('button', {
     padding: '$2',
     backgroundColor: '$gray700',
 
-    '&:hover': {
+    '&:not(:disabled):hover': {
         backgroundColor: '$gray600',
+    },
+
+    '&:disabled': {
+        cursor: 'progress',
+        opacity: 0.5,
     }
+    
 })

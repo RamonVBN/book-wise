@@ -155,7 +155,7 @@ export default function Home(){
                                     <PopBookDescription>
                                         <span>
                                             <h2>{formatBookName(book.title)}</h2>
-                                            <span>{book.authors}</span>
+                                            <span>{book.author}</span>
                                         </span>
             
                                         <Rating>  
