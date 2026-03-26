@@ -14,7 +14,7 @@ export async function updateRatingController(req: NextApiRequest, res: NextApiRe
   }
 
   const querySchema = z.object({
-    ratingId: z.string(),
+    id: z.string(),
   })
 
   const bodySchema = z.object({
@@ -24,11 +24,11 @@ export async function updateRatingController(req: NextApiRequest, res: NextApiRe
   
   const { newRate, newReview } = bodySchema.parse(req.body)
   
-  const { ratingId } = querySchema.parse(req.query)
+  const { id } = querySchema.parse(req.query)
 
   const rating = await prisma.rating.findUnique({
       where: {
-        id: ratingId
+        id
       }
     })
 
@@ -41,7 +41,7 @@ export async function updateRatingController(req: NextApiRequest, res: NextApiRe
     }
 
   await updateRating({
-    ratingId,
+    ratingId: id,
     bookId: rating!.bookId,
     newRate,
     newReview 

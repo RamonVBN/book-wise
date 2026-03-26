@@ -1,13 +1,7 @@
 import * as Select from "@radix-ui/react-select"
 import { Content, Item, Trigger } from "./styles"
 import { CheckIcon, ChevronDownIcon } from "lucide-react"
-
-
-type ReadingStatus =
-  | "WANT_TO_READ"
-  | "READING"
-  | "READ"
-  | "ABANDONED"
+import { ReadingStatus } from "@/generated/prisma"
 
 type ReadingStatusSelectProps = {
   value?: ReadingStatus
@@ -21,9 +15,8 @@ export function ReadingStatusSelect({
 }: ReadingStatusSelectProps) {
   return (
     <Select.Root value={value} onValueChange={onChange}>
-      <Trigger>
+      <Trigger status={value}>
         <Select.Value placeholder="Adicionar" />
-
         <Select.Icon>
           <ChevronDownIcon />
         </Select.Icon>
@@ -54,7 +47,7 @@ export function ReadingStatusSelect({
               </Select.ItemIndicator>
             </Item>
 
-            <Item value="READ">
+            <Item value="FINISHED">
               <Select.ItemText>
                 Lido
               </Select.ItemText>

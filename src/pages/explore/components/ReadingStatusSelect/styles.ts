@@ -28,6 +28,31 @@ export const Trigger = styled(Select.Trigger, {
   "&:focus": {
     borderColor: "$blue500",
   },
+
+  variants: {
+    status: {
+      WANT_TO_READ: {
+        borderColor: "$blue500",
+        color: "$blue400",
+      },
+
+      READING: {
+        borderColor: "$yellow500",
+        color: "$yellow400",
+      },
+
+      FINISHED: {
+        backgroundColor: "$green200",
+        color: "$green400",
+      },
+
+      ABANDONED: {
+        borderColor: "$red500",
+        color: "$red400",
+      },
+    },
+  },
+
 })
 
 export const Content = styled(Select.Content, {

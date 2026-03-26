@@ -1,4 +1,4 @@
-import { getRatings } from "@/services/getRating"
+import { getUserRatings } from "@/services/getUserRatings"
 import { NextApiRequest, NextApiResponse } from "next"
 
 import { z } from 'zod'
@@ -6,15 +6,13 @@ import { z } from 'zod'
 export async function getRatingsController(req: NextApiRequest, res: NextApiResponse) {
 
   const querySchema = z.object({
-    bookId: z.string().optional(),
-    userId: z.string().optional()
+    id: z.string()
   })
 
-  const { bookId, userId } = querySchema.parse(req.query)
+  const { id } = querySchema.parse(req.query)
 
-  const ratings = await getRatings({
-      bookId,
-      userId
+  const ratings = await getUserRatings({
+      userId: id
     })
 
   return res.json(ratings)

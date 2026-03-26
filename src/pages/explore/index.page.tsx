@@ -1,6 +1,6 @@
 import { Binoculars, MagnifyingGlass } from "phosphor-react";
 
-import  {ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles.tsx'
+import  { ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles.tsx'
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,7 @@ import { ExploreBooksContainer } from "./components/ExploreBooks/style";
 import BookCard from "./components/ExploreBooks";
 import LoadingSpinner from "./components/LoadingSpinner.tsx";
 import BackToTop from "./components/BackToTopButton.tsx";
+import { CategoriesContainer, Category } from "@/components/UserRatingForm/styles.ts";
 
 const categories = [
     {queryName: 'Fiction', name: 'Ficção'},
@@ -198,16 +199,16 @@ export default function Explore() {
                     {
                         !isLoading ? (
                             <>
-                            <ExploreCategoriesContainer>
+                            <CategoriesContainer>
                             {
                                 categories.map((category, i) => {
 
                                 return (
-                                    <ExploreCategory isActive={categoriesFilters.includes(category.queryName)} onClick={() => handleCategoriesFilters(category.queryName)} key={i} >{category.name}</ExploreCategory>
+                                    <Category isActive={categoriesFilters.includes(category.queryName)} onClick={() => handleCategoriesFilters(category.queryName)} key={i} >{category.name}</Category>
                                 )
                                 })
                             }   
-                            </ExploreCategoriesContainer>
+                            </CategoriesContainer>
 
                              <ExploreBooksContainer>
                         {

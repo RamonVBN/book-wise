@@ -1,5 +1,4 @@
 import { styled } from "@/pages/globalStyles"
-import { FileX } from "phosphor-react"
 
 export const RatedBooksContainer = styled('div', {
     

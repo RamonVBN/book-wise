@@ -1,28 +1,25 @@
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { ProfileButton,  ProfileMainContainer, ProfileForm, ProfileInput, UserSeparator, UserStats, UserStatsContainer,  RatedBook, RatedBookInfo, RatedBooksContainer, RatedBookTime, UserContainer, UserProfile, Container, ProfileContainer } from "./styles"
-import { BookmarkSimple, BookOpen, Books, MagnifyingGlass, Star, User, UserList } from "phosphor-react"
-import { formatDistanceToNow, getYear } from "date-fns"
-import { ptBR } from "date-fns/locale/pt-BR"
-import { capitalize } from "@/utils/capitalize"
+import { ProfileButton,  ProfileMainContainer, ProfileForm, ProfileInput, UserSeparator, UserStats, UserStatsContainer,   UserContainer, UserProfile, Container, ProfileContainer, ProfileBooksContainer } from "./styles"
+import { BookmarkSimple, BookOpen, Books, MagnifyingGlass, User, UserList } from "phosphor-react"
+import { getYear, set } from "date-fns"
 import { PageHeader } from "@/components/pageHeader"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/axios"
 import { useSession } from "next-auth/react"
 import Layout from "@/components/Layout"
-import { RatingProps } from "@/@types/query-types"
+import { ProfileResponse, RatingProps, UserBookProps } from "@/@types/query-types"
 import { formatCategories } from "@/utils/formatCategories"
-import { StarRating } from "@/components/StarsRating"
 import { NextSeo } from "next-seo"
 import { useRouter } from "next/router"
 import { Fallback } from "@/components/Fallback"
 import Image from "next/image"
-import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm"
+import { CategoriesContainer, Category } from "@/components/UserRatingForm/styles"
 import { RatedBookCard } from "./components/RatedBookCard"
 
 const profileFormSchema = z.object({
-    RatedBook: z.string().min(1)
+    ratedBook: z.string().min(1)
 })
 
 type ProfileFormData = z.infer<typeof profileFormSchema>
@@ -32,6 +29,16 @@ type MostReadCategory = {
     count: number
 }
 
+type Categories = {
+  Avaliados: RatingProps[]
+  Lidos: UserBookProps[]
+  Favoritos: UserBookProps[]
+  Abandonados: UserBookProps[]
+  "Quero Ler": UserBookProps[]
+  Lendo: UserBookProps[]
+}
+
+
 export default function Profile(){
 
     const session = useSession()
@@ -39,15 +46,23 @@ export default function Profile(){
     const router = useRouter()
 
     const {register, handleSubmit, setFocus, reset, watch} = useForm<ProfileFormData>()
+
+    const [profileCategory, setProfileCategory] = useState<keyof Categories>('Avaliados')
     
     function onSubmit(){
         
         reset()
-        setFocus('RatedBook')
+        setFocus('ratedBook')
     }
 
     async function handlePossibleRedirect(){
         await router.push('/')
+    }
+
+    function handleProfileCategories(categoryName: keyof Categories){
+
+        setProfileCategory(categoryName)
+
     }
 
     const userId = session.data?.user.id
@@ -55,33 +70,47 @@ export default function Profile(){
     const avatarUrl = session.data?.user.avatarUrl
     const createdAt = session.data?.user.createdAt
 
-    const {data: ratingData, isLoading: isLoadingRatings} = useQuery<RatingProps[]>({
-        queryKey: ['ratings', userId],
+    const {data: profileData, isLoading: isLoadingRatings} = useQuery<ProfileResponse>({
+        queryKey: ['profile', userId],
         queryFn: async () => {
 
-           const response = await api.get(`/app/users/ratings?userId=${userId}`)
+           const response = await api.get(`/app/profile`)
 
            return response.data
         },
         enabled: !!userId
     })
 
-    const ratings = Array.isArray(ratingData) ? ratingData : []
+    const finishedBooks = profileData?.finishedBooks ?? []
+    const favoriteBooks = profileData?.favoriteBooks ?? []
+    const abandonedBooks = profileData?.abandonedBooks ?? []
+    const wantToReadBooks = profileData?.wantToReadBooks ?? []
+    const currentlyReadingBooks = profileData?.currentlyReadingBooks ?? []
+    const userRatings = profileData?.userRatings ?? []
 
-    const ratingsByInput = ratings.filter((rating) => 
-        rating.book.title.toLowerCase().trim().includes(watch('RatedBook') ? watch('RatedBook').trim().toLowerCase() : '')) 
+    const categories : Categories = {
+        'Avaliados': userRatings,
+        'Lidos': finishedBooks,
+        'Favoritos': favoriteBooks,
+        'Abandonados': abandonedBooks,
+        'Quero Ler': wantToReadBooks,
+        'Lendo': currentlyReadingBooks
+    }
+    
+    const booksByInput = categories[profileCategory]?.filter((userBook) => 
+        userBook.book.title.toLowerCase().trim().includes(watch('ratedBook') ? watch('ratedBook').trim().toLowerCase() : '')) ?? []
     
     const userTotalPages = useMemo(() => {
-        return ratings.reduce((acc, current) => {
+        return finishedBooks.reduce((acc, current) => {
             return acc + current.book.pageCount
         }, 0)
-    }, [ratings])
+    }, [profileData])
 
     const userTotalAuthorsList = useMemo(() => {
 
-        return ratings.map((rating) => {
+        return finishedBooks.map((userBook) => {
             
-            const authorsList = rating.book.author.split(',')
+            const authorsList = userBook.book.author.split(',')
             
             return authorsList
 
@@ -100,10 +129,10 @@ export default function Profile(){
 
         }, [])
 
-    }, [ratings])
+    }, [profileData])
 
     const mostReadCategories = useMemo(() => {
-        return ratings.reduce((acc: MostReadCategory[], current): MostReadCategory[] => {
+        return finishedBooks.reduce((acc: MostReadCategory[], current): MostReadCategory[] => {
 
             current.book.categories.split(',').map((category) => {
 
@@ -150,7 +179,7 @@ export default function Profile(){
             return acc
 
         }, [])
-    }, [ratings])
+    }, [profileData])
 
     if (session.status === 'unauthenticated') {
         
@@ -161,7 +190,7 @@ export default function Profile(){
     <>
     <NextSeo
     title="Profile | BookWise"
-    description="Veja suas leituras e metas pessoais!"
+    description="Veja suas leituras e estatísticas pessoais!"
     />
     <Layout>
         <Container>
@@ -173,26 +202,37 @@ export default function Profile(){
                     <h1>Perfil</h1>
                 </PageHeader>
             <ProfileContainer>
-                <ProfileMainContainer>
-                <ProfileForm onSubmit={handleSubmit(onSubmit)}>
-                <label >
-                    <ProfileInput {...register('RatedBook')} placeholder="Buscar livro avaliado" />
-                </label>
-                <ProfileButton>
-                    <MagnifyingGlass/>
-                </ProfileButton>
-                </ProfileForm>
+                    <ProfileMainContainer>
+                    <div>
+                        <ProfileForm onSubmit={handleSubmit(onSubmit)}>
+                            <label>
+                                <ProfileInput {...register('ratedBook')} placeholder="Buscar livro" />
+                            </label>
+                            <ProfileButton>
+                                <MagnifyingGlass/>
+                            </ProfileButton>
+                            
+                        </ProfileForm>
+                        
+                        <CategoriesContainer>
+                                {(Object.keys(categories) as (keyof Categories)[]).map((categoryName) => (
+                                    <Category onClick={() => handleProfileCategories(categoryName)} isActive={profileCategory === categoryName} key={categoryName}>
+                                        {categoryName} ({categories[categoryName]?.length || 0})
+                                    </Category>
+                                ))}
+                            </CategoriesContainer>
+                    </div>
                     
-                    <RatedBooksContainer>
+                    <ProfileBooksContainer>
                         {
-                            ratingsByInput.map((rating) => {
+                            userRatings.map((rating) => {
 
                                 return (
                                     <RatedBookCard key={rating.id} rating={rating}/>
                                 )
                             })
                         }
-                    </RatedBooksContainer>
+                    </ProfileBooksContainer>
                 
                 </ProfileMainContainer>
 
@@ -224,7 +264,7 @@ export default function Profile(){
                                 <UserStats>
                                     <Books />
                                     <span>
-                                        <h3>{ratingData?.length}</h3>
+                                        <h3>{userRatings.length}</h3>
                                         <span>Livros avaliados</span>
                                     </span>
                                 </UserStats>
@@ -242,7 +282,7 @@ export default function Profile(){
                                     <span>
                                         <h3>
                                             {
-                                                mostReadCategories?.map((category, i) => {
+                                                mostReadCategories.map((category, i) => {
 
                                                     return (
                                                         formatCategories(category.categoryName, i)

@@ -1,6 +1,6 @@
 import { createRatingController } from "@/controlllers/createRatingController"
 import { deleteRatingController } from "@/controlllers/deleteRatingController"
-import { getRatingsController } from "@/controlllers/getRatingsController"
+import { getRatingsController } from "@/controlllers/getUserRatingsController"
 import { updateRatingController } from "@/controlllers/updateRatingController"
 import { NextApiRequest, NextApiResponse } from "next"
 

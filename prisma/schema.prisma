@@ -8,13 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ReadingStatus {
-  WANT_TO_READ
-  READING
-  FINISHED
-  ABANDONED
-}
-
 model User {
   id            String    @id @default(uuid())
   name          String
@@ -51,6 +44,13 @@ model Book {
   userBooks    UserBook[]
 
   @@map("books")
+}
+
+enum ReadingStatus {
+  WANT_TO_READ
+  READING
+  FINISHED
+  ABANDONED
 }
 
 model UserBook {

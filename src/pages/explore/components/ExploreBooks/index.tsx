@@ -2,10 +2,10 @@ import Image from "next/image";
 import { ExploreBook, ReadMark } from "./style";
 import React from "react";
 import { StarRating } from "@/components/StarsRating";
-import { BookProps } from "@/@types/query-types";
+import { ExploreBooksProps } from "@/@types/query-types";
 
 const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} : 
-    {book: BookProps, 
+    {book: ExploreBooksProps, 
     handleOpenBookDetails: (bookId: string) => void}
     )
     {
@@ -13,7 +13,7 @@ const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} :
         <ExploreBook onClick={() => handleOpenBookDetails(book.id)}>
 
              {
-                book.read && (
+                book.finished && (
                 <ReadMark>LIDO</ReadMark>
                 )
                 }
@@ -24,13 +24,13 @@ const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} :
                 <span>
                     <h2>{book.title}</h2>
                     <span>{
-                        book.authors && book.authors.length > 1 ? book.authors.map((name, i) => {
-                            if (i < book.authors.length - 1){
+                        book.author && book.author.length > 1 ? book.author.map((name, i) => {
+                            if (i < book.author.length - 1){
                                 return name + ', '
                             } else {
                                 return name
                             }
-                        }) : book.authors}
+                        }) : book.author}
                         </span>
                 </span>
 

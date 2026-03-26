@@ -8,13 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ReadingStatus {
-  WANT_TO_READ
-  READING
-  READ
-  ABANDONED
-}
-
 model User {
   id            String   @id @default(uuid())
   name          String
@@ -53,6 +46,13 @@ model Book {
   @@map("books")
 }
 
+enum ReadingStatus {
+  WANT_TO_READ
+  READING
+  FINISHED
+  ABANDONED
+}
+
 model UserBook {
   id String @id @default(uuid())
 
@@ -69,11 +69,13 @@ model UserBook {
   finishedAt DateTime? @map("finished_at")
 
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([userId, bookId])
+  @@index([userId, status])
   @@map("user_books")
 }
 

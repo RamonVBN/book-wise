@@ -14,14 +14,14 @@ export async function deleteRatingController(req: NextApiRequest, res: NextApiRe
   }
 
   const querySchema = z.object({
-    ratingId: z.string(),
+    id: z.string(),
   })
   
-  const { ratingId } = querySchema.parse(req.query)
+  const { id } = querySchema.parse(req.query)
 
    const rating = await prisma.rating.findUnique({
       where: {
-        id: ratingId
+        id
       }
     })
 
@@ -35,7 +35,7 @@ export async function deleteRatingController(req: NextApiRequest, res: NextApiRe
   
   await deleteRating({
     userId: session.user.id,
-    ratingId,
+    ratingId: id,
     rate: rating!.rate,
     bookId: rating!.bookId
   })

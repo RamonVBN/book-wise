@@ -1,4 +1,4 @@
-import { BookmarkSimple, BookOpen, X } from "phosphor-react";
+import { BookmarkSimple, BookOpen, Heart, X } from "phosphor-react";
 
 import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton} from "./styles";
 
@@ -23,6 +23,8 @@ import { RatingDescription } from "@/components/RatingDescription";
 import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm";
 import { Modal } from "@/components/Modal";
 import { ReadingStatusSelect } from "../ReadingStatusSelect";
+import { ReadingStatus } from "@/generated/prisma";
+import { FavoriteButton } from "../FavoriteButton";
 
 type BookDetailsProps = {
     closeBookDetails: () => void
@@ -35,6 +37,14 @@ type BooksQueryData = {
   pages: {
     items: BookProps[]
   }[]
+}
+
+type RatingQueryData = {
+  ratings: RatingProps[]
+  userStatus: {
+    status: ReadingStatus
+    isFavorite: boolean
+  } | null
 }
 
 export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categoriesFilters }: BookDetailsProps) {
@@ -69,16 +79,16 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
     }
 
     function findBookById(bookId: string) {
-    const queries = queryClient.getQueriesData<InfiniteData<BooksResponse>>({
-    queryKey: ['books']
-    })
+        const queries = queryClient.getQueriesData<InfiniteData<BooksResponse>>({
+        queryKey: ['books']
+        })
 
-    const book = queries
-    .flatMap(([, data]) => data?.pages ?? [])
-    .flatMap((page) => page.items)
-    .find((book) => book.id === bookId)
+        const book = queries
+        .flatMap(([, data]) => data?.pages ?? [])
+        .flatMap((page) => page.items)
+        .find((book) => book.id === bookId)
 
-    return book
+        return book
     }
 
     const book = findBookById(bookId)
@@ -86,45 +96,56 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
     const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
     const modalRef = useRef<HTMLDivElement>(null)
 
-    // useEffect(() => {
-    //     function handleClickOutside(event: MouseEvent) {
+    useEffect(() => {
+
+        function isClickInsideRadixPortal(target: HTMLElement) {
+            return !!target.closest("[data-radix-portal]")
+        }
+
+        function handleClickOutside(event: MouseEvent) {
+
+            const target = event.target as HTMLElement
             
-    //         if (isModalOpen && modalRef.current &&
-    //         !modalRef.current.contains(event.target as Node)) {
-    //             return setIsModalOpen(false)
-    //         }
+            if (
+                isModalOpen &&
+                modalRef.current &&
+                !modalRef.current.contains(target) &&
+                !isClickInsideRadixPortal(target)
+                ) {
+                return setIsModalOpen(false)
+            }
 
-    //         if (!isModalOpen && bookDetailsContainerRef.current && 
-    //             !bookDetailsContainerRef.current.contains(event.target as Node)) {
+            if (!isModalOpen && bookDetailsContainerRef.current && 
+                !bookDetailsContainerRef.current.contains(event.target as Node)) {
                 
-    //             return closeBookDetails()
-    //         }   
-    //     }
+                return closeBookDetails()
+            }   
+        }
 
-    //     function handleEsc(event: KeyboardEvent) {
-    //         if (event.key === "Escape") {
+        function handleEsc(event: KeyboardEvent) {
+            if (event.key === "Escape") {
 
 
-    //             if (isModalOpen){
-    //                 return setIsModalOpen(false)
-    //             }
-    //             return closeBookDetails()   
-    //         }
-    //     }
+                if (isModalOpen){
+                    return setIsModalOpen(false)
+                }
+                return closeBookDetails()   
+            }
+        }
 
-    //     document.addEventListener("mousedown", handleClickOutside)
-    //     document.addEventListener("keydown", handleEsc)
+        document.addEventListener("mousedown", handleClickOutside)
+        document.addEventListener("keydown", handleEsc)
 
-    //     return () => {
-    //     document.removeEventListener("mousedown", handleClickOutside)
-    //     document.removeEventListener("keydown", handleEsc)
-    //     }
-    // }, [closeBookDetails, isModalOpen, bookDetailsContainerRef, modalRef])
+        return () => {
+        document.removeEventListener("mousedown", handleClickOutside)
+        document.removeEventListener("keydown", handleEsc)
+        }
+    }, [closeBookDetails, isModalOpen, bookDetailsContainerRef, modalRef])
 
-    const { data: bookRatings, refetch } = useQuery<RatingProps[]>({
+    const { data: bookRatings, refetch } = useQuery<RatingQueryData>({
     queryKey: ["ratings", bookId],
     queryFn: async () => {
-    const response = await api.get(`/app/users/ratings?bookId=${bookId}`)
+    const response = await api.get(`/app/ratings/books/${bookId}`)
         return response.data
     },
     enabled: !!bookId
@@ -132,12 +153,12 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
     const {mutate: createRatingMutation} = useMutation({
         mutationFn: async (data: UserRatingSubmitData) => {
-            return await api.post('/app/users/ratings', {
+            return await api.post(`/app/ratings/users/${session.data?.user.id}`, {
                 rate: data.rate,
                 review: data.review,
                 bookId: book?.id,
                 title: book?.title,
-                author: book?.authors.join(','),
+                author: book?.author.join(','),
                 coverUrl: book?.coverUrl,
                 pageCount: book?.pageCount,
                 categories: book?.categories.join(',')
@@ -194,9 +215,64 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
         }
     })
 
-    function onChange(status: string) {
-        console.log(status)
+    const {mutate: updateReadingStatusMutation} = useMutation({
+        mutationFn: async ({status, isFavorite = false}:{status?: ReadingStatus, isFavorite: boolean}) => {
+            return await api.patch('/app/userBook', {
+                readStatus: status,
+                isFavorite: isFavorite,
+                bookId: book?.id,
+                title: book?.title,
+                author: book?.author.join(','),
+                coverUrl: book?.coverUrl,
+                pageCount: book?.pageCount,
+                categories: book?.categories.join(',')
+            })
+        },
+        onMutate: async ({status, isFavorite}) => {
+
+            await queryClient.cancelQueries({queryKey: ['ratings', bookId]})
+
+            const previousRatings = queryClient.getQueryData(['ratings', bookId])
+
+            queryClient.setQueryData<RatingQueryData>(['ratings', bookId], (oldData) => {
+
+            if (!oldData) return oldData
+
+            return {
+                ...oldData,
+                userStatus: {
+                    status: status ?? oldData.userStatus?.status ?? 'WANT_TO_READ',
+                    isFavorite: isFavorite
+                }
+            }
+            })
+
+            return { previousRatings } 
+        },
+        onError: (err, __, context) => {
+            console.log(err)
+            queryClient.setQueryData(['ratings', bookId], context?.previousRatings)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['ratings', bookId],
+            })
+        }
+    })
+
+    function onSelectChange(status: ReadingStatus) {
+        updateReadingStatusMutation({status, isFavorite: isFavoriteBook})
+        return
     }
+
+    function onFavoriteButtonClick(isFavorite: boolean) {
+        updateReadingStatusMutation({isFavorite})
+        return
+    }
+
+    const bookStatus = bookRatings?.userStatus?.status
+
+    const isFavoriteBook = bookRatings?.userStatus?.isFavorite ?? false
 
     if (!book){
 
@@ -241,7 +317,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                 <div>
                                     <span>
                                         <h2>{book?.title}</h2>
-                                        <span>{book?.authors}</span>
+                                        <span>{book?.author}</span>
                                     </span>
                                     <span>
                                         <span>
@@ -277,7 +353,11 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                 </div>
 
                                 <div>
-                                    <ReadingStatusSelect onChange={onChange}/>
+                                    <ReadingStatusSelect value={bookStatus} onChange={onSelectChange}/>
+                                </div>
+
+                                <div>
+                                    <FavoriteButton isFavorite={isFavoriteBook} setIsFavorite={onFavoriteButtonClick} />
                                 </div>
                             </BookInfoFooter>
                         </BookInfo>
@@ -287,7 +367,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                 <span>Avaliações</span>
 
                                 {
-                                    !book.read && (
+                                    bookRatings && bookRatings?.userStatus && bookRatings.userStatus.status === 'FINISHED' && (
                                         <button  type="button" onClick={() => handleUserRatingOpen()}>Avaliar</button>
                                     )
                                 }
@@ -303,7 +383,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                 }
 
                                 {
-                                    bookRatings && bookRatings.map((rating) => {
+                                    bookRatings && bookRatings.ratings && bookRatings.ratings.map((rating) => {
                                         return (
                                             <BookDetailsRating isUserRating={rating.user.email === session.data?.user.email} key={rating.id}>
                                                 <div>

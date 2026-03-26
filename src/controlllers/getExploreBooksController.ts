@@ -22,9 +22,9 @@ export async function getExploreBooksController(
   
   const books = await getExploreBooks({userId, q, startIndex})
 
-    res.status(200).json({
-    items: books,
-    total: books.length
+  res.status(200).json({
+  items: books,
+  total: books.length
   })
  
 }

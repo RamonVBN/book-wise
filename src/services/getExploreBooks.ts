@@ -1,5 +1,6 @@
 import { BookProps, BookStats } from "@/@types/query-types"
 import { prisma } from "@/lib/prisma"
+import { finished } from "stream"
 
 interface GetExploreBooks {
   userId?: string
@@ -15,14 +16,12 @@ const response = await fetch(
 
   const data = await response.json()
 
-  // console.log(data)
-
   const books : BookProps[] = (data.items ?? [])
     ?.filter((book: any) =>  book.volumeInfo && book.volumeInfo.categories && book.volumeInfo.imageLinks?.thumbnail && book.volumeInfo.pageCount > 0 )
     .map((book: any) => ({
       id: book.id,
       title: book.volumeInfo.title,
-      authors: book.volumeInfo.authors ?? [],
+      author: book.volumeInfo.authors ?? [],
       description: book.volumeInfo.description ?? null,
       coverUrl: book.volumeInfo.imageLinks?.thumbnail ?? null,
       pageCount: book.volumeInfo.pageCount,
@@ -38,6 +37,11 @@ const response = await fetch(
         }
       },
       include: {
+        userBooks: {
+          where: {
+            userId
+          }
+        },
         ratings: {
           where: {
             userId
@@ -53,14 +57,12 @@ const response = await fetch(
 
     dbBooks.forEach(book => {
 
-      const read = userId ? book.ratings.length > 0
-      : false
-
       booksMap[book.id] = {
         avgRating: book.avgRating,
         ratingsCount: book.ratingsCount,
         ratingsSum: book.ratingsSum,
-        read
+        finished: book.userBooks.length > 0 ? book.userBooks[0].status === 'FINISHED' : false
+
       }
     })
 
@@ -70,7 +72,7 @@ const response = await fetch(
     return {
       id: book.id,
       title: book.title,
-      authors: book.authors,
+      author: book.author,
       description: book.description,
       coverUrl: book.coverUrl,
       pageCount: book.pageCount,
@@ -79,7 +81,8 @@ const response = await fetch(
       avgRating: stats?.avgRating ?? 0,
       ratingsCount: stats?.ratingsCount ?? 0,
       ratingsSum: stats?.ratingsSum ?? 0,
-      read: stats?.read ?? false
+      finished: stats?.finished ?? false
+  
     }
   })
 

@@ -67,8 +67,7 @@ export const ProfileForm = styled('form', {
         }
     },
 
-    marginBottom: '3rem',
-
+    paddingBottom: '1.5rem'
 })
 
 export const ProfileInput = styled('input', {
@@ -214,7 +213,7 @@ export const UserStats = styled('div', {
 
 })
 
-export const RatedBooksContainer = styled('div', {
+export const ProfileBooksContainer = styled('div', {
     
     display: 'flex',
     flexDirection: 'column',
@@ -226,84 +225,4 @@ export const RatedBooksContainer = styled('div', {
     
     gap: '0.75rem',
 
-})
-
-export const RatedBook = styled('div', {
-
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.5rem',
-    padding: '1.5rem',
-
-    marginBottom: '1rem',
-    marginTop: '0.5rem',
-
-    width: '100%',
-    backgroundColor: '$gray700',
-    borderRadius: '8px',
-
-    p: {
-        fontWeight: '$regular',
-        fontSize: '0.875rem',
-        lineHeight: '$base',
-        color: '$gray100',
-        textAlign: 'justify'
-    }
-
-})
-
-export const RatedBookInfo = styled('div', {
-
-    display: 'flex',
-    gap: '1.5rem',
-
-    img: {
-        width: '6.125rem',
-        height: '8.375rem'
-    },
-
-    div: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-
-        'span:first-child': {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.25rem',
-
-            h2: {
-                fontWeight: '$bold',
-                fontSize: '1.125rem',
-                lineHeight: '$short',
-                color: '$gray100'
-            },
-
-            span: {
-                fontWeight: '$regular',
-                fontSize: '0.875rem',
-                lineHeight: '$base',
-                color: '$gray400'
-            }
-        },
-
-        'span:last-child': {
-            display: 'flex',
-            gap: '0.25rem',
-
-            svg: {
-                color: '$purple100'
-            }
-        }
-    },
-
-   
-})
-
-export const RatedBookTime = styled('span', {
-
-    fontSize: '0.875rem',
-    fontWeight: '$regular',
-    lineHeight: '$base',
-    color: '$gray300',
 })

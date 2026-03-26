@@ -1,4 +1,4 @@
-import { RatingProps } from "@/@types/query-types"
+import { ProfileResponse, RatingProps } from "@/@types/query-types"
 import {   ModalBody, RatedBook, RatedBookInfo, RatedBooksContainer, RatedBookTime } from "./styles"
 import { formatDistanceToNow } from "date-fns"
 import { capitalize } from "@/utils/capitalize"
@@ -50,47 +50,51 @@ export function RatedBookCard({rating}: RatedBookProps){
         mutationFn: async (data: UserRatingSubmitData) => {
             const newRate = data.rate
             const newReview = data.review
-            return await api.put(`/app/users/ratings?ratingId=${rating.id}`, {
+            return await api.put(`/app/ratings/users/${rating.id}`, {
                 newReview,
                 newRate   
             })
         },
         onMutate: async (data) => {
 
-            await queryClient.cancelQueries({queryKey: ["ratings", userId]})
+            await queryClient.cancelQueries({queryKey: ["profile", userId]})
 
-            const previousRatings = queryClient.getQueryData(["ratings", userId])
+            const previousProfileData = queryClient.getQueryData(["profile", userId])
 
-            queryClient.setQueryData<RatingProps[]>(["ratings", userId], (oldData) => {
+            queryClient.setQueryData<ProfileResponse>(["profile", userId], (oldData) => {
 
                 if (!oldData) return oldData
 
-                return oldData.map((r) => {
+                return {
+                    ...oldData,
+                    userRatings: oldData.userRatings.map((r) => {
 
-                    if (r.id === ratingId) {
-                        return {
-                            ...r,
-                            rate: data.rate,
-                            review: data.review
+                        if(r.id === ratingId){
+
+                            return {
+                                ...r,
+                                review: data.review,
+                                rate: data.rate
+                            }
                         }
-                    } else {
+
                         return r
-                    }
-                })
+                    })
+                }
                 })
 
-                return { previousRatings } 
+                return { previousProfileData } 
         },
         onSuccess: () => {
             setisUserRatingFormOpen(false)
         },
         onError: (err, __, context) => {
             console.log(err)
-            queryClient.setQueryData(["ratings", userId], context?.previousRatings)
+            queryClient.setQueryData(["profile", userId], context?.previousProfileData)
         },
         onSettled: () => {
             queryClient.invalidateQueries({
-                queryKey: ['ratings', userId],
+                queryKey: ['profile', userId],
             })
 
             queryClient.invalidateQueries({
@@ -101,33 +105,34 @@ export function RatedBookCard({rating}: RatedBookProps){
 
     const {mutate: deleteRatingMutation} = useMutation({
             mutationFn: async (ratingId: string) => {
-                return await api.delete(`/app/users/ratings?ratingId=${ratingId}`)
+                return await api.delete(`/app/ratings/users/${ratingId}`)
             },
             onMutate: async (ratingId) => {
     
-                await queryClient.cancelQueries({queryKey: ["ratings", userId]})
+                await queryClient.cancelQueries({queryKey: ["profile", userId]})
     
-                const previousRatings = queryClient.getQueryData(["ratings", userId])
+                const previousProfileData = queryClient.getQueryData(["profile", userId])
     
-                queryClient.setQueryData<RatingProps[]>(["ratings", userId], (oldData) => {
-    
-                    console.log(oldData)
+                queryClient.setQueryData<ProfileResponse>(["profile", userId], (oldData) => {
     
                     if (!oldData) return oldData
     
-                    return oldData.filter((rating) => rating.id !== ratingId)
+                    return {
+                        ...oldData,
+                        userRatings: oldData.userRatings.filter((r) => r.id !== ratingId)
+                    }
     
                     })
     
-                    return { previousRatings } 
+                    return { previousProfileData } 
             },
             onError: (err, __, context) => {
                 console.log(err)
-                queryClient.setQueryData(["ratings", userId], context?.previousRatings)
+                queryClient.setQueryData(["profile", userId], context?.previousProfileData)
             },
             onSettled: () => {
                 queryClient.invalidateQueries({
-                    queryKey: ['ratings', userId],
+                    queryKey: ['profile', userId],
                 })
     
                 queryClient.invalidateQueries({
@@ -185,8 +190,7 @@ export function RatedBookCard({rating}: RatedBookProps){
                     </Modal>
                 )
             }
-        
-
+            
             <div>
             <RatedBookTime>{capitalize(formatDistanceToNow(rating.createdAt, {addSuffix: true, locale: ptBR}))}
                 </RatedBookTime>
@@ -226,10 +230,9 @@ export function RatedBookCard({rating}: RatedBookProps){
 
                 {
                     isUserRatingFormOpen && (
-                        <UserRatingForm initialReview={rating.review} initialRate={rating.rate} profile={true} handleRatingSubmit={handleRatingSubmit}   handleCloseUserRatingForm={handleCloseUserRatingForm} />
+                        <UserRatingForm initialReview={rating.review} initialRate={rating.rate} profile={true} handleRatingSubmit={handleRatingSubmit}  handleCloseUserRatingForm={handleCloseUserRatingForm} />
                     )
                 }
-                
             </RatedBook>
             </div> 
     </>

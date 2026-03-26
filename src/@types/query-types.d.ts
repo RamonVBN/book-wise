@@ -1,5 +1,7 @@
 // Query Types
 
+import { ReadingStatus } from "@/generated/prisma"
+
 type RatingBookProps = {
     author: string
     title: string
@@ -28,15 +30,27 @@ export type BookProps = {
     id: string
     title: string
     description: string
-    authors: string[]
-    categories: string[]
+    author: string
+    categories: string
     pageCount: number
     coverUrl: string 
     avgRating: number
     ratingsCount: number
     ratingsSum: number
-    read: boolean
     ratings: RatingProps[]
+}
+
+export interface ExploreBooksProps extends BookProps {
+    author: string[]
+    categories: string[]
+    finished: boolean
+}
+
+export type UserBookProps = {
+    status: ReadingStatus
+    isFavorite: boolean
+    currentPage?: number
+    book: BookProps
 }
 
 export type HomeDataResponse = {
@@ -46,7 +60,7 @@ export type HomeDataResponse = {
 }
 
 export type BooksResponse = {
-  items: BookProps[]
+  items: ExploreBooksProps[]
   total: number
 }
 
@@ -55,12 +69,21 @@ export type BookStats = {
   avgRating: number
   ratingsCount: number
   ratingsSum: number
-  read: boolean
+  finished: boolean
 }
  
 type Category = {
     category: {
         name: string
     }
+}
+
+export type ProfileResponse = {
+    userRatings: RatingProps[],
+    currentlyReadingBooks: UserBookProps[],
+    finishedBooks: UserBookProps[],
+    abandonedBooks: UserBookProps[],
+    wantToReadBooks: UserBookProps[],
+    favoriteBooks: UserBookProps[],
 }
 
