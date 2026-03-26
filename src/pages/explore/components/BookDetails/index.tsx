@@ -1,4 +1,4 @@
-import { BookmarkSimple, BookOpen, Heart, X } from "phosphor-react";
+import { BookmarkSimple, BookOpen, X } from "phosphor-react";
 
 import { BookDetailsBody, BookDetailsContainer, BookDetailsOverlay, BookDetailsRatingsContainer, BookDetailsRatingsBody, BookDetailsRatingsHeader, BookInfo, BookInfoBody, BookInfoFooter, BookDetailsRating, CloseButton} from "./styles";
 
@@ -57,6 +57,9 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
     const [isModalOpen, setIsModalOpen] = useState(false)
 
+    const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
+    const modalRef = useRef<HTMLDivElement>(null)
+
 
     function handleUserRatingOpen() {
 
@@ -93,14 +96,8 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
     const book = findBookById(bookId)
     
-    const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
-    const modalRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-
-        function isClickInsideRadixPortal(target: HTMLElement) {
-            return !!target.closest("[data-radix-portal]")
-        }
 
         function handleClickOutside(event: MouseEvent) {
 
@@ -109,8 +106,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
             if (
                 isModalOpen &&
                 modalRef.current &&
-                !modalRef.current.contains(target) &&
-                !isClickInsideRadixPortal(target)
+                !modalRef.current.contains(target)
                 ) {
                 return setIsModalOpen(false)
             }
@@ -353,7 +349,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
                                 </div>
 
                                 <div>
-                                    <ReadingStatusSelect value={bookStatus} onChange={onSelectChange}/>
+                                    <ReadingStatusSelect containerRef={bookDetailsContainerRef} value={bookStatus} onChange={onSelectChange}/>
                                 </div>
 
                                 <div>
