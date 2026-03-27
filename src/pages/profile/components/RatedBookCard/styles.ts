@@ -100,7 +100,7 @@ export const RatedBookInfo = styled('div', {
 
             padding: '0.5rem',
 
-            backgroundColor: '$gray600',
+            // backgroundColor: '$gray600',
             borderRadius: '4px',
 
             svg: {

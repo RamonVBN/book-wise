@@ -140,39 +140,30 @@ export function RatedBookCard({rating}: RatedBookProps){
                 })
             }
     })
+    
+    function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
+        
+        if (isModalOpen && modalRef.current &&
+        !modalRef.current.contains(event.target as Node)) {
+            return setIsModalOpen(false)
+        }
+    }
+
+    function handleEsc(event: React.KeyboardEvent<HTMLDivElement>) {
+        if (event.key === "Escape" && isModalOpen) {
+            return setIsModalOpen(false)   
+        }
+    }
 
     useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            
-            if (isModalOpen && modalRef.current &&
-            !modalRef.current.contains(event.target as Node)) {
-                return setIsModalOpen(false)
-            }
-        }
-    
-        function handleEsc(event: KeyboardEvent) {
-            if (event.key === "Escape") {
-
-                if (isModalOpen){
-                    return setIsModalOpen(false)
-                }
-            }
-        }
-    
-        document.addEventListener("mousedown", handleClickOutside)
-        document.addEventListener("keydown", handleEsc)
-
-        return () => {
-        document.removeEventListener("mousedown", handleClickOutside)
-        document.removeEventListener("keydown", handleEsc)
-        }
-        }, [isModalOpen, modalRef])
+        modalRef.current?.focus()
+    }, [isModalOpen])
 
     return (
     <>
             {
                 isModalOpen && (
-                    <Modal ref={modalRef}>
+                    <Modal onKeyDown={handleEsc} onPointerDown={handleClickOutside} ref={modalRef}>
                         <CloseButton type="button" onClick={() => setIsModalOpen
                                 (false)
                             }>
@@ -180,7 +171,7 @@ export function RatedBookCard({rating}: RatedBookProps){
                         </CloseButton>
 
                         <ModalBody>
-                            <p>Tem certeza que deseja excluir essa avaliação?</p>
+                            <p>Tem certeza que deseja excluir sua avaliação?</p>
 
                             <div>
                                 <button onClick={() => handleDeleteRating()}>Excluir</button>
