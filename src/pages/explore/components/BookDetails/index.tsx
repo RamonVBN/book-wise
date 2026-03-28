@@ -17,7 +17,7 @@ import githubLogo from '../../../../../assets/akar-icons_github-fill.png'
 
 import { api } from "@/lib/axios";
 import { InfiniteData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookProps, BooksResponse, RatingProps } from "@/@types/query-types";
+import { BookProps, BooksQueryData, BooksResponse, RatingProps, RatingQueryData } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import { RatingDescription } from "@/components/RatingDescription";
 import { UserRatingForm, UserRatingSubmitData } from "@/components/UserRatingForm";
@@ -31,20 +31,6 @@ type BookDetailsProps = {
     bookId: string
     debouncedQuery: string,
     categoriesFilters: string,
-}
-
-type BooksQueryData = {
-  pages: {
-    items: BookProps[]
-  }[]
-}
-
-type RatingQueryData = {
-  ratings: RatingProps[]
-  userStatus: {
-    status: ReadingStatus
-    isFavorite: boolean
-  } | null
 }
 
 export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categoriesFilters }: BookDetailsProps) {
@@ -202,7 +188,7 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
     })
 
     const {mutate: updateReadingStatusMutation, isPending: isUpdatingReadingStatus} = useMutation({
-        mutationFn: async ({status, isFavorite = false}:{status?: ReadingStatus, isFavorite: boolean}) => {
+        mutationFn: async ({status, isFavorite }:{status?: ReadingStatus, isFavorite: boolean}) => {
             
             return await api.patch('/app/userBook', {
                 readStatus: status,
@@ -223,12 +209,12 @@ export function BookDetails({ closeBookDetails, bookId, debouncedQuery, categori
 
             queryClient.setQueryData<RatingQueryData>(['ratings', bookId], (oldData) => {
 
-            if (!oldData) return oldData
+            if (!oldData || !oldData.userStatus) return oldData
 
             return {
                 ...oldData,
                 userStatus: {
-                    status: status ?? oldData.userStatus?.status ?? 'WANT_TO_READ',
+                    status: status ?? oldData.userStatus.status,
                     isFavorite: isFavorite
                 }
             }

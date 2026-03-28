@@ -38,7 +38,6 @@ export default async function updateUserBook(
         update: {}
     })
 
-
     await tx.userBook.upsert({
         where: {
             userId_bookId: {

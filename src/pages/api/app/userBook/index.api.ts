@@ -7,5 +7,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return updateUserBookController(req, res)
   }
 
+  if (req.method === "DELETE") {
+    return 
+  }
+
   return res.status(405).end()
 }

@@ -1,6 +1,6 @@
 import { styled } from "@/pages/globalStyles"
 
-export const RatedBooksContainer = styled('div', {
+export const ProfileBooksContainer = styled('div', {
     
     display: 'flex',
     flexDirection: 'column',
@@ -14,7 +14,7 @@ export const RatedBooksContainer = styled('div', {
 
 })
 
-export const RatedBook = styled('div', {
+export const ProfileBook = styled('div', {
 
     display: 'flex',
     flexDirection: 'column',
@@ -38,7 +38,7 @@ export const RatedBook = styled('div', {
 
 })
 
-export const RatedBookInfo = styled('div', {
+export const ProfileBookInfo = styled('div', {
 
     display: 'flex',
     gap: '1.5rem',
@@ -86,7 +86,6 @@ export const RatedBookInfo = styled('div', {
     'div:last-child': {
         display: 'flex',
         flexDirection: "row",
-        marginLeft: 'auto',
         gap: '$3',
         paddingRight: '24px',
 
@@ -99,9 +98,7 @@ export const RatedBookInfo = styled('div', {
             boxSizing: 'border-box',
 
             padding: '0.5rem',
-
-            // backgroundColor: '$gray600',
-            borderRadius: '4px',
+            borderRadius: '$full',
 
             svg: {
                 color: '$green100',
@@ -118,7 +115,7 @@ export const RatedBookInfo = styled('div', {
    
 })
 
-export const RatedBookTime = styled('span', {
+export const ProfileBookTime = styled('span', {
 
     fontSize: '0.875rem',
     fontWeight: '$regular',

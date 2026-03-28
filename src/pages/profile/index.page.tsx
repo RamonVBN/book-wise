@@ -16,7 +16,7 @@ import { useRouter } from "next/router"
 import { Fallback } from "@/components/Fallback"
 import Image from "next/image"
 import { CategoriesContainer, Category } from "@/components/UserRatingForm/styles"
-import { RatedBookCard } from "./components/RatedBookCard"
+import { ProfileBookCard } from "./components/ProfileBookCard"
 
 const profileFormSchema = z.object({
     ratedBook: z.string().min(1)
@@ -30,7 +30,7 @@ type MostReadCategory = {
 }
 
 type Categories = {
-  Avaliados: RatingProps[]
+  Avaliações: RatingProps[]
   Lidos: UserBookProps[]
   Favoritos: UserBookProps[]
   Abandonados: UserBookProps[]
@@ -47,7 +47,7 @@ export default function Profile(){
 
     const {register, handleSubmit, setFocus, reset, watch} = useForm<ProfileFormData>()
 
-    const [profileCategory, setProfileCategory] = useState<keyof Categories>('Avaliados')
+    const [profileCategory, setProfileCategory] = useState<keyof Categories>('Avaliações')
     
     function onSubmit(){
         
@@ -81,20 +81,33 @@ export default function Profile(){
         enabled: !!userId
     })
 
-    const finishedBooks = profileData?.finishedBooks ?? []
-    const favoriteBooks = profileData?.favoriteBooks ?? []
-    const abandonedBooks = profileData?.abandonedBooks ?? []
-    const wantToReadBooks = profileData?.wantToReadBooks ?? []
-    const currentlyReadingBooks = profileData?.currentlyReadingBooks ?? []
-    const userRatings = profileData?.userRatings ?? []
+    const finishedBooks = useMemo(() => {
+
+        return profileData?.finishedBooks ?? []
+    }, [profileData])
+    const favoriteBooks = useMemo(() => {
+        return profileData?.favoriteBooks ?? []
+    }, [profileData])
+    const abandonedBooks = useMemo(() => {
+        return profileData?.abandonedBooks ?? []
+    }, [profileData])
+    const wantToReadBooks = useMemo(() => {
+        return profileData?.wantToReadBooks ?? []
+    }, [profileData])
+    const currentlyReadingBooks = useMemo(() => {
+        return profileData?.currentlyReadingBooks ?? []
+    }, [profileData])
+    const userRatings = useMemo(() => {
+        return profileData?.userRatings ?? []
+    }, [profileData])
 
     const categories : Categories = {
-        'Avaliados': userRatings,
-        'Lidos': finishedBooks,
+        'Avaliações': userRatings,
         'Favoritos': favoriteBooks,
-        'Abandonados': abandonedBooks,
+        'Lidos': finishedBooks,
+        'Lendo': currentlyReadingBooks,
         'Quero Ler': wantToReadBooks,
-        'Lendo': currentlyReadingBooks
+        'Abandonados': abandonedBooks,
     }
     
     const booksByInput = categories[profileCategory]?.filter((userBook) => 
@@ -224,12 +237,20 @@ export default function Profile(){
                     </div>
                     
                     <ProfileBooksContainer>
-                        {
-                            userRatings.map((rating) => {
 
-                                return (
-                                    <RatedBookCard key={rating.id} rating={rating}/>
-                                )
+                        {
+                            booksByInput.map((b) => {
+                                if (typeof b === 'object' && 'rate' in b) {
+
+                                    return (
+                                        <ProfileBookCard key={b.id} rating={b}/>
+                                    )
+                                } else {
+                                    return (
+                                        <ProfileBookCard isFavoriteList={profileCategory === 'Favoritos'} key={b.id} userBook={b} />
+                                    )
+                                }
+
                             })
                         }
                     </ProfileBooksContainer>

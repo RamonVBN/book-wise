@@ -21,7 +21,7 @@ export type RatingProps = {
     id: string
     rate : number
     review: string
-    book: RatingBookProps
+    book: BookProps
     user: RatingUserProps
     createdAt: string
 }
@@ -47,6 +47,8 @@ export interface ExploreBooksProps extends BookProps {
 }
 
 export type UserBookProps = {
+    id: string
+    userId: string
     status: ReadingStatus
     isFavorite: boolean
     currentPage?: number
@@ -85,5 +87,19 @@ export type ProfileResponse = {
     abandonedBooks: UserBookProps[],
     wantToReadBooks: UserBookProps[],
     favoriteBooks: UserBookProps[],
+}
+
+type BooksQueryData = {
+  pages: {
+    items: BookProps[]
+  }[]
+}
+
+type RatingQueryData = {
+  ratings: RatingProps[]
+  userStatus: {
+    status: ReadingStatus
+    isFavorite: boolean
+  } | null
 }
 

@@ -1,5 +1,5 @@
 import { Heart } from "phosphor-react";
-import { FavoriteButtonContainer } from "./styles";
+import { FavoriteButtonComponent } from "./styles";
 
 type FavoriteButtonProps = {
     isFavorite: boolean
@@ -10,8 +10,10 @@ type FavoriteButtonProps = {
 export function FavoriteButton({ isFavorite, setIsFavorite, disabled }: FavoriteButtonProps) {
 
     return (
-        <FavoriteButtonContainer onClick={() => setIsFavorite(!isFavorite)} disabled={disabled}>
-            <Heart weight={isFavorite ? 'fill' : 'regular'} />
-        </FavoriteButtonContainer>
+        <div>
+            <FavoriteButtonComponent onClick={() => setIsFavorite(!isFavorite)} disabled={disabled}>
+                <Heart weight={isFavorite ? 'fill' : 'regular'} />
+            </FavoriteButtonComponent>
+        </div>
     )
 }

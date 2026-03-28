@@ -7,7 +7,7 @@ import React from "react"
 type ReadingStatusSelectProps = {
   value?: ReadingStatus
   onChange: (status: ReadingStatus) => void
-  containerRef: React.RefObject<HTMLDivElement | null>
+  containerRef?: React.RefObject<HTMLDivElement | null>
   isSelectOpen: boolean
   handleSelectOpenChange: (isOpen: boolean) => void
   disabled: boolean

@@ -1,7 +1,7 @@
 import { styled } from "@/pages/globalStyles";
 
 
-export const FavoriteButtonContainer = styled('button', {
+export const FavoriteButtonComponent = styled('button', {
     all: 'unset',
     cursor: 'pointer',
     display: 'flex',
