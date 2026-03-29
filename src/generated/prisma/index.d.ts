@@ -51,7 +51,7 @@ export namespace $Enums {
   export const ReadingStatus: {
   WANT_TO_READ: 'WANT_TO_READ',
   READING: 'READING',
-  READ: 'READ',
+  FINISHED: 'FINISHED',
   ABANDONED: 'ABANDONED'
 };
 
@@ -3846,6 +3846,7 @@ export namespace Prisma {
     startedAt: Date | null
     finishedAt: Date | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserBookMaxAggregateOutputType = {
@@ -3858,6 +3859,7 @@ export namespace Prisma {
     startedAt: Date | null
     finishedAt: Date | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserBookCountAggregateOutputType = {
@@ -3870,6 +3872,7 @@ export namespace Prisma {
     startedAt: number
     finishedAt: number
     createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -3892,6 +3895,7 @@ export namespace Prisma {
     startedAt?: true
     finishedAt?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type UserBookMaxAggregateInputType = {
@@ -3904,6 +3908,7 @@ export namespace Prisma {
     startedAt?: true
     finishedAt?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type UserBookCountAggregateInputType = {
@@ -3916,6 +3921,7 @@ export namespace Prisma {
     startedAt?: true
     finishedAt?: true
     createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -4015,6 +4021,7 @@ export namespace Prisma {
     startedAt: Date | null
     finishedAt: Date | null
     createdAt: Date
+    updatedAt: Date
     _count: UserBookCountAggregateOutputType | null
     _avg: UserBookAvgAggregateOutputType | null
     _sum: UserBookSumAggregateOutputType | null
@@ -4046,6 +4053,7 @@ export namespace Prisma {
     startedAt?: boolean
     finishedAt?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userBook"]>
@@ -4060,6 +4068,7 @@ export namespace Prisma {
     startedAt?: boolean
     finishedAt?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userBook"]>
@@ -4074,6 +4083,7 @@ export namespace Prisma {
     startedAt?: boolean
     finishedAt?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userBook"]>
@@ -4088,9 +4098,10 @@ export namespace Prisma {
     startedAt?: boolean
     finishedAt?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type UserBookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "bookId" | "status" | "isFavorite" | "currentPage" | "startedAt" | "finishedAt" | "createdAt", ExtArgs["result"]["userBook"]>
+  export type UserBookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "bookId" | "status" | "isFavorite" | "currentPage" | "startedAt" | "finishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["userBook"]>
   export type UserBookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
@@ -4120,6 +4131,7 @@ export namespace Prisma {
       startedAt: Date | null
       finishedAt: Date | null
       createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["userBook"]>
     composites: {}
   }
@@ -4554,6 +4566,7 @@ export namespace Prisma {
     readonly startedAt: FieldRef<"UserBook", 'DateTime'>
     readonly finishedAt: FieldRef<"UserBook", 'DateTime'>
     readonly createdAt: FieldRef<"UserBook", 'DateTime'>
+    readonly updatedAt: FieldRef<"UserBook", 'DateTime'>
   }
     
 
@@ -8360,7 +8373,8 @@ export namespace Prisma {
     currentPage: 'currentPage',
     startedAt: 'startedAt',
     finishedAt: 'finishedAt',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type UserBookScalarFieldEnum = (typeof UserBookScalarFieldEnum)[keyof typeof UserBookScalarFieldEnum]
@@ -8682,6 +8696,7 @@ export namespace Prisma {
     startedAt?: DateTimeNullableFilter<"UserBook"> | Date | string | null
     finishedAt?: DateTimeNullableFilter<"UserBook"> | Date | string | null
     createdAt?: DateTimeFilter<"UserBook"> | Date | string
+    updatedAt?: DateTimeFilter<"UserBook"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
   }
@@ -8696,6 +8711,7 @@ export namespace Prisma {
     startedAt?: SortOrderInput | SortOrder
     finishedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     book?: BookOrderByWithRelationInput
   }
@@ -8714,6 +8730,7 @@ export namespace Prisma {
     startedAt?: DateTimeNullableFilter<"UserBook"> | Date | string | null
     finishedAt?: DateTimeNullableFilter<"UserBook"> | Date | string | null
     createdAt?: DateTimeFilter<"UserBook"> | Date | string
+    updatedAt?: DateTimeFilter<"UserBook"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
   }, "id" | "userId_bookId">
@@ -8728,6 +8745,7 @@ export namespace Prisma {
     startedAt?: SortOrderInput | SortOrder
     finishedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: UserBookCountOrderByAggregateInput
     _avg?: UserBookAvgOrderByAggregateInput
     _max?: UserBookMaxOrderByAggregateInput
@@ -8748,6 +8766,7 @@ export namespace Prisma {
     startedAt?: DateTimeNullableWithAggregatesFilter<"UserBook"> | Date | string | null
     finishedAt?: DateTimeNullableWithAggregatesFilter<"UserBook"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"UserBook"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"UserBook"> | Date | string
   }
 
   export type RatingWhereInput = {
@@ -9145,6 +9164,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutUserBooksInput
     book: BookCreateNestedOneWithoutUserBooksInput
   }
@@ -9159,6 +9179,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserBookUpdateInput = {
@@ -9169,6 +9190,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutUserBooksNestedInput
     book?: BookUpdateOneRequiredWithoutUserBooksNestedInput
   }
@@ -9183,6 +9205,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserBookCreateManyInput = {
@@ -9195,6 +9218,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserBookUpdateManyMutationInput = {
@@ -9205,6 +9229,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserBookUncheckedUpdateManyInput = {
@@ -9217,6 +9242,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RatingCreateInput = {
@@ -9761,6 +9787,7 @@ export namespace Prisma {
     startedAt?: SortOrder
     finishedAt?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserBookAvgOrderByAggregateInput = {
@@ -9777,6 +9804,7 @@ export namespace Prisma {
     startedAt?: SortOrder
     finishedAt?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserBookMinOrderByAggregateInput = {
@@ -9789,6 +9817,7 @@ export namespace Prisma {
     startedAt?: SortOrder
     finishedAt?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserBookSumOrderByAggregateInput = {
@@ -10674,6 +10703,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     book: BookCreateNestedOneWithoutUserBooksInput
   }
 
@@ -10686,6 +10716,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserBookCreateOrConnectWithoutUserInput = {
@@ -10815,6 +10846,7 @@ export namespace Prisma {
     startedAt?: DateTimeNullableFilter<"UserBook"> | Date | string | null
     finishedAt?: DateTimeNullableFilter<"UserBook"> | Date | string | null
     createdAt?: DateTimeFilter<"UserBook"> | Date | string
+    updatedAt?: DateTimeFilter<"UserBook"> | Date | string
   }
 
   export type RatingCreateWithoutBookInput = {
@@ -10851,6 +10883,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutUserBooksInput
   }
 
@@ -10863,6 +10896,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserBookCreateOrConnectWithoutBookInput = {
@@ -11344,6 +11378,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type AccountUpdateWithoutUserInput = {
@@ -11438,6 +11473,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     book?: BookUpdateOneRequiredWithoutUserBooksNestedInput
   }
 
@@ -11450,6 +11486,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserBookUncheckedUpdateManyWithoutUserInput = {
@@ -11461,6 +11498,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RatingCreateManyBookInput = {
@@ -11480,6 +11518,7 @@ export namespace Prisma {
     startedAt?: Date | string | null
     finishedAt?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type RatingUpdateWithoutBookInput = {
@@ -11514,6 +11553,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutUserBooksNestedInput
   }
 
@@ -11526,6 +11566,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserBookUncheckedUpdateManyWithoutBookInput = {
@@ -11537,6 +11578,7 @@ export namespace Prisma {
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

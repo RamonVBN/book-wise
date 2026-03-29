@@ -151,7 +151,8 @@ exports.Prisma.UserBookScalarFieldEnum = {
   currentPage: 'currentPage',
   startedAt: 'startedAt',
   finishedAt: 'finishedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.RatingScalarFieldEnum = {
@@ -202,7 +203,7 @@ exports.Prisma.NullsOrder = {
 exports.ReadingStatus = exports.$Enums.ReadingStatus = {
   WANT_TO_READ: 'WANT_TO_READ',
   READING: 'READING',
-  READ: 'READ',
+  FINISHED: 'FINISHED',
   ABANDONED: 'ABANDONED'
 };
 
