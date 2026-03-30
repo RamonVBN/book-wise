@@ -1,5 +1,5 @@
 import { ProfileResponse, RatingProps, RatingQueryData, UserBookProps, } from "@/@types/query-types"
-import {   ModalBody, ProfileBook, ProfileBookInfo, ProfileBookTime} from "./styles"
+import {   ModalBody, ProfileBook, ProfileBookButton, ProfileBookInfo, ProfileBookOptions, ProfileBookTime} from "./styles"
 import { formatDistanceToNow } from "date-fns"
 import { capitalize } from "@/utils/capitalize"
 import Image from "next/image"
@@ -15,7 +15,7 @@ import { CloseButton } from "@/pages/explore/components/BookDetails/styles"
 import { ReadingStatus } from "@/generated/prisma"
 import { ReadingStatusSelect } from "@/pages/explore/components/ReadingStatusSelect"
 import { FavoriteButton } from "@/pages/explore/components/FavoriteButton"
-import { ReadingProgressInput } from "../ReadingProgress"
+import { ReadingProgress} from "../ReadingProgress"
 
 interface RatedBookProps {
     userBook?: UserBookProps
@@ -49,16 +49,15 @@ export function ProfileBookCard({userBook, isFavoriteList, rating}: RatedBookPro
         updateRatingMutation(data)
     }
 
-    function handleDeleteRating(){
+    function handleDelete(){
 
         if (ratingId) {
-
             deleteRatingMutation(ratingId)
-            setIsModalOpen(false)
         } else {
-
-            return console.log("Rating ID is undefined. Cannot delete rating.")
+            deleteUserBookMutation()
         }
+
+        setIsModalOpen(false)
     }
 
     function handleSelectOpenChange(isOpen: boolean) {
@@ -226,6 +225,55 @@ export function ProfileBookCard({userBook, isFavoriteList, rating}: RatedBookPro
             })
         }
     })
+
+    const {mutate: deleteUserBookMutation} = useMutation({
+        mutationFn: async () => {
+            
+            return await api.delete(`/app/userBook/${userBook?.id}`)
+        },
+        onMutate: async () => {
+
+            await queryClient.cancelQueries({queryKey: ['profile', userId]})
+
+            const previousProfileData = queryClient.getQueryData(['profile', userId])
+
+            queryClient.setQueryData<ProfileResponse>(['profile', userId], (oldData) => {
+
+            if (!oldData) return oldData
+
+            const updatedProfileData = oldData.abandonedBooks.concat(oldData.currentlyReadingBooks, oldData.finishedBooks, oldData.wantToReadBooks).filter((ub) => ub.id !== userBook?.id)
+
+            const currentlyReadingBooks = updatedProfileData.filter((ub) => ub.status === 'READING')
+            const wantToReadBooks = updatedProfileData.filter((ub) => ub.status === 'WANT_TO_READ')
+            const finishedBooks = updatedProfileData.filter((ub) => ub.status === 'FINISHED')
+            const abandonedBooks = updatedProfileData.filter((ub) => ub.status === 'ABANDONED')
+            const favoriteBooks = updatedProfileData.filter((ub) => ub.isFavorite)
+
+            return {
+                ...oldData,
+                currentlyReadingBooks,
+                wantToReadBooks,
+                finishedBooks,
+                abandonedBooks,
+                favoriteBooks
+            }})
+
+            return { previousProfileData } 
+        },
+        onError: (err, __, context) => {
+            console.log(err)
+            queryClient.setQueryData(['profile', userId], context?.previousProfileData)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['profile', userId],
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: ['books'],
+            })
+        }
+    })
     
     function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
         
@@ -266,7 +314,7 @@ export function ProfileBookCard({userBook, isFavoriteList, rating}: RatedBookPro
                             </p>
 
                             <div>
-                                <button onClick={() => handleDeleteRating()}>Excluir</button>
+                                <button onClick={() => handleDelete()}>Excluir</button>
                                 <button onClick={() => setIsModalOpen(false)}>Cancelar</button>
                             </div>
                         </ModalBody>
@@ -276,61 +324,76 @@ export function ProfileBookCard({userBook, isFavoriteList, rating}: RatedBookPro
             
             <div>
             {
-                rating && (
-                    <ProfileBookTime>{capitalize(formatDistanceToNow(rating.createdAt, {addSuffix: true, locale: ptBR}))}</ProfileBookTime>
+                (rating || userBook) && (
+                    <ProfileBookTime>{capitalize(formatDistanceToNow(rating?.createdAt ?? userBook?.createdAt, {addSuffix: true, locale: ptBR}))}</ProfileBookTime>
                 )
             }
             <ProfileBook>
-                <ProfileBookInfo>
-                    {
-                        book && (
-                            <Image width={98} height={134} src={book?.coverUrl} alt="" />
-                        )
-                    }
-                    <div>
-                        <span>
-                        <h2>{book?.title}</h2>
-                        <span>{book?.author}</span>
-                        </span>
+
+                <div>   
+
+                    <ProfileBookInfo>
+                        {
+                            book && (
+                                <Image width={98} height={134} src={book?.coverUrl} alt="" />
+                            )
+                        }
+                        <div>
+                            <span>
+                            <h2>{book?.title}</h2>
+                            <span>{book?.author}</span>
+                            </span>
+                            
+                            <span>
+                                {
+                                    rating && !isUserRatingFormOpen && (
+                                        <StarRating param={rating.rate}/>
+                                    )
+                                }
+                            </span>
+                        </div>
+                    </ProfileBookInfo>
+
+                    <ProfileBookOptions>
                         
-                        <span>
-                            {
-                                rating && !isUserRatingFormOpen && (
-                                    <StarRating param={rating.rate}/>
-                                )
-                            }
-                        </span>
-                    </div>
+                            <div>
+                                {
+                                    userBook && !isFavoriteList && (
+                                        <ReadingStatusSelect disabled={isUpdatingReadingStatus} onChange={onSelectChange} handleSelectOpenChange={handleSelectOpenChange} isSelectOpen={isSelectOpen} value={userBook.status} />
+                                    )
+                                }
+                                {
+                                    userBook && isFavoriteList && (
+                                        <FavoriteButton disabled={isUpdatingReadingStatus} isFavorite={userBook.isFavorite} setIsFavorite={(isFavorite) => updateReadingStatusMutation({isFavorite, status: userBook.status})} />
+                                    )
+                                }
+                                {
+                                    (rating || userBook?.status === 'READING') && (
+                                        <ProfileBookButton onClick={() => setisUserRatingFormOpen(!isUserRatingFormOpen)}>
+                                            <Pencil size={24}/>
+                                        </ProfileBookButton>
+                                    )
+                                }
+                                {
+                                    !isFavoriteList && (
+                                        <ProfileBookButton onClick={() => setIsModalOpen(true)}>
+                                            <Trash size={24}/>
+                                        </ProfileBookButton>
+                                    )
+                                }
+                            </div>
+                            
+                            <div>
+                                {
+                                    userBook && userBook.status === 'READING' && (
+                                        <ReadingProgress  initialValue={userBook.currentPage} totalPages={book?.pageCount}/>
+                                    )
+                                }
+                            </div>
+                    </ProfileBookOptions>
 
-                    <div>
-                        {
-                            userBook && !isFavoriteList && (
-                                <ReadingStatusSelect disabled={isUpdatingReadingStatus} onChange={onSelectChange} handleSelectOpenChange={handleSelectOpenChange} isSelectOpen={isSelectOpen} value={userBook.status} />
-                            )
-                        }
-
-                        {
-                            userBook && isFavoriteList && (
-                                <FavoriteButton disabled={isUpdatingReadingStatus} isFavorite={userBook.isFavorite} setIsFavorite={(isFavorite) => updateReadingStatusMutation({isFavorite, status: userBook.status})} />
-                            )
-                        }
-                    </div>
-
-                    <div>
-                        {
-                            rating && (
-                                <button onClick={() => setisUserRatingFormOpen(!isUserRatingFormOpen)}>
-                                    <Pencil size={24}/>
-                                </button>
-                            )
-                        }
-
-                        <button onClick={() => setIsModalOpen(true)}>
-                            <Trash size={24}/>
-                        </button>
-                    </div>
-                </ProfileBookInfo>
-
+                </div>
+                
                 {
                     rating && !isUserRatingFormOpen && (
                         <p>{rating.review}</p>

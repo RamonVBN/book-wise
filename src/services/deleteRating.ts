@@ -31,10 +31,15 @@ export default async function deleteRating(
 
     if (book!.ratings.length < 1){
 
-        await prisma.book.delete({
+        await prisma.book.update({
             where: {
                 id: bookId
-            }
+            },
+            data: {
+                ratingsCount: 0,
+                ratingsSum: 0,
+                avgRating: 0
+            } 
         })
     } else {
 

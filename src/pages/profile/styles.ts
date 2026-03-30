@@ -31,6 +31,10 @@ export const ProfileMainContainer = styled('div', {
 
     '@media(max-width: 1236px)': {
         width: '100%',
+    },
+    
+    div: {
+        paddingBottom: '1rem'
     }
 })
 
@@ -222,7 +226,5 @@ export const ProfileBooksContainer = styled('div', {
     maxHeight: '42rem',
     overflowY: 'scroll',
     scrollbarWidth: 'none',
-    
-    gap: '0.75rem',
 
 })

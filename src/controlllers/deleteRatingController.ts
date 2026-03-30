@@ -26,18 +26,18 @@ export async function deleteRatingController(req: NextApiRequest, res: NextApiRe
     })
 
     if(!rating) {
-        res.status(400).json({message: 'Rating does not exists'})
+        return res.status(400).json({message: 'Rating does not exists'})
     }
 
     if (rating?.userId !== session.user.id) {
-        res.status(400).json({message: 'You cannot delete other user rating'})
+      return res.status(400).json({message: 'You cannot delete other user rating'})
     }
   
   await deleteRating({
     userId: session.user.id,
     ratingId: id,
-    rate: rating!.rate,
-    bookId: rating!.bookId
+    rate: rating.rate,
+    bookId: rating.bookId
   })
 
   return res.status(200).json({})

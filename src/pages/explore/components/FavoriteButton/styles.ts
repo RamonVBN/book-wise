@@ -10,7 +10,6 @@ export const FavoriteButtonComponent = styled('button', {
 
     borderRadius: '$full',
     padding: '$2',
-    backgroundColor: '$gray700',
 
     '&:not(:disabled):hover': {
         backgroundColor: '$gray600',
@@ -19,6 +18,11 @@ export const FavoriteButtonComponent = styled('button', {
     '&:disabled': {
         cursor: 'progress',
         opacity: 0.5,
-    }
-    
+    },
+
+    svg: {
+            width: '1.5rem',
+            height: '1.5rem',
+            color: '$green100'
+        },  
 })

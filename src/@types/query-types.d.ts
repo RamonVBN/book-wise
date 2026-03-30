@@ -53,6 +53,7 @@ export type UserBookProps = {
     isFavorite: boolean
     currentPage?: number
     book: BookProps
+    createdAt: string
 }
 
 export type HomeDataResponse = {

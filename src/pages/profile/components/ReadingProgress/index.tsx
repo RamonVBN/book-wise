@@ -1,32 +1,54 @@
-import { PageInput } from "./styles"
+import React, { useState } from "react"
+import { Container, Input, Label, Row, SaveButton, TotalPages } from "./styles"
 
-type Props = {
-  currentPage: number
+type ReadingProgressInputProps = {
   totalPages: number
-  onChange: (page: number) => void
+  initialValue?: number
+  onChange?: (value: number) => void
+  onSave?: (value: number) => void
 }
 
-export function ReadingProgressInput({
-  currentPage,
+export function ReadingProgress({
   totalPages,
-  onChange
-}: Props) {
+  initialValue = 0,
+  onChange,
+  onSave,
+}: ReadingProgressInputProps) {
+  const [value, setValue] = useState(initialValue)
+
+  function clamp(val: number) {
+    if (val < 0) return 0
+    if (val > totalPages) return totalPages
+    return val
+  }
+
+  function handleChange(newValue: string) {
+    const numeric = clamp(Number(newValue))
+
+    setValue(numeric)
+    onChange?.(numeric)
+  }
+
+  function handleSave() {
+    onSave?.(value)
+  }
 
   return (
-    <div style={{ display: "flex", gap: 8 }}>
+    <Container>
 
-      <PageInput
-        type="slider"
-        min={0}
-        max={totalPages}
-        value={currentPage}
-        onChange={(e) =>
-          onChange(Number(e.target.value))
-        }
-      />
+      <Row>
+        <Input
+          value={value}
+          min={0}
+          max={totalPages}
+          onChange={(e) => handleChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSave()
+          }}
+        />
 
-      <span>de {totalPages}</span>
-
-    </div>
+        <TotalPages>/ {totalPages}</TotalPages>
+      </Row>
+    </Container>
   )
 }
