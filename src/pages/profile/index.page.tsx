@@ -103,6 +103,7 @@ export default function Profile() {
         return response.data;
       },
       enabled: !!userId,
+      staleTime: Infinity
     });
 
   const finishedBooks = useMemo(() => {

@@ -33,8 +33,8 @@ export const ProfileMainContainer = styled('div', {
         width: '100%',
     },
     
-    div: {
-        paddingBottom: '1rem'
+    '& > div:first-child': {
+        paddingBottom: '2rem'
     }
 })
 

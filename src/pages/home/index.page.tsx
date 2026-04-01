@@ -29,7 +29,8 @@ export default function Home(){
            const response = await api.get('/app/home')
 
            return response.data
-        }
+        },
+        staleTime: 2 * 60 * 1000 // 2 minutos
     })
 
     // const userEmail = session.data?.user.email

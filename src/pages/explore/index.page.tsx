@@ -121,7 +121,8 @@ export default function Explore() {
             return response.data
         },
         initialPageParam: 0,
-        staleTime: 5 * 60 * 1000, // 5 minutos
+        staleTime: 10 * 60 * 1000, // 10 minutos
+        gcTime: 30 * 60 * 1000, // 30 minutos
         refetchOnWindowFocus: false,
         getNextPageParam: (lastPage, pages) => {
             const nextIndex = pages.length * 20
