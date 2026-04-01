@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { ExploreBook, ReadMark } from "./style";
+import { ExploreBook } from "./style";
 import React from "react";
 import { StarRating } from "@/components/StarsRating";
 import { ExploreBooksProps } from "@/@types/query-types";
+import { ExploreBooksStatusFlag } from "../ExploreBooksStatusFlag";
 
 const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} : 
     {book: ExploreBooksProps, 
@@ -13,8 +14,8 @@ const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} :
         <ExploreBook onClick={() => handleOpenBookDetails(book.id)}>
 
              {
-                book.finished && (
-                <ReadMark>LIDO</ReadMark>
+                book.userBookStatus && (
+                    <ExploreBooksStatusFlag status={book.userBookStatus} />
                 )
                 }
                                           

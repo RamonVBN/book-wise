@@ -1,5 +1,6 @@
 import { BookProps, BookStats } from "@/@types/query-types"
 import { prisma } from "@/lib/prisma"
+import { stat } from "fs"
 import { finished } from "stream"
 
 interface GetExploreBooks {
@@ -61,7 +62,7 @@ const response = await fetch(
         avgRating: book.avgRating,
         ratingsCount: book.ratingsCount,
         ratingsSum: book.ratingsSum,
-        finished: book.userBooks.length > 0 ? book.userBooks[0].status === 'FINISHED' : false
+        userBookStatus: book.userBooks ? book.userBooks[0].status: null
 
       }
     })
@@ -81,8 +82,7 @@ const response = await fetch(
       avgRating: stats?.avgRating ?? 0,
       ratingsCount: stats?.ratingsCount ?? 0,
       ratingsSum: stats?.ratingsSum ?? 0,
-      finished: stats?.finished ?? false
-  
+      userBookStatus: stats?.userBookStatus ?? null
     }
   })
 

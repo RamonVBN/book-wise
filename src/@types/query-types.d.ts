@@ -43,7 +43,7 @@ export type BookProps = {
 export interface ExploreBooksProps extends BookProps {
     author: string[]
     categories: string[]
-    finished: boolean
+    userBookStatus: ReadingStatus | null
 }
 
 export type UserBookProps = {
@@ -72,7 +72,7 @@ export type BookStats = {
   avgRating: number
   ratingsCount: number
   ratingsSum: number
-  finished: boolean
+  userBookStatus: ReadingStatus | null
 }
  
 type Category = {

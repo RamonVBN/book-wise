@@ -98,19 +98,3 @@ export const ExploreBook = styled('button', {
 
 })
 
-export const ReadMark = styled('span', {
-
-    position: 'absolute',
-    top: -2,
-    right: -2,
-
-    padding: '0.25rem 0.75rem',
-    backgroundColor: '$green300',
-    color: '$green100',
-    fontSize: '0.75rem',
-    lineHeight: '$shorter',
-    fontWeight: '$bold',
-    
-    borderRadius: '0px 4px 0px 4px'
-
-})
