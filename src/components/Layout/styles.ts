@@ -170,12 +170,10 @@ export const NavButton = styled(Link, {
 
 })
 
-export const SignInButton = styled(Link, {
+export const SignInButtonContainer = styled('span', {
 
-    all: 'unset',
-    cursor: 'pointer',
     display: 'flex',
-    gap: '0.75rem',
+    gap: '0.25rem',
     alignItems: 'center',
 
     marginTop: 'auto',
@@ -185,21 +183,31 @@ export const SignInButton = styled(Link, {
     lineHeight: '$base',
     color: '$gray200',
 
-    svg: {
-        color: '$green100'
-    },
-
 })
 
-export const SignOutButton = styled('button', {
+export const SignInButton = styled(Link, {
 
-    
     all: 'unset',
     cursor: 'pointer',
     display: 'flex',
     gap: '0.75rem',
     alignItems: 'center',
 
+    padding: '$2',
+    borderRadius: '$full',
+    
+    '&:hover': {
+
+        backgroundColor: '$gray500'
+    },
+
+    svg: {
+        color: '$green100'
+    },
+
+})
+
+export const SignOutButtonContainer = styled('span', {
     marginTop: 'auto',
 
     fontWeight: '$regular',
@@ -207,12 +215,39 @@ export const SignOutButton = styled('button', {
     lineHeight: '$base',
     color: '$gray200',
 
+    display: 'flex',
+    gap: '0.25rem',
+    alignItems: 'center',
+
+    '& > :first-child': {
+        display: 'flex',
+        gap: '0.5rem',
+        alignItems: 'center'
+    },
+
     img: {
-        borderRadius: '999px',
+        borderRadius: '$full',
         width: '2rem',
         height: '2rem',    
     },
 
+})
+
+export const SignOutButton = styled('button', {
+
+    all: 'unset',
+    cursor: 'pointer',
+
+    display: 'flex',
+    alignItems: 'center',
+
+    padding: '$2',
+    borderRadius: '$full',
+
+    '&:hover': {
+        backgroundColor: '$gray500'
+    },
+    
     svg: {
         color: '#F75A68'
     }

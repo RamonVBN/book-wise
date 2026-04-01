@@ -6,7 +6,7 @@ export const PageHeader = styled('div', {
     alignItems: 'center',
     gap: '1rem',
     paddingTop: '3rem',
-    paddingBottom: '1.5rem',
+    paddingBottom: '2rem',
 
     h1: {
     fontWeight: 'bold',

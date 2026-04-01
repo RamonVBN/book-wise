@@ -1,5 +1,5 @@
 import Image from "next/image";
-import {AppContainer, MainContainer, MenuContainer, MenuNavigation, NavButton, SignInButton, SignOutButton } from "./styles"
+import {AppContainer, MainContainer, MenuContainer, MenuNavigation, NavButton, SignInButton, SignInButtonContainer, SignOutButton, SignOutButtonContainer } from "./styles"
 import logo from '../../../assets/Logo.png'
 
 import { Binoculars, ChartLineUp, SignIn, SignOut, User} from "phosphor-react"
@@ -76,17 +76,23 @@ export default function Layout({children}: {children: ReactNode}){
                     {
                         isSigned ? (
                             
-                            <SignOutButton onClick={handleSignOut}>
-                                <Image width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
-                                <span>{session.data.user.name}</span>
-                                <SignOut size={20}/>
-                            </SignOutButton>
-                        ) :
+                            <SignOutButtonContainer>
+                                   <span>
+                                        <Image width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
+                                        <span>{session.data.user.name}</span>
+                                   </span>
 
-                        <SignInButton prefetch href={'/'}>
-                            Fazer login
-                            <SignIn size={20} />
-                        </SignInButton>
+                                <SignOutButton onClick={handleSignOut}>
+                                    <SignOut size={20}/>
+                                </SignOutButton>
+                            </SignOutButtonContainer>
+                        ) :
+                        <SignInButtonContainer>
+                                Fazer login
+                            <SignInButton prefetch href={'/'}>
+                                <SignIn size={20} />
+                            </SignInButton>
+                        </SignInButtonContainer>
                     }
 
                 </MenuNavigation>
