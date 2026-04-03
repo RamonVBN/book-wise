@@ -62,7 +62,7 @@ export type UserBookProps = {
 export type HomeDataResponse = {
     recentRatings: RatingProps[]
     popularBooks: BookProps[]
-    lastUserReading: RatingProps | null
+    lastUserActivity: RatingProps | UserBookProps | null
 }
 
 export type BooksResponse = {
@@ -105,6 +105,7 @@ type RatingQueryData = {
   userStatus: {
     status: ReadingStatus
     isFavorite: boolean
+    rated: boolean
   } | null
 }
 

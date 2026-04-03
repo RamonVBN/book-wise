@@ -51,6 +51,7 @@ import { Modal } from "@/components/Modal";
 import { ReadingStatusSelect } from "../ReadingStatusSelect";
 import { ReadingStatus } from "@/generated/prisma";
 import { FavoriteButton } from "../FavoriteButton";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -65,7 +66,6 @@ export function BookDetails({
   debouncedQuery,
   categoriesFilters,
 }: BookDetailsProps) {
-
   const queryClient = useQueryClient();
 
   const session = useSession();
@@ -146,7 +146,7 @@ export function BookDetails({
       return response.data;
     },
     enabled: !!bookId,
-    gcTime: 15 * 60 * 1000 // 15 minutos
+    gcTime: 15 * 60 * 1000, // 15 minutos
   });
 
   const { mutate: createRatingMutation } = useMutation({
@@ -219,6 +219,14 @@ export function BookDetails({
       queryClient.invalidateQueries({
         queryKey: ["books", debouncedQuery, categoriesFilters],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["home"],
+      });
     },
   });
 
@@ -231,7 +239,7 @@ export function BookDetails({
       isFavorite,
     }: {
       status?: ReadingStatus;
-      isFavorite: boolean;
+      isFavorite?: boolean;
     }) => {
       return await api.patch("/app/userBook", {
         readStatus: status,
@@ -258,7 +266,8 @@ export function BookDetails({
             ...oldData,
             userStatus: {
               status: status ?? oldData.userStatus.status,
-              isFavorite: isFavorite,
+              isFavorite: isFavorite ?? oldData.userStatus.isFavorite,
+              rated: oldData.userStatus.rated,
             },
           };
         },
@@ -282,6 +291,10 @@ export function BookDetails({
       queryClient.invalidateQueries({
         queryKey: ["profile"],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["home"],
+      });
     },
   });
 
@@ -290,13 +303,11 @@ export function BookDetails({
   }
 
   function onSelectChange(status: ReadingStatus) {
-
-    updateReadingStatusMutation({ status, isFavorite: isFavoriteBook });
+    updateReadingStatusMutation({status});
     return;
   }
 
   function onFavoriteButtonClick(isFavorite: boolean) {
-
     if (session.status !== "authenticated") {
       return setIsModalOpen(true);
     }
@@ -392,6 +403,7 @@ export function BookDetails({
                     </span>
                   </span>
                 </div>
+
                 <div>
                   <BookOpen />
                   <span>
@@ -399,7 +411,7 @@ export function BookDetails({
                     <span>{book?.pageCount}</span>
                   </span>
                 </div>
-
+                
                 <div>
                   <ReadingStatusSelect
                     openLoginModal={handleLoginModalOpen}
@@ -411,14 +423,17 @@ export function BookDetails({
                     value={bookStatus}
                     onChange={onSelectChange}
                   />
-                </div>
 
-                <div>
-                  <FavoriteButton
+                  {
+                    bookRatings?.userStatus?.status === 'FINISHED' && (
+
+                    <FavoriteButton
                     disabled={isUpdatingReadingStatus}
                     isFavorite={isFavoriteBook}
                     setIsFavorite={onFavoriteButtonClick}
                   />
+                    )
+                  }
                 </div>
               </BookInfoFooter>
             </BookInfo>
@@ -429,7 +444,8 @@ export function BookDetails({
 
                 {bookRatings &&
                   bookRatings?.userStatus &&
-                  bookRatings.userStatus.status === "FINISHED" && (
+                  bookRatings.userStatus.status === "FINISHED" &&
+                  !bookRatings.userStatus.rated && (
                     <button
                       type="button"
                       onClick={() => handleUserRatingOpen()}

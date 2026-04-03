@@ -23,6 +23,30 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
     coverUrl: z.string(),
     pageCount: z.number(),
     categories: z.string()
+  }).superRefine((data, ctx) => {
+
+    const filledFields = [
+      data.currentPage !== undefined,
+      data.readStatus !== undefined,
+      data.isFavorite !== undefined,
+    ].filter(Boolean).length
+
+    if (filledFields === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Envie exatamente um campo para atualização",
+        path: [],
+      })
+    }
+
+    if (filledFields > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Apenas um campo pode ser atualizado por vez",
+        path: [],
+      })
+    }
+
   })
   
   const 
