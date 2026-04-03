@@ -1,5 +1,5 @@
 import Image from "next/image";
-import {AppContainer, MainContainer, MenuContainer, MenuNavigation, NavButton, SignInButton, SignOutButton } from "./styles"
+import {AppContainer, MainContainer, MenuContainer, MenuNavigation, NavButton, SignInButton, SignInButtonContainer, SignOutButton, SignOutButtonContainer } from "./styles"
 import logo from '../../../assets/Logo.png'
 
 import { Binoculars, ChartLineUp, SignIn, SignOut, User} from "phosphor-react"
@@ -9,6 +9,9 @@ import { signOut, useSession } from "next-auth/react";
 import { ReactNode, useState } from "react";
 
 import { useRouter } from "next/router";
+
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { AppTooltip } from "../Tooltip";
 
 
 type Navigation = {
@@ -40,6 +43,7 @@ export default function Layout({children}: {children: ReactNode}){
     }
 
     return (
+    <TooltipProvider delayDuration={250}>
         <AppContainer>
             <MenuContainer>
                 <Image priority width={128} height={32} src={logo} alt=""/>
@@ -76,17 +80,26 @@ export default function Layout({children}: {children: ReactNode}){
                     {
                         isSigned ? (
                             
-                            <SignOutButton onClick={handleSignOut}>
-                                <Image width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
-                                <span>{session.data.user.name}</span>
-                                <SignOut size={20}/>
-                            </SignOutButton>
+                            <SignOutButtonContainer>
+                                   <span>
+                                        <Image width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
+                                        <span>{session.data.user.name}</span>
+                                   </span>
+                                <AppTooltip content="Sair do BookWise">
+                                    <SignOutButton onClick={handleSignOut}>
+                                        <SignOut size={20}/>
+                                    </SignOutButton>
+                                </AppTooltip>
+                            </SignOutButtonContainer>
                         ) :
-
-                        <SignInButton prefetch href={'/'}>
-                            Fazer login
-                            <SignIn size={20} />
-                        </SignInButton>
+                        <SignInButtonContainer>
+                                Fazer login
+                            <AppTooltip content="Ir para página de login">
+                                <SignInButton prefetch href={'/'}>
+                                    <SignIn size={20} />
+                                </SignInButton>
+                            </AppTooltip>
+                        </SignInButtonContainer>
                     }
 
                 </MenuNavigation>
@@ -98,6 +111,7 @@ export default function Layout({children}: {children: ReactNode}){
                 {children}
             </MainContainer>
         </AppContainer>
+    </TooltipProvider> 
     )
 }
 

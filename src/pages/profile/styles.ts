@@ -1,309 +1,222 @@
-import { styled } from "@/pages/globalStyles"
+import { styled } from "@/pages/globalStyles";
 
-
-export const Container = styled('div', {
-    display: 'flex',
-    flexDirection: 'column',
-
+export const Container = styled("div", {
+  display: "flex",
+  flexDirection: "column",
   
-    '@media(max-width: 900px)': {
-        marginTop: '18rem',
-        paddingInline: '2rem',
-        overflow: 'scroll',
-        scrollbarWidth: 'none'
-    }
-   
-})
+  "@media(max-width: 900px)": {
+    marginTop: "18rem",
+    paddingInline: "2rem",
+    overflow: "scroll",
+    scrollbarWidth: "none",
+  },
 
-export const ProfileContainer = styled('div', {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '6rem',
+});
 
-})
+export const ProfileContainer = styled("div", {
+  display: "flex",
+  gap: "6rem",
+  justifyContent: "center",
 
-export const ProfileMainContainer = styled('div', {
+  flex: 1,
+  minHeight: 0,
+});
 
-    display: 'flex',
-    flexDirection: 'column',
+export const ProfileMainContainer = styled("div", {
+  display: "flex",
+  flexDirection: "column",
+  flexBasis: "38rem",
+  flexShrink: 0,
+  minHeight: 0,
 
-    width: '38rem',
+  "@media(max-width: 1236px)": {
+    width: "100%",
+  },
 
-    '@media(max-width: 1236px)': {
-        width: '100%',
-    }
-})
+  "& > div:first-child": {
+    paddingBottom: "2rem",
+  },
+});
 
-export const ProfileForm = styled('form', {
+export const ProfileBooksContainer = styled("div", {
+  display: "flex",
+  flexDirection: "column",
 
-    width: '100%',
-    display: 'flex',
+  width: "100%",
 
+  scrollbarWidth: "none",
+
+  borderBottom: "1px solid $gray600",
+
+  overflowY: "auto",
+  minHeight: 0,
+  flex: 1,
+});
+
+export const ProfileForm = styled("form", {
+  width: "100%",
+  display: "flex",
+
+  label: {
+    width: "100%",
+    backgroundColor: "$gray800",
+    borderTop: "1px solid $gray500",
+    borderLeft: "1px solid $gray500",
+    borderBottom: "1px solid $gray500",
+    borderRadius: "4px 0px 0px 4px",
+
+    padding: "0.875rem 1.25rem",
+
+    display: "flex",
+    alignItems: "center",
+  },
+
+  "&:has(input:focus)": {
     label: {
-        width: '100%',
-        backgroundColor: '$gray800',
-        borderTop: '1px solid $gray500',
-        borderLeft: '1px solid $gray500',
-        borderBottom: '1px solid $gray500',
-        borderRadius: '4px 0px 0px 4px',
-    
-        padding: '0.875rem 1.25rem',
-
-        display: 'flex',
-        alignItems: 'center'
+      borderColor: "$green200",
     },
 
-    '&:has(input:focus)': {
-        
-        label: {
-            borderColor: '$green200',
-        },
-
-        button: {
-            borderColor: '$green200',
-            svg: {
-                color: '$green200'
-            }
-        }
+    button: {
+      borderColor: "$green200",
+      svg: {
+        color: "$green200",
+      },
     },
+  },
 
-    marginBottom: '3rem',
+  paddingBottom: "1.5rem",
+});
 
-})
+export const ProfileInput = styled("input", {
+  all: "unset",
+  backgroundColor: "transparent",
+  color: "$gray400",
 
-export const ProfileInput = styled('input', {
-    all: 'unset',
-    backgroundColor: 'transparent',
-    color: '$gray400',
+  width: "100%",
 
-    width: '100%',
+  "&::placeholder": {
+    color: "$gray400",
+  },
+});
 
-    '&::placeholder': {
-        color: '$gray400'
-    }
-})
+export const ProfileButton = styled("button", {
+  all: "unset",
+  cursor: "pointer",
+  boxSizing: "border-box",
 
-export const ProfileButton = styled('button', {
-    all: 'unset',
-    cursor: 'pointer',
-    boxSizing: 'border-box',
+  borderTop: "1px solid $gray500",
+  borderRight: "1px solid $gray500",
+  borderBottom: "1px solid $gray500",
+  padding: "0.875rem 1.25rem",
+  borderRadius: "0px 4px 4px 0px",
 
-    borderTop: '1px solid $gray500',
-    borderRight: '1px solid $gray500',
-    borderBottom: '1px solid $gray500',
-    padding: '0.875rem 1.25rem',
-    borderRadius: '0px 4px 4px 0px',
+  svg: {
+    color: "$gray500",
+    width: "1.25rem",
+    height: "1.25rem",
+  },
+});
 
-    svg: {
-        color: '$gray500',
-        width: '1.25rem',
-        height: '1.25rem'
-    }
+export const UserContainer = styled("div", {
+  maxWidth: "20.25rem",
 
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "2rem",
 
+  borderLeft: "1px solid $gray700",
 
-})
+  "@media(max-width: 1236px)": {
+    width: "100%",
+  },
+});
 
-export const UserContainer = styled('div', {
+export const UserProfile = styled("div", {
+  display: "flex",
+  flexDirection: "column",
+  gap: "1.25rem",
 
-    maxWidth: '20.25rem',
+  alignItems: "center",
 
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '2rem',
+  img: {
+    width: "4.5rem",
+    height: "4.5rem",
 
-    borderLeft: '1px solid $gray700',
+    borderRadius: "999px",
+  },
 
-    '@media(max-width: 1236px)': {
-        width: '100%',
-    }
+  span: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "0.25rem",
 
-})
-
-export const UserProfile = styled('div', {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.25rem',
-
-    alignItems: 'center',
-
-    img: {
-        width: '4.5rem',
-        height: '4.5rem',
-
-        borderRadius: '999px'
+    h2: {
+      fontSize: "1.25rem",
+      color: "$gray100",
+      lineHeight: "$short",
+      fontWeight: "$bold",
     },
 
     span: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '0.25rem',
+      fontSize: "0.875rem",
+      fontWeight: "$regular",
+      lineHeight: "$base",
+      color: "$gray400",
+    },
+  },
+});
 
-        h2: {
-            fontSize: '1.25rem',
-            color: '$gray100',
-            lineHeight: '$short',
-            fontWeight: '$bold'
-        },
+export const UserSeparator = styled("span", {
+  width: "2rem",
+  height: "0.25rem",
 
-        span: {
-            fontSize: '0.875rem',
-            fontWeight: '$regular',
-            lineHeight: '$base',
-            color: '$gray400'
-        }
-    }
-    
-})
+  borderRadius: "999px",
 
-export const UserSeparator = styled('span', {
-    width: '2rem',
-    height: '0.25rem',
+  backgroundImage: "$gradient-horizontal",
+});
 
-    borderRadius: '999px',
+export const UserStatsContainer = styled("div", {
+  display: "flex",
+  flexDirection: "column",
+  gap: "2.5rem",
+  padding: "1.25rem 3.5rem",
+});
 
-    backgroundImage: '$gradient-horizontal'
-})
+export const UserStats = styled("div", {
+  width: "100%",
 
-export const UserStatsContainer = styled('div', {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  gap: "1.25rem",
 
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2.5rem',
-    padding: '1.25rem 3.5rem',
+  svg: {
+    width: "2rem",
+    height: "2rem",
 
-})
+    color: "$green100",
+  },
 
-export const UserStats = styled('div', {
-    width: '100%',
+  span: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "0.25rem",
 
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: '1.25rem',
-
-    svg: {
-        width: '2rem',
-        height: '2rem',
-        
-        color: '$green100'
+    h3: {
+      fontWeight: "$bold",
+      fontSize: "1rem",
+      lineHeight: "$short",
+      color: "$gray200",
     },
 
     span: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        gap: '0.25rem',
-
-        h3: {
-            fontWeight: '$bold',
-            fontSize: '1rem',
-            lineHeight: '$short',
-            color: '$gray200',
-        },
-
-        span: {
-            fontSize: '0.875rem',
-            fontWeight: '$regular',
-            lineHeight: '$base',
-            color: '$gray300'
-        }
-    }
-
-})
-
-export const RatedBooksContainer = styled('div', {
-    
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '38rem',
-
-    maxHeight: '42rem',
-    overflowY: 'scroll',
-    scrollbarWidth: 'none',
-    
-    gap: '0.75rem',
-
-})
-
-export const RatedBook = styled('div', {
-
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.5rem',
-    padding: '1.5rem',
-
-    marginBottom: '1rem',
-    marginTop: '0.5rem',
-
-    width: '100%',
-    backgroundColor: '$gray700',
-    borderRadius: '8px',
-
-    p: {
-        fontWeight: '$regular',
-        fontSize: '0.875rem',
-        lineHeight: '$base',
-        color: '$gray100',
-        textAlign: 'justify'
-    }
-
-})
-
-export const RatedBookInfo = styled('div', {
-
-    display: 'flex',
-    gap: '1.5rem',
-
-    img: {
-        width: '6.125rem',
-        height: '8.375rem'
+      fontSize: "0.875rem",
+      fontWeight: "$regular",
+      lineHeight: "$base",
+      color: "$gray300",
     },
-
-    div: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-
-        'span:first-child': {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.25rem',
-
-            h2: {
-                fontWeight: '$bold',
-                fontSize: '1.125rem',
-                lineHeight: '$short',
-                color: '$gray100'
-            },
-
-            span: {
-                fontWeight: '$regular',
-                fontSize: '0.875rem',
-                lineHeight: '$base',
-                color: '$gray400'
-            }
-        },
-
-        'span:last-child': {
-            display: 'flex',
-            gap: '0.25rem',
-
-            svg: {
-                color: '$purple100'
-            }
-        }
-    },
-
-   
-})
-
-export const RatedBookTime = styled('span', {
-
-    fontSize: '0.875rem',
-    fontWeight: '$regular',
-    lineHeight: '$base',
-    color: '$gray300',
-})
+  },
+});

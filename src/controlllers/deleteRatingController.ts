@@ -14,30 +14,30 @@ export async function deleteRatingController(req: NextApiRequest, res: NextApiRe
   }
 
   const querySchema = z.object({
-    ratingId: z.string(),
+    id: z.string(),
   })
   
-  const { ratingId } = querySchema.parse(req.query)
+  const { id } = querySchema.parse(req.query)
 
    const rating = await prisma.rating.findUnique({
       where: {
-        id: ratingId
+        id
       }
     })
 
     if(!rating) {
-        res.status(400).json({message: 'Rating does not exists'})
+        return res.status(400).json({message: 'Rating does not exists'})
     }
 
     if (rating?.userId !== session.user.id) {
-        res.status(400).json({message: 'You cannot delete other user rating'})
+      return res.status(400).json({message: 'You cannot delete other user rating'})
     }
   
   await deleteRating({
     userId: session.user.id,
-    ratingId,
-    rate: rating!.rate,
-    bookId: rating!.bookId
+    ratingId: id,
+    rate: rating.rate,
+    bookId: rating.bookId
   })
 
   return res.status(200).json({})

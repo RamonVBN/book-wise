@@ -8,7 +8,7 @@ export const UserRatingContainer = styled('div', {
 
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.5rem',
+    gap: '0.5rem',
     
     'div:first-child': {
 
@@ -169,3 +169,4 @@ export const FormError = styled('pre', {
     }
     
 })
+

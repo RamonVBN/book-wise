@@ -1,43 +1,60 @@
-import * as Select from "@radix-ui/react-select"
-import { Content, Item, Trigger } from "./styles"
-import { CheckIcon, ChevronDownIcon } from "lucide-react"
-
-
-type ReadingStatus =
-  | "WANT_TO_READ"
-  | "READING"
-  | "READ"
-  | "ABANDONED"
+import * as Select from "@radix-ui/react-select";
+import { Content, Item, Trigger } from "./styles";
+import { CheckIcon, ChevronDownIcon } from "lucide-react";
+import { ReadingStatus } from "@/generated/prisma";
+import React, { useEffect, useState } from "react";
 
 type ReadingStatusSelectProps = {
-  value?: ReadingStatus
-  onChange: (status: ReadingStatus) => void
-}
+  value?: ReadingStatus;
+  onChange: (status: ReadingStatus) => void;
+  containerRef?: React.RefObject<HTMLDivElement | null>;
+  isSelectOpen: boolean;
+  handleSelectOpenChange: (isOpen: boolean) => void;
+  disabled: boolean;
+  isAuthenticated?: boolean;
+  openLoginModal?: () => void;
+};
 
-    
 export function ReadingStatusSelect({
   value,
   onChange,
+  containerRef,
+  isSelectOpen,
+  handleSelectOpenChange,
+  disabled,
+  isAuthenticated,
+  openLoginModal
 }: ReadingStatusSelectProps) {
-  return (
-    <Select.Root value={value} onValueChange={onChange}>
-      <Trigger>
-        <Select.Value placeholder="Adicionar" />
 
+  function handleValueChange(value: ReadingStatus) {
+    if (!isAuthenticated && openLoginModal) {
+      openLoginModal();
+      return;
+    }
+
+    onChange(value);
+  }
+
+  return (
+    <Select.Root
+      disabled={disabled}
+      open={isSelectOpen}
+      onOpenChange={() => handleSelectOpenChange(isSelectOpen)}
+      value={value ?? ""}
+      onValueChange={handleValueChange}
+    >
+      <Trigger status={value}>
+        <Select.Value placeholder="Adicionar" />
         <Select.Icon>
           <ChevronDownIcon />
         </Select.Icon>
       </Trigger>
 
-      <Select.Portal>
-        <Content position="popper"
- >
+      <Select.Portal container={containerRef?.current}>
+        <Content position="popper">
           <Select.Viewport>
-
             <Item value="WANT_TO_READ">
-              <Select.ItemText>
-                Quero ler
-              </Select.ItemText>
+              <Select.ItemText>Quero ler</Select.ItemText>
 
               <Select.ItemIndicator>
                 <CheckIcon />
@@ -45,19 +62,15 @@ export function ReadingStatusSelect({
             </Item>
 
             <Item value="READING">
-              <Select.ItemText>
-                Lendo
-              </Select.ItemText>
+              <Select.ItemText>Lendo</Select.ItemText>
 
               <Select.ItemIndicator>
                 <CheckIcon />
               </Select.ItemIndicator>
             </Item>
 
-            <Item value="READ">
-              <Select.ItemText>
-                Lido
-              </Select.ItemText>
+            <Item value="FINISHED">
+              <Select.ItemText>Lido</Select.ItemText>
 
               <Select.ItemIndicator>
                 <CheckIcon />
@@ -65,18 +78,15 @@ export function ReadingStatusSelect({
             </Item>
 
             <Item value="ABANDONED">
-              <Select.ItemText>
-                Abandonei
-              </Select.ItemText>
+              <Select.ItemText>Abandonei</Select.ItemText>
 
               <Select.ItemIndicator>
                 <CheckIcon />
               </Select.ItemIndicator>
             </Item>
-
           </Select.Viewport>
         </Content>
       </Select.Portal>
     </Select.Root>
-  )
+  );
 }

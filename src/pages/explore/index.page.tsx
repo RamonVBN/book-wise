@@ -1,6 +1,6 @@
 import { Binoculars, MagnifyingGlass } from "phosphor-react";
 
-import  {ExploreCategory, ExploreCategoriesContainer, ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles.tsx'
+import  { ExploreContainer, ExploreHeader, ExploreInput, ExploreFormButton} from './styles.tsx'
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,7 @@ import { ExploreBooksContainer } from "./components/ExploreBooks/style";
 import BookCard from "./components/ExploreBooks";
 import LoadingSpinner from "./components/LoadingSpinner.tsx";
 import BackToTop from "./components/BackToTopButton.tsx";
+import { CategoriesContainer, Category } from "@/components/Category/styles.ts";
 
 const categories = [
     {queryName: 'Fiction', name: 'Ficção'},
@@ -120,7 +121,8 @@ export default function Explore() {
             return response.data
         },
         initialPageParam: 0,
-        staleTime: 5 * 60 * 1000, // 5 minutos
+        staleTime: 10 * 60 * 1000, // 10 minutos
+        gcTime: 30 * 60 * 1000, // 30 minutos
         refetchOnWindowFocus: false,
         getNextPageParam: (lastPage, pages) => {
             const nextIndex = pages.length * 20
@@ -188,7 +190,7 @@ export default function Explore() {
                 
                 <form onSubmit={(e) => e.preventDefault()}>
                     <label>
-                    <ExploreInput {...register('query')}  placeholder="Buscar livro ou autor" type="text" />
+                    <ExploreInput {...register('query')}  placeholder="Buscar livro" type="text" />
                     </label>
                     <ExploreFormButton>
                         <MagnifyingGlass/>
@@ -198,16 +200,16 @@ export default function Explore() {
                     {
                         !isLoading ? (
                             <>
-                            <ExploreCategoriesContainer>
+                            <CategoriesContainer>
                             {
                                 categories.map((category, i) => {
 
                                 return (
-                                    <ExploreCategory isActive={categoriesFilters.includes(category.queryName)} onClick={() => handleCategoriesFilters(category.queryName)} key={i} >{category.name}</ExploreCategory>
+                                    <Category isActive={categoriesFilters.includes(category.queryName)} onClick={() => handleCategoriesFilters(category.queryName)} key={i} >{category.name}</Category>
                                 )
                                 })
                             }   
-                            </ExploreCategoriesContainer>
+                            </CategoriesContainer>
 
                              <ExploreBooksContainer>
                         {

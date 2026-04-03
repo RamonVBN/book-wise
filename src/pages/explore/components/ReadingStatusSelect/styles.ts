@@ -11,13 +11,14 @@ export const Trigger = styled(Select.Trigger, {
 
   padding: "8px 12px",
 
-  borderRadius: "10px",
+  borderRadius: "$full",
   border: "1px solid $gray600",
 
   backgroundColor: "$gray800",
   color: "$gray100",
 
   fontSize: "14px",
+  fontWeight: '$medium',
 
   cursor: "pointer",
 
@@ -28,6 +29,31 @@ export const Trigger = styled(Select.Trigger, {
   "&:focus": {
     borderColor: "$blue500",
   },
+
+  variants: {
+    status: {
+      WANT_TO_READ: {
+        backgroundColor: "#2563EB",
+        color: "$gray100",
+      },
+
+      READING: {
+        backgroundColor: "#D4AF37",
+        color: "$gray100",
+      },
+
+      FINISHED: {
+        backgroundColor: "#10B981",
+        color: "$gray200",
+      },
+
+      ABANDONED: {
+        backgroundColor: "#222222",
+        color: "$gray100",
+      },
+    },
+  },
+
 })
 
 export const Content = styled(Select.Content, {

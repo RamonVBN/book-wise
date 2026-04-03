@@ -65,6 +65,18 @@ export default async function createRatings(
       }
     })
 
+    await tx.userBook.update({
+      where: {
+        userId_bookId: {
+          userId,
+          bookId: book.id
+        }
+      },
+      data: {
+        rated: true
+      }
+    })
+
     return 
   })
 }

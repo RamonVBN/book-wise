@@ -1,4 +1,3 @@
-
 import { createStitches } from '@stitches/react';
 
 export const { styled, getCssText, globalCss } = createStitches({
@@ -68,8 +67,6 @@ export const { styled, getCssText, globalCss } = createStitches({
   },
 })
 
-
-
 export const globalStyles = globalCss({
     '*': {
         margin: 0,
@@ -80,6 +77,4 @@ export const globalStyles = globalCss({
         '-webkit-font-smooting': 'antialiased',
 
     },
-
-
 })

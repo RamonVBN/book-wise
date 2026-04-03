@@ -26,5 +26,4 @@ export async function getExploreBooksController(
     total: books.length,
   });
 
-  console.log("livros:", books);
 }

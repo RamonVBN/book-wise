@@ -1,4 +1,7 @@
+
 // Query Types
+
+import { ReadingStatus } from "@/generated/prisma"
 
 type RatingBookProps = {
     author: string
@@ -19,34 +22,51 @@ export type RatingProps = {
     id: string
     rate : number
     review: string
-    book: RatingBookProps
+    book: BookProps
     user: RatingUserProps
     createdAt: string
+    updatedAt: string
 }
 
 export type BookProps = {
     id: string
     title: string
     description: string
-    authors: string[]
-    categories: string[]
+    author: string
+    categories: string
     pageCount: number
     coverUrl: string 
     avgRating: number
     ratingsCount: number
     ratingsSum: number
-    read: boolean
     ratings: RatingProps[]
+}
+
+export interface ExploreBooksProps extends BookProps {
+    author: string[]
+    categories: string[]
+    userBookStatus: ReadingStatus | null
+}
+
+export type UserBookProps = {
+    id: string
+    userId: string
+    status: ReadingStatus
+    isFavorite: boolean
+    rated: boolean
+    currentPage?: number
+    updatedAt: string
+    book: BookProps
 }
 
 export type HomeDataResponse = {
     recentRatings: RatingProps[]
     popularBooks: BookProps[]
-    lastUserReading: RatingProps | null
+    lastUserActivity: RatingProps | UserBookProps | null
 }
 
 export type BooksResponse = {
-  items: BookProps[]
+  items: ExploreBooksProps[]
   total: number
 }
 
@@ -55,12 +75,37 @@ export type BookStats = {
   avgRating: number
   ratingsCount: number
   ratingsSum: number
-  read: boolean
+  userBookStatus: ReadingStatus | null
 }
  
 type Category = {
     category: {
         name: string
     }
+}
+
+export type ProfileResponse = {
+    userRatings: RatingProps[],
+    allUserBooks: UserBookProps[],
+    currentlyReadingBooks: UserBookProps[],
+    finishedBooks: UserBookProps[],
+    abandonedBooks: UserBookProps[],
+    wantToReadBooks: UserBookProps[],
+    favoriteBooks: UserBookProps[],
+}
+
+type BooksQueryData = {
+  pages: {
+    items: BookProps[]
+  }[]
+}
+
+type RatingQueryData = {
+  ratings: RatingProps[]
+  userStatus: {
+    status: ReadingStatus
+    isFavorite: boolean
+    rated: boolean
+  } | null
 }
 

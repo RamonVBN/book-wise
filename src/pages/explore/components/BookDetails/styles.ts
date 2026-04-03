@@ -154,7 +154,7 @@ export const BookInfoFooter = styled('div', {
     borderTop: '1px solid $gray600',
 
     display: 'flex',
-    gap: '3rem',
+    justifyContent: 'space-between',
     
     div: {
         display: 'flex',
@@ -188,8 +188,6 @@ export const BookInfoFooter = styled('div', {
             }
         }
     }
-
-
 })
 
 export const BookDetailsRatingsContainer = styled('div', {
