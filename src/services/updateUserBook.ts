@@ -1,7 +1,6 @@
 import { ReadingStatus } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 
-
 type UpdateUserBookProps = {
     userId: string
     bookId: string
@@ -38,24 +37,42 @@ export default async function updateUserBook(
         update: {}
     })
 
-    await tx.userBook.upsert({
+    const userBook = await prisma.userBook.findUnique({
+        where: {
+            userId_bookId: {
+                userId,
+                bookId
+            }
+        }
+    })
+
+    if (!userBook) {
+        await tx.userBook.create({
+            data: {
+                userId,
+                bookId: book.id,
+                status: readStatus,
+                isFavorite,
+                currentPage:  readStatus === 'FINISHED' ? book.pageCount : currentPage ?? 0
+            }
+        })
+
+        return
+    }
+
+    await tx.userBook.update({
         where: {
             userId_bookId: {
                 userId,
                 bookId: book.id
             }
         },
-        create: {
-            userId,
-            bookId: book.id,
-            status: readStatus,
+        data: {
+            status: book.pageCount === currentPage ? 'FINISHED' : readStatus ?? userBook.status,
             isFavorite,
-            currentPage: readStatus === 'FINISHED' ? book.pageCount : null
-        },
-        update: {
-            status: readStatus,
-            isFavorite,
-            currentPage: readStatus === 'FINISHED' ? book.pageCount : null
+            currentPage:  currentPage ?? userBook.currentPage
         }
     })
+
+    return
 })}

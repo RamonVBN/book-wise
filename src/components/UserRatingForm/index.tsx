@@ -130,8 +130,7 @@ export function UserRatingForm(
                                 <img src={avatarUrl} alt="" />
                                 <h2>{userName}</h2>
                         </>
-                        )
-                        
+                        )  
                     }
                 </span>
                 <span>

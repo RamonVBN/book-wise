@@ -1,3 +1,4 @@
+
 // Query Types
 
 import { ReadingStatus } from "@/generated/prisma"
@@ -24,6 +25,7 @@ export type RatingProps = {
     book: BookProps
     user: RatingUserProps
     createdAt: string
+    updatedAt: string
 }
 
 export type BookProps = {
@@ -51,9 +53,10 @@ export type UserBookProps = {
     userId: string
     status: ReadingStatus
     isFavorite: boolean
+    rated: boolean
     currentPage?: number
+    updatedAt: string
     book: BookProps
-    createdAt: string
 }
 
 export type HomeDataResponse = {
@@ -83,6 +86,7 @@ type Category = {
 
 export type ProfileResponse = {
     userRatings: RatingProps[],
+    allUserBooks: UserBookProps[],
     currentlyReadingBooks: UserBookProps[],
     finishedBooks: UserBookProps[],
     abandonedBooks: UserBookProps[],

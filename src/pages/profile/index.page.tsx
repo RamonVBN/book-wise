@@ -39,11 +39,8 @@ import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { Fallback } from "@/components/Fallback";
 import Image from "next/image";
-import {
-  CategoriesContainer,
-  Category,
-} from "@/components/UserRatingForm/styles";
 import { ProfileBookCard } from "./components/ProfileBookCard";
+import { CategoriesContainer, Category } from "@/components/Category/styles";
 
 const profileFormSchema = z.object({
   ratedBook: z.string().min(1),
@@ -56,7 +53,8 @@ type MostReadCategory = {
   count: number;
 };
 
-type Categories = {
+export type Categories = {
+  'Sua estante': UserBookProps[];
   Avaliações: RatingProps[];
   Lidos: UserBookProps[];
   Favoritos: UserBookProps[];
@@ -106,31 +104,37 @@ export default function Profile() {
       staleTime: Infinity
     });
 
-  const finishedBooks = useMemo(() => {
-    return profileData?.finishedBooks ?? [];
-  }, [profileData]);
-  const favoriteBooks = useMemo(() => {
-    return profileData?.favoriteBooks ?? [];
-  }, [profileData]);
-  const abandonedBooks = useMemo(() => {
-    return profileData?.abandonedBooks ?? [];
-  }, [profileData]);
-  const wantToReadBooks = useMemo(() => {
-    return profileData?.wantToReadBooks ?? [];
-  }, [profileData]);
-  const currentlyReadingBooks = useMemo(() => {
-    return profileData?.currentlyReadingBooks ?? [];
-  }, [profileData]);
-  const userRatings = useMemo(() => {
-    return profileData?.userRatings ?? [];
-  }, [profileData]);
+
+    const userRatings = useMemo(() => {
+      return profileData?.userRatings ?? [];
+    }, [profileData]);
+    const allUserBooks = useMemo(() => {
+      return profileData?.allUserBooks ?? [];
+    }, [profileData]);
+    const currentlyReadingBooks = useMemo(() => {
+      return profileData?.currentlyReadingBooks ?? [];
+    }, [profileData]);
+    const wantToReadBooks = useMemo(() => {
+      return profileData?.wantToReadBooks ?? [];
+    }, [profileData]);
+    const finishedBooks = useMemo(() => {
+      return profileData?.finishedBooks ?? [];
+    }, [profileData]);
+    const favoriteBooks = useMemo(() => {
+      return profileData?.favoriteBooks ?? [];
+    }, [profileData]);
+    const abandonedBooks = useMemo(() => {
+      return profileData?.abandonedBooks ?? [];
+    }, [profileData]);
+
 
   const categories: Categories = {
+    'Sua estante': allUserBooks,
     Avaliações: userRatings,
-    Favoritos: favoriteBooks,
-    Lidos: finishedBooks,
     Lendo: currentlyReadingBooks,
     "Quero Ler": wantToReadBooks,
+    Lidos: finishedBooks,
+    Favoritos: favoriteBooks,
     Abandonados: abandonedBooks,
   };
 
@@ -145,8 +149,8 @@ export default function Profile() {
     ) ?? [];
 
   const userTotalPages = useMemo(() => {
-    return finishedBooks.reduce((acc, current) => {
-      return acc + current.book.pageCount;
+    return allUserBooks.reduce((acc, ub) => {
+      return acc + (ub?.currentPage ?? 0);
     }, 0);
   }, [profileData]);
 
@@ -168,7 +172,7 @@ export default function Profile() {
 
         return acc;
       }, []);
-  }, [profileData]);
+  }, [profileData?.allUserBooks]);
 
   const mostReadCategories = useMemo(() => {
     return finishedBooks
@@ -229,6 +233,7 @@ export default function Profile() {
                 <User />
                 <h1>Perfil</h1>
               </PageHeader>
+              
               <ProfileContainer>
                 <ProfileMainContainer>
                   <div>
@@ -265,11 +270,13 @@ export default function Profile() {
                   <ProfileBooksContainer>
                     {booksByInput.map((b) => {
                       if (typeof b === "object" && "rate" in b) {
-                        return <ProfileBookCard key={b.id} rating={b} />;
+                        return <ProfileBookCard  key={b.id} rating={b} />;
                       } else {
                         return (
                           <ProfileBookCard
+                            
                             isFavoriteList={profileCategory === "Favoritos"}
+                            isAllUserBooks={profileCategory === "Sua estante"}
                             key={b.id}
                             userBook={b}
                           />

@@ -25,7 +25,8 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
     categories: z.string()
   })
   
-  const { bookId, author, coverUrl, pageCount, title, categories, readStatus,  isFavorite, currentPage } = 
+  const 
+  { bookId, author, coverUrl, pageCount, title, categories, readStatus,  isFavorite, currentPage } = 
   bodySchema.parse(req.body)
   
   await updateUserBook({

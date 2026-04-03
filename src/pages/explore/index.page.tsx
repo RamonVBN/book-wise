@@ -19,7 +19,7 @@ import { ExploreBooksContainer } from "./components/ExploreBooks/style";
 import BookCard from "./components/ExploreBooks";
 import LoadingSpinner from "./components/LoadingSpinner.tsx";
 import BackToTop from "./components/BackToTopButton.tsx";
-import { CategoriesContainer, Category } from "@/components/UserRatingForm/styles.ts";
+import { CategoriesContainer, Category } from "@/components/Category/styles.ts";
 
 const categories = [
     {queryName: 'Fiction', name: 'Ficção'},
@@ -190,7 +190,7 @@ export default function Explore() {
                 
                 <form onSubmit={(e) => e.preventDefault()}>
                     <label>
-                    <ExploreInput {...register('query')}  placeholder="Buscar livro ou autor" type="text" />
+                    <ExploreInput {...register('query')}  placeholder="Buscar livro" type="text" />
                     </label>
                     <ExploreFormButton>
                         <MagnifyingGlass/>

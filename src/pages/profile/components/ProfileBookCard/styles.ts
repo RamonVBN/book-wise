@@ -15,7 +15,6 @@ export const ProfileBooksContainer = styled("div", {
 export const ProfileBook = styled("div", {
   display: "flex",
   flexDirection: "column",
-  gap: "1.5rem",
   padding: "1.5rem",
 
   marginBottom: "1rem",
@@ -26,6 +25,7 @@ export const ProfileBook = styled("div", {
   borderRadius: "8px",
 
   p: {
+    paddingTop: '1rem',
     fontWeight: "$regular",
     fontSize: "0.875rem",
     lineHeight: "$base",
@@ -33,9 +33,10 @@ export const ProfileBook = styled("div", {
     textAlign: "justify",
   },
 
-  div: {
+  '& > :first-child': {
     display: "flex",
     justifyContent: "space-between",
+    gap: '1.5rem'
   },
 });
 
@@ -88,19 +89,18 @@ export const ProfileBookOptions = styled("div", {
   display: "flex",
   flexDirection: "column",
 
-  'div:first-child': {
+  '& > div:first-child': {
     display: "flex",
     flexDirection: "row",
-    alignItems: 'flex-start',
-    gap: "$3",
+    alignItems: 'center',
+    gap: "0.75rem",
   }
 
 });
 
 export const ProfileBookButton = styled("button", {
     all: "unset",
-    cursor: "pointer",
-
+    
     width: "2.5rem",
     height: "2.5rem",
     boxSizing: "border-box",
@@ -114,7 +114,11 @@ export const ProfileBookButton = styled("button", {
       height: "1.5rem",
     },
 
-    "&:hover": {
+    "&:not(:disabled)": {
+      cursor: "pointer",
+    },
+
+    "&:not(:disabled):hover": {
       backgroundColor: "$gray500",
     },
 

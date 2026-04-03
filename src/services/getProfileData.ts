@@ -8,17 +8,30 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
 
   const [
     userRatings,
+    allUserBooks,
     currentlyReadingBooks,
     finishedBooks,
     abandonedBooks,
     wantToReadBooks,
     favoriteBooks,
-    stats,
   ] = await Promise.all([
 
     prisma.rating.findMany({
       where: { userId },
       include: { book: true, user: true },
+      orderBy: {
+        updatedAt: "desc",
+      }
+    }),
+
+    prisma.userBook.findMany({
+      where: {
+        userId,
+      },
+      include: { book: true },
+      orderBy: {
+        updatedAt: "desc",
+      },
     }),
 
     prisma.userBook.findMany({
@@ -27,6 +40,9 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         status: "READING",
       },
       include: { book: true },
+      orderBy: {
+        updatedAt: "desc",
+      }
     }),
     
     prisma.userBook.findMany({
@@ -38,6 +54,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
       orderBy: {
         updatedAt: "desc",
       },
+      
     }),
 
     prisma.userBook.findMany({
@@ -46,6 +63,9 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         status: "ABANDONED",
       },
       include: { book: true },
+      orderBy: {
+        updatedAt: "desc",
+      }
     }),
 
     prisma.userBook.findMany({
@@ -54,6 +74,9 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         status: "WANT_TO_READ",
       },
       include: { book: true },
+      orderBy: {
+        updatedAt: "desc",
+      }
     }),
 
     prisma.userBook.findMany({
@@ -62,23 +85,20 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         isFavorite: true,
       },
       include: { book: true },
+      orderBy: {
+        updatedAt: "desc",
+      }
     }),
 
-
-    prisma.userBook.groupBy({
-      by: ["status"],
-      where: { userId },
-      _count: true,
-    }),
   ])
 
   return {
     userRatings,
+    allUserBooks,
     currentlyReadingBooks,
     finishedBooks,
     abandonedBooks,
     wantToReadBooks,
     favoriteBooks,
-    stats,
   }
 }
