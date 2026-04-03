@@ -58,12 +58,13 @@ const response = await fetch(
 
     dbBooks.forEach(book => {
 
+      const userBook = book.userBooks.find((ub) => ub.userId === userId) ?? null
+
       booksMap[book.id] = {
         avgRating: book.avgRating,
         ratingsCount: book.ratingsCount,
         ratingsSum: book.ratingsSum,
-        userBookStatus: book.userBooks ? book.userBooks[0].status: null
-
+        userBookStatus: userBook?.status ?? null
       }
     })
 

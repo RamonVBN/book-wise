@@ -72,7 +72,7 @@ export default function Profile() {
     useForm<ProfileFormData>();
 
   const [profileCategory, setProfileCategory] =
-    useState<keyof Categories>("Avaliações");
+    useState<keyof Categories>("Sua estante");
 
   function onSubmit() {
     reset();

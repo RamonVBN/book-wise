@@ -32,8 +32,7 @@ import { FavoriteButton } from "@/pages/explore/components/FavoriteButton";
 import { ReadingProgress } from "../ReadingProgressBar";
 import { BookmarkPlus, BookPlus, BookUp2 } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
-import { Categories } from "../../index.page";
-import { ExploreBooksStatusFlag } from "@/pages/explore/components/ExploreBooksStatusFlag";
+import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { useSession } from "next-auth/react";
 
 interface ProfileBookCardProps {
@@ -47,12 +46,9 @@ export function ProfileBookCard({
   userBook,
   isFavoriteList,
   rating,
-  isAllUserBooks
+  isAllUserBooks,
 }: ProfileBookCardProps) {
-
   const queryClient = useQueryClient();
-
-  const session = useSession()
 
   const [isUserRatingFormOpen, setisUserRatingFormOpen] = useState(false);
 
@@ -95,7 +91,6 @@ export function ProfileBookCard({
   }
 
   function updateReadingProgress(newPage: number) {
-    
     updateUserBookMutation({
       currentPage: newPage,
     });
@@ -161,19 +156,19 @@ export function ProfileBookCard({
   });
 
   const { mutate: createRatingMutation } = useMutation({
-      mutationFn: async (data: UserRatingSubmitData) => {
-        return await api.post(`/app/ratings/users/${userId}`, {
-          rate: data.rate,
-          review: data.review,
-          bookId: book?.id,
-          title: book?.title,
-          author: book?.author,
-          coverUrl: book?.coverUrl,
-          pageCount: book?.pageCount,
-          categories: book?.categories,
-        });
-      },
-      onMutate: async (data) => {
+    mutationFn: async (data: UserRatingSubmitData) => {
+      return await api.post(`/app/ratings/users/${userId}`, {
+        rate: data.rate,
+        review: data.review,
+        bookId: book?.id,
+        title: book?.title,
+        author: book?.author,
+        coverUrl: book?.coverUrl,
+        pageCount: book?.pageCount,
+        categories: book?.categories,
+      });
+    },
+    onMutate: async (data) => {
       await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
       const previousProfileData = queryClient.getQueryData(["profile", userId]);
@@ -221,7 +216,7 @@ export function ProfileBookCard({
         queryKey: ["books"],
       });
     },
-    });
+  });
 
   const { mutate: deleteRatingMutation } = useMutation({
     mutationFn: async (ratingId: string) => {
@@ -264,108 +259,109 @@ export function ProfileBookCard({
     },
   });
 
-  const {
-    mutate: updateUserBookMutation,
-    isPending: isUpdatingReadingStatus,
-  } = useMutation({
-    mutationFn: async ({
-      status,
-      isFavorite,
-      currentPage
-    }: {
-      status?: ReadingStatus;
-      isFavorite?: boolean;
-      currentPage?: number;
-    }) => {
-      return await api.patch("/app/userBook", {
-        readStatus: status,
-        isFavorite: isFavorite,
-        currentPage: currentPage,
-        bookId: book?.id,
-        title: book?.title,
-        author: book?.author,
-        coverUrl: book?.coverUrl,
-        pageCount: book?.pageCount,
-        categories: book?.categories,
-      });
-    },
-    onMutate: async ({ status, isFavorite, currentPage }) => {
-      await queryClient.cancelQueries({ queryKey: ["profile", userId] });
+  const { mutate: updateUserBookMutation, isPending: isUpdatingReadingStatus } =
+    useMutation({
+      mutationFn: async ({
+        status,
+        isFavorite,
+        currentPage,
+      }: {
+        status?: ReadingStatus;
+        isFavorite?: boolean;
+        currentPage?: number;
+      }) => {
+        return await api.patch("/app/userBook", {
+          readStatus: status,
+          isFavorite: isFavorite,
+          currentPage: currentPage,
+          bookId: book?.id,
+          title: book?.title,
+          author: book?.author,
+          coverUrl: book?.coverUrl,
+          pageCount: book?.pageCount,
+          categories: book?.categories,
+        });
+      },
+      onMutate: async ({ status, isFavorite, currentPage }) => {
+        await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
-      const previousProfileData = queryClient.getQueryData(["profile", userId]);
+        const previousProfileData = queryClient.getQueryData([
+          "profile",
+          userId,
+        ]);
 
-      queryClient.setQueryData<ProfileResponse>(
-        ["profile", userId],
-        (oldData) => {
-          if (!oldData) return oldData;
+        queryClient.setQueryData<ProfileResponse>(
+          ["profile", userId],
+          (oldData) => {
+            if (!oldData) return oldData;
 
-          const updatedProfileData = oldData.abandonedBooks
-            .concat(
-              oldData.currentlyReadingBooks,
-              oldData.finishedBooks,
-              oldData.wantToReadBooks,
-            )
-            .map((ub) => {
-              if (ub.id === userBook?.id) {
-                return {
-                  ...ub,
-                  status: status ?? ub.status,
-                  isFavorite: isFavorite ?? ub.isFavorite,
-                  currentPage: currentPage ?? ub.currentPage,
-                };
-              }
-              return ub;
-            });
+            const updatedProfileData = oldData.abandonedBooks
+              .concat(
+                oldData.currentlyReadingBooks,
+                oldData.finishedBooks,
+                oldData.wantToReadBooks,
+              )
+              .map((ub) => {
+                if (ub.id === userBook?.id) {
+                  return {
+                    ...ub,
+                    status: status ?? ub.status,
+                    isFavorite: isFavorite ?? ub.isFavorite,
+                    currentPage: currentPage ?? ub.currentPage,
+                  };
+                }
+                return ub;
+              });
 
-          const currentlyReadingBooks = updatedProfileData.filter(
-            (ub) => ub.status === "READING",
-          );
-          const wantToReadBooks = updatedProfileData.filter(
-            (ub) => ub.status === "WANT_TO_READ",
-          );
-          const finishedBooks = updatedProfileData.filter(
-            (ub) => ub.status === "FINISHED",
-          );
-          const abandonedBooks = updatedProfileData.filter(
-            (ub) => ub.status === "ABANDONED",
-          );
-          const favoriteBooks = updatedProfileData.filter(
-            (ub) => ub.isFavorite,
-          );
+            const currentlyReadingBooks = updatedProfileData.filter(
+              (ub) => ub.status === "READING",
+            );
+            const wantToReadBooks = updatedProfileData.filter(
+              (ub) => ub.status === "WANT_TO_READ",
+            );
+            const finishedBooks = updatedProfileData.filter(
+              (ub) => ub.status === "FINISHED",
+            );
+            const abandonedBooks = updatedProfileData.filter(
+              (ub) => ub.status === "ABANDONED",
+            );
+            const favoriteBooks = updatedProfileData.filter(
+              (ub) => ub.isFavorite,
+            );
 
-          return {
-            ...oldData,
-            currentlyReadingBooks,
-            wantToReadBooks,
-            finishedBooks,
-            abandonedBooks,
-            favoriteBooks,
-          };
-        },
-      );
+            return {
+              ...oldData,
+              currentlyReadingBooks,
+              wantToReadBooks,
+              finishedBooks,
+              abandonedBooks,
+              favoriteBooks,
+            };
+          },
+        );
 
-      return { previousProfileData };
-    },
-    onError: (err, __, context) => {
-      console.log(err);
-      queryClient.setQueryData(
-        ["profile", userId],
-        context?.previousProfileData,
-      );
-    },
-    onSuccess: () => {
-      console.log("UserBook updated successfully");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["profile", userId],
-      });
+        return { previousProfileData };
+      },
+      onError: (err, __, context) => {
+        console.log(err);
+        queryClient.setQueryData(
+          ["profile", userId],
+          context?.previousProfileData,
+        );
+      },
+      onSuccess: () => {
+        console.log("UserBook updated successfully");
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["profile", userId],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["books"],
-      });
-    },
-  });
+        queryClient.invalidateQueries({
+          queryKey: ["books"],
+        });
+      },
+    });
 
   const { mutate: deleteUserBookMutation } = useMutation({
     mutationFn: async () => {
@@ -453,7 +449,7 @@ export function ProfileBookCard({
   }
 
   function onSelectChange(status: ReadingStatus) {
-    updateUserBookMutation({status});
+    updateUserBookMutation({ status });
   }
 
   useEffect(() => {
@@ -498,9 +494,8 @@ export function ProfileBookCard({
             )}
           </ProfileBookTime>
         )}
-        {
-          userBook && (
-            <ProfileBookTime>
+        {userBook && (
+          <ProfileBookTime>
             {capitalize(
               formatDistanceToNow(userBook.updatedAt, {
                 addSuffix: true,
@@ -508,8 +503,7 @@ export function ProfileBookCard({
               }),
             )}
           </ProfileBookTime>
-          )
-        }
+        )}
         <ProfileBook>
           <div>
             <ProfileBookInfo>
@@ -532,62 +526,63 @@ export function ProfileBookCard({
 
             <ProfileBookOptions>
               <div>
+                {!isAllUserBooks &&
+                  (rating ||
+                    (userBook?.status === "FINISHED" && !isFavoriteList)) && (
+                    <ProfileBookButton
+                      disabled={userBook?.rated}
+                      onClick={() =>
+                        setisUserRatingFormOpen(!isUserRatingFormOpen)
+                      }
+                    >
+                      {rating && <Pencil />}
 
-                {!isAllUserBooks && (rating || (userBook?.status === 'FINISHED' && !isFavoriteList)) && (
-                  <ProfileBookButton
-                  disabled={userBook?.rated}
-                    onClick={() => setisUserRatingFormOpen(!isUserRatingFormOpen)}
-                  >
-                    {
-                      rating && (
-                        <Pencil/>
-                      )
-                    }
+                      {userBook?.status === "FINISHED" &&
+                        !isFavoriteList &&
+                        (userBook.rated ? <Star weight="fill" /> : <Star />)}
+                    </ProfileBookButton>
+                  )}
 
-                    {
-                      (userBook?.status === 'FINISHED' && !isFavoriteList) && (
-                        
-                        userBook.rated ? <Star weight="fill"/> : <Star/>
-                      )
-                    }
-                  </ProfileBookButton>
-                )}
-
-                {!isAllUserBooks && (userBook && userBook.status === 'READING' && !isFavoriteList) && (
-                  <ProfileBookButton
-                    onClick={() =>
-                      setIsReadingProgressUpdaterOpen(!isReadingProgressUpdaterOpen)
-                    }
-                  >
-                    <BookmarkPlus/>
-                  </ProfileBookButton>
-                )}
+                {!isAllUserBooks &&
+                  userBook &&
+                  userBook.status === "READING" &&
+                  !isFavoriteList && (
+                    <ProfileBookButton
+                      onClick={() =>
+                        setIsReadingProgressUpdaterOpen(
+                          !isReadingProgressUpdaterOpen,
+                        )
+                      }
+                    >
+                      <BookmarkPlus />
+                    </ProfileBookButton>
+                  )}
 
                 {(rating || isAllUserBooks) && (
                   <ProfileBookButton onClick={() => setIsModalOpen(true)}>
                     <Trash size={24} />
                   </ProfileBookButton>
                 )}
-                {
-                  userBook && isAllUserBooks && (
-                    <ExploreBooksStatusFlag status={userBook.status} />
-                  )
-                }
-
-                {!isAllUserBooks && userBook && (isFavoriteList || userBook.status === 'FINISHED') && (
-                  <FavoriteButton
-                    disabled={isUpdatingReadingStatus}
-                    isFavorite={userBook.isFavorite}
-                    setIsFavorite={(isFavorite) =>
-                      updateUserBookMutation({
-                        isFavorite,
-                        status: userBook.status,
-                      })
-                    }
-                  />
+                {userBook && isAllUserBooks && (
+                  <BooksStatusFlag status={userBook.status} />
                 )}
 
-                {!isAllUserBooks && (userBook && !isFavoriteList) && (
+                {!isAllUserBooks &&
+                  userBook &&
+                  (isFavoriteList || userBook.status === "FINISHED") && (
+                    <FavoriteButton
+                      disabled={isUpdatingReadingStatus}
+                      isFavorite={userBook.isFavorite}
+                      setIsFavorite={(isFavorite) =>
+                        updateUserBookMutation({
+                          isFavorite,
+                          status: userBook.status,
+                        })
+                      }
+                    />
+                  )}
+
+                {!isAllUserBooks && userBook && !isFavoriteList && (
                   <ReadingStatusSelect
                     disabled={isUpdatingReadingStatus}
                     onChange={onSelectChange}
@@ -596,40 +591,45 @@ export function ProfileBookCard({
                     value={userBook.status}
                   />
                 )}
-
               </div>
             </ProfileBookOptions>
           </div>
 
           <div>
-            {!isAllUserBooks && userBook && userBook.status === "READING" && !isFavoriteList && (
-                  <ReadingProgress currentPage={userBook.currentPage ? userBook.currentPage : 0} totalPages={userBook.book.pageCount} />
-                )}
+            {!isAllUserBooks &&
+              userBook &&
+              userBook.status === "READING" &&
+              !isFavoriteList && (
+                <ReadingProgress
+                  currentPage={userBook.currentPage ? userBook.currentPage : 0}
+                  totalPages={userBook.book.pageCount}
+                />
+              )}
           </div>
 
           {rating && !isUserRatingFormOpen && <p>{rating.review}</p>}
 
-          {(rating || userBook?.status === 'FINISHED') && isUserRatingFormOpen && (
-            <UserRatingForm
-              initialReview={rating?.review}
-              initialRate={rating?.rate}
-              profile={true}
-              handleRatingSubmit={handleRatingSubmit}
-              handleCloseUserRatingForm={handleCloseUserRatingForm}
+          {(rating || userBook?.status === "FINISHED") &&
+            isUserRatingFormOpen && (
+              <UserRatingForm
+                initialReview={rating?.review}
+                initialRate={rating?.rate}
+                profile={true}
+                handleRatingSubmit={handleRatingSubmit}
+                handleCloseUserRatingForm={handleCloseUserRatingForm}
+              />
+            )}
+
+          {userBook?.status === "READING" && isReadingProgressUpdaterOpen && (
+            <ReadingProgressUpdater
+              handleCloseReadingProgressUpdater={() =>
+                setIsReadingProgressUpdaterOpen(!isReadingProgressUpdaterOpen)
+              }
+              onUpdate={updateReadingProgress}
+              currentPage={userBook.currentPage ? userBook.currentPage : 0}
+              totalPages={userBook.book.pageCount}
             />
           )}
-
-          {
-            userBook?.status === 'READING' && isReadingProgressUpdaterOpen && (
-              <ReadingProgressUpdater
-                handleCloseReadingProgressUpdater={() => setIsReadingProgressUpdaterOpen(!isReadingProgressUpdaterOpen)}
-                onUpdate={updateReadingProgress}
-                currentPage={userBook.currentPage ? userBook.currentPage : 0}
-                totalPages={userBook.book.pageCount}
-              />
-            )
-          }
-
         </ProfileBook>
       </div>
     </>

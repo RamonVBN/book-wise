@@ -3,44 +3,51 @@ import { ExploreBook } from "./style";
 import React from "react";
 import { StarRating } from "@/components/StarsRating";
 import { ExploreBooksProps } from "@/@types/query-types";
-import { ExploreBooksStatusFlag } from "../ExploreBooksStatusFlag";
+import { BooksStatusFlag } from "../../../../components/BooksStatusFlag";
 
-const BookCard = React.memo(function BookCard({book, handleOpenBookDetails} : 
-    {book: ExploreBooksProps, 
-    handleOpenBookDetails: (bookId: string) => void}
-    )
-    {
-    return (
-        <ExploreBook onClick={() => handleOpenBookDetails(book.id)}>
+const BookCard = React.memo(function BookCard({
+  book,
+  handleOpenBookDetails,
+}: {
+  book: ExploreBooksProps;
+  handleOpenBookDetails: (bookId: string) => void;
+}) {
+  return (
+    <ExploreBook onClick={() => handleOpenBookDetails(book.id)}>
+      {book.userBookStatus && (
+        <BooksStatusFlag explore={true} status={book.userBookStatus} />
+      )}
 
-             {
-                book.userBookStatus && (
-                    <ExploreBooksStatusFlag status={book.userBookStatus} />
-                )
-                }
-                                          
-            <Image width={108} height={152} loading="lazy" src={book.coverUrl}  alt="" />
-            
-            <div>
-                <span>
-                    <h2>{book.title}</h2>
-                    <span>{
-                        book.author && book.author.length > 1 ? book.author.map((name, i) => {
-                            if (i < book.author.length - 1){
-                                return name + ', '
-                            } else {
-                                return name
-                            }
-                        }) : book.author}
-                        </span>
-                </span>
+      <Image
+        width={108}
+        height={152}
+        loading="lazy"
+        src={book.coverUrl}
+        alt=""
+      />
 
-                <span>
-                    <StarRating param={book.avgRating}/>
-                </span> 
-            </div>
-        </ExploreBook>
-    )
-})
+      <div>
+        <span>
+          <h2>{book.title}</h2>
+          <span>
+            {book.author && book.author.length > 1
+              ? book.author.map((name, i) => {
+                  if (i < book.author.length - 1) {
+                    return name + ", ";
+                  } else {
+                    return name;
+                  }
+                })
+              : book.author}
+          </span>
+        </span>
 
-export default BookCard
+        <span>
+          <StarRating param={book.avgRating} />
+        </span>
+      </div>
+    </ExploreBook>
+  );
+});
+
+export default BookCard;
