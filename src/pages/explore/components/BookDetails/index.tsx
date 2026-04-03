@@ -277,6 +277,10 @@ export function BookDetails({
       queryClient.invalidateQueries({
         queryKey: ["books", debouncedQuery, categoriesFilters],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["profile"],
+      });
     },
   });
 
