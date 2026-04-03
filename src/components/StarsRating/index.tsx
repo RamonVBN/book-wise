@@ -1,4 +1,5 @@
 import { Star, StarHalf } from "phosphor-react"
+import { StarRatingContainer } from "./style"
 
 type StarRating = {
     param: number
@@ -7,28 +8,31 @@ type StarRating = {
 export function StarRating({param}: StarRating){
 
     return (
-        
-        Array.from({length: 5}).map((_, i) => {
+    <StarRatingContainer>
+        {
+            Array.from({length: 5}).map((_, i) => {
                                                     
-            if ((param - ((i + 1) - 1)) >= 0.3 && (param - ((i + 1) - 1)) <= 0.75) {
-                return (
-                    <StarHalf key={i} weight="fill"/>  
-                )
+                if ((param - ((i + 1) - 1)) >= 0.3 && (param - ((i + 1) - 1)) <= 0.75) {
+                    return (
+                        <StarHalf key={i} weight="fill"/>  
+                    )
 
-            }else if((param - ((i + 1) - 1)) > 0.75){
+                }else if((param - ((i + 1) - 1)) > 0.75){
+
+                    return (<Star key={i} weight="fill"/>)
+                }
+                
+                if (i + 1 > param) {
+
+                    
+                    return (
+                        <Star key={i}/>
+                    )
+                }
 
                 return (<Star key={i} weight="fill"/>)
-            }
-            
-            if (i + 1 > param) {
-
-                
-                return (
-                    <Star key={i}/>
-                )
-            }
-
-            return (<Star key={i} weight="fill"/>)
-        })
+            })
+        }
+    </StarRatingContainer> 
 )
 }

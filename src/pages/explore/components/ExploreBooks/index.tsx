@@ -42,9 +42,9 @@ const BookCard = React.memo(function BookCard({
           </span>
         </span>
 
-        <span>
-          <StarRating param={book.avgRating} />
-        </span>
+        
+        <StarRating param={book.avgRating} />
+     
       </div>
     </ExploreBook>
   );

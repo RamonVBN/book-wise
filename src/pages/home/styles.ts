@@ -12,8 +12,8 @@ export const Container = styled('div', {
 
     '@media(max-width: 900px)': {
         marginTop: '18rem',
-       paddingInline: '2rem'
-    }
+        paddingInline: '2rem'
+    }   
 
 })
 
@@ -40,7 +40,6 @@ export const ContentContainer = styled('div', {
     scrollbarWidth: 'none',
 
     paddingBottom: '8.15rem',
-
     width: '38rem',
 })
 
@@ -204,16 +203,27 @@ export const LinkButton = styled(Link, {
 export const PopBookContainer = styled('aside', {
     width: '20.25rem',
     
-    span: {
+    '& > span': {
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'baseline',
 
         'span:first-child': {
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: '0.5rem',
+
             fontWeight: '$regular',
             fontSize: '0.875rem',
             lineHeigth: '$base',
-            color: '$gray100'
+            color: '$gray100',
+
+            svg: {
+                color: '$purple100',
+                fill: '$purple100',
+                width: '1rem',
+                height: '1rem',
+            }
         },
     },
 
@@ -231,11 +241,6 @@ export const PopBookBody = styled('div', {
         width: '100%',
     },
 
-    // span: {
-    //     width: '60',
-    //     height: '60px'
-    // }
-
 })
 
 export const PopBook = styled('div', {
@@ -243,8 +248,8 @@ export const PopBook = styled('div', {
     padding: '1rem 1.25rem',
     borderRadius: '8px',
 
-    width: 324,
-    height: 130,
+    width: '20.25rem',
+    height: '8.125rem',
 
     display: 'flex',
     gap: '1.25rem',
@@ -270,7 +275,7 @@ export const PopBookDescription = styled('div', {
     justifyContent: 'space-between',
     
 
-    span: {
+    '& > span:first-child': {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.25rem',
@@ -300,10 +305,8 @@ export const LastReadContainer = styled('div', {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
-
-    width: '100%',
     
-
+    width: '100%',
 })
 
 export const LastReadHeader = styled('div', {
@@ -370,7 +373,7 @@ export const LastReadContent = styled('div', {
             justifyContent: 'space-between',
             width: '100%',
 
-            'span:first-child': {
+            '& > span:first-child': {
                 color: '$gray300',
                 fontSize: '0.875rem',
                 fontWeight: '$regular',
@@ -378,17 +381,6 @@ export const LastReadContent = styled('div', {
 
             },
 
-             
-            'span:last-child': {
-
-                display: 'flex',
-                gap: '0.25rem',
-
-                svg: {
-                    color: '$purple100'
-                }
-            }
-            
         },
 
         'div:last-child': {
@@ -405,7 +397,6 @@ export const LastReadContent = styled('div', {
                 fontSize: '0.875rem',
                 fontWeight: '$regular',
                 lineHeight: '$base',
-                
             }
         }
 

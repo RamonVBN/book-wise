@@ -74,14 +74,6 @@ export const ProfileBookInfo = styled("div", {
       },
     },
 
-    "span:last-child": {
-      display: "flex",
-      gap: "0.25rem",
-
-      svg: {
-        color: "$purple100",
-      },
-    },
   },
 });
 

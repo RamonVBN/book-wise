@@ -78,15 +78,7 @@ export const ExploreBook = styled('button', {
         },
 
         'span:last-child': {
-            display: 'flex',
-            gap: '0.25rem',
-
-            svg: {
-                width: '1rem',
-                height: '1rem',
-
-                color: '$purple100'
-            }
+            width: '100%'
         }
 
     },

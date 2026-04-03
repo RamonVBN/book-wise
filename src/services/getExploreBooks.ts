@@ -1,7 +1,5 @@
 import { BookProps, BookStats } from "@/@types/query-types"
 import { prisma } from "@/lib/prisma"
-import { stat } from "fs"
-import { finished } from "stream"
 
 interface GetExploreBooks {
   userId?: string
