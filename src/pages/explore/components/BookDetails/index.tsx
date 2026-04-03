@@ -65,6 +65,7 @@ export function BookDetails({
   debouncedQuery,
   categoriesFilters,
 }: BookDetailsProps) {
+
   const queryClient = useQueryClient();
 
   const session = useSession();
@@ -289,13 +290,23 @@ export function BookDetails({
   }
 
   function onSelectChange(status: ReadingStatus) {
+
     updateReadingStatusMutation({ status, isFavorite: isFavoriteBook });
     return;
   }
 
   function onFavoriteButtonClick(isFavorite: boolean) {
+
+    if (session.status !== "authenticated") {
+      return setIsModalOpen(true);
+    }
+
     updateReadingStatusMutation({ isFavorite });
     return;
+  }
+
+  function handleLoginModalOpen() {
+    setIsModalOpen(true);
   }
 
   const bookStatus = bookRatings?.userStatus?.status;
@@ -391,6 +402,8 @@ export function BookDetails({
 
                 <div>
                   <ReadingStatusSelect
+                    openLoginModal={handleLoginModalOpen}
+                    isAuthenticated={session.status === "authenticated"}
                     disabled={isUpdatingReadingStatus}
                     handleSelectOpenChange={handleSelectOpenChange}
                     isSelectOpen={isSelectOpen}

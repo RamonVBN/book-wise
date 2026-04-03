@@ -30,9 +30,11 @@ import { ReadingStatus } from "@/generated/prisma";
 import { ReadingStatusSelect } from "@/pages/explore/components/ReadingStatusSelect";
 import { FavoriteButton } from "@/pages/explore/components/FavoriteButton";
 import { ReadingProgress } from "../ReadingProgressBar";
-import { BookPlus, BookUp2 } from "lucide-react";
+import { BookmarkPlus, BookPlus, BookUp2 } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { Categories } from "../../index.page";
+import { ExploreBooksStatusFlag } from "@/pages/explore/components/ExploreBooksStatusFlag";
+import { useSession } from "next-auth/react";
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
@@ -49,6 +51,8 @@ export function ProfileBookCard({
 }: ProfileBookCardProps) {
 
   const queryClient = useQueryClient();
+
+  const session = useSession()
 
   const [isUserRatingFormOpen, setisUserRatingFormOpen] = useState(false);
 
@@ -555,7 +559,7 @@ export function ProfileBookCard({
                       setIsReadingProgressUpdaterOpen(!isReadingProgressUpdaterOpen)
                     }
                   >
-                    <BookPlus/>
+                    <BookmarkPlus/>
                   </ProfileBookButton>
                 )}
 
@@ -564,6 +568,11 @@ export function ProfileBookCard({
                     <Trash size={24} />
                   </ProfileBookButton>
                 )}
+                {
+                  userBook && isAllUserBooks && (
+                    <ExploreBooksStatusFlag status={userBook.status} />
+                  )
+                }
 
                 {!isAllUserBooks && userBook && (isFavoriteList || userBook.status === 'FINISHED') && (
                   <FavoriteButton
@@ -578,7 +587,7 @@ export function ProfileBookCard({
                   />
                 )}
 
-                {userBook && !isFavoriteList && (
+                {!isAllUserBooks && (userBook && !isFavoriteList) && (
                   <ReadingStatusSelect
                     disabled={isUpdatingReadingStatus}
                     onChange={onSelectChange}
