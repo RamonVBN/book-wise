@@ -34,6 +34,7 @@ import { BookmarkPlus, BookPlus, BookUp2 } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { useSession } from "next-auth/react";
+import { AppTooltip } from "@/components/Tooltip";
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
@@ -52,7 +53,8 @@ export function ProfileBookCard({
 
   const [isUserRatingFormOpen, setisUserRatingFormOpen] = useState(false);
 
-  const [isReadingProgressUpdaterOpen, setIsReadingProgressUpdaterOpen] = useState(false);
+  const [isReadingProgressUpdaterOpen, setIsReadingProgressUpdaterOpen] =
+    useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -152,6 +154,10 @@ export function ProfileBookCard({
       queryClient.invalidateQueries({
         queryKey: ["books"],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["home"],
+      });
     },
   });
 
@@ -215,6 +221,10 @@ export function ProfileBookCard({
       queryClient.invalidateQueries({
         queryKey: ["books"],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["home"],
+      });
     },
   });
 
@@ -255,6 +265,10 @@ export function ProfileBookCard({
 
       queryClient.invalidateQueries({
         queryKey: ["books"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["home"],
       });
     },
   });
@@ -360,6 +374,10 @@ export function ProfileBookCard({
         queryClient.invalidateQueries({
           queryKey: ["books"],
         });
+
+        queryClient.invalidateQueries({
+          queryKey: ["home"],
+        });
       },
     });
 
@@ -428,6 +446,10 @@ export function ProfileBookCard({
 
       queryClient.invalidateQueries({
         queryKey: ["books"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["home"],
       });
     },
   });
@@ -516,11 +538,9 @@ export function ProfileBookCard({
                   <span>{book?.author}</span>
                 </span>
 
-                <span>
-                  {rating && !isUserRatingFormOpen && (
-                    <StarRating param={rating.rate} />
-                  )}
-                </span>
+                {rating && !isUserRatingFormOpen && (
+                  <StarRating param={rating.rate} />
+                )}
               </div>
             </ProfileBookInfo>
 
@@ -529,39 +549,57 @@ export function ProfileBookCard({
                 {!isAllUserBooks &&
                   (rating ||
                     (userBook?.status === "FINISHED" && !isFavoriteList)) && (
-                    <ProfileBookButton
-                      disabled={userBook?.rated}
-                      onClick={() =>
-                        setisUserRatingFormOpen(!isUserRatingFormOpen)
+                    <AppTooltip
+                      content={
+                        rating
+                          ? "Editar avaliação"
+                          : userBook?.rated
+                            ? "Livro avaliado"
+                            : "Avaliar livro"
                       }
                     >
-                      {rating && <Pencil />}
+                      <ProfileBookButton
+                        disabled={userBook?.rated}
+                        onClick={() =>
+                          setisUserRatingFormOpen(!isUserRatingFormOpen)
+                        }
+                      >
+                        {rating && <Pencil />}
 
-                      {userBook?.status === "FINISHED" &&
-                        !isFavoriteList &&
-                        (userBook.rated ? <Star weight="fill" /> : <Star />)}
-                    </ProfileBookButton>
+                        {userBook?.status === "FINISHED" &&
+                          !isFavoriteList &&
+                          (userBook.rated ? <Star weight="fill" /> : <Star />)}
+                      </ProfileBookButton>
+                    </AppTooltip>
                   )}
 
                 {!isAllUserBooks &&
                   userBook &&
                   userBook.status === "READING" &&
                   !isFavoriteList && (
-                    <ProfileBookButton
-                      onClick={() =>
-                        setIsReadingProgressUpdaterOpen(
-                          !isReadingProgressUpdaterOpen,
-                        )
-                      }
-                    >
-                      <BookmarkPlus />
-                    </ProfileBookButton>
+                    <AppTooltip content="Atualizar progresso de leitura">
+                      <ProfileBookButton
+                        onClick={() =>
+                          setIsReadingProgressUpdaterOpen(
+                            !isReadingProgressUpdaterOpen,
+                          )
+                        }
+                      >
+                        <BookmarkPlus />
+                      </ProfileBookButton>
+                    </AppTooltip>
                   )}
 
                 {(rating || isAllUserBooks) && (
-                  <ProfileBookButton onClick={() => setIsModalOpen(true)}>
-                    <Trash size={24} />
-                  </ProfileBookButton>
+                  <AppTooltip
+                    content={
+                      rating ? "Excluir avaliação" : "Excluir livro da estante"
+                    }
+                  >
+                    <ProfileBookButton onClick={() => setIsModalOpen(true)}>
+                      <Trash size={24} />
+                    </ProfileBookButton>
+                  </AppTooltip>
                 )}
                 {userBook && isAllUserBooks && (
                   <BooksStatusFlag status={userBook.status} />
@@ -576,7 +614,6 @@ export function ProfileBookCard({
                       setIsFavorite={(isFavorite) =>
                         updateUserBookMutation({
                           isFavorite,
-                          status: userBook.status,
                         })
                       }
                     />

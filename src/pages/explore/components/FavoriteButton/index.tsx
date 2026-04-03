@@ -1,19 +1,32 @@
 import { Heart } from "phosphor-react";
 import { FavoriteButtonComponent } from "./styles";
 
+import { forwardRef } from "react";
+import { AppTooltip } from "@/components/Tooltip";
+
 type FavoriteButtonProps = {
-    isFavorite: boolean
-    setIsFavorite: (isFavorite: boolean) => void
-    disabled: boolean
-}
+  isFavorite: boolean;
+  setIsFavorite: (isFavorite: boolean) => void;
+  disabled?: boolean;
+} & React.ComponentPropsWithoutRef<"button">;
 
-export function FavoriteButton({ isFavorite, setIsFavorite, disabled }: FavoriteButtonProps) {
-
-    return (
-        
-        <FavoriteButtonComponent onClick={() => setIsFavorite(!isFavorite)} disabled={disabled}>
-            <Heart weight={isFavorite ? 'fill' : 'regular'} />
+export const FavoriteButton = forwardRef<
+  HTMLButtonElement,
+  FavoriteButtonProps
+>(function FavoriteButton(
+  { isFavorite, setIsFavorite, disabled, ...props },
+  ref,
+) {
+  return (
+   <AppTooltip content={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}>
+        <FavoriteButtonComponent
+            {...props}
+            ref={ref}
+        onClick={() => setIsFavorite(!isFavorite)}
+        disabled={disabled}
+        >
+        <Heart weight={isFavorite ? "fill" : "regular"} />
         </FavoriteButtonComponent>
-        
-    )
-}
+    </AppTooltip> 
+  );
+});

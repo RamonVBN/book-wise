@@ -10,6 +10,9 @@ import { ReactNode, useState } from "react";
 
 import { useRouter } from "next/router";
 
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { AppTooltip } from "../Tooltip";
+
 
 type Navigation = {
     buttonName: string
@@ -40,6 +43,7 @@ export default function Layout({children}: {children: ReactNode}){
     }
 
     return (
+    <TooltipProvider delayDuration={250}>
         <AppContainer>
             <MenuContainer>
                 <Image priority width={128} height={32} src={logo} alt=""/>
@@ -81,17 +85,20 @@ export default function Layout({children}: {children: ReactNode}){
                                         <Image width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
                                         <span>{session.data.user.name}</span>
                                    </span>
-
-                                <SignOutButton onClick={handleSignOut}>
-                                    <SignOut size={20}/>
-                                </SignOutButton>
+                                <AppTooltip content="Sair do BookWise">
+                                    <SignOutButton onClick={handleSignOut}>
+                                        <SignOut size={20}/>
+                                    </SignOutButton>
+                                </AppTooltip>
                             </SignOutButtonContainer>
                         ) :
                         <SignInButtonContainer>
                                 Fazer login
-                            <SignInButton prefetch href={'/'}>
-                                <SignIn size={20} />
-                            </SignInButton>
+                            <AppTooltip content="Ir para página de login">
+                                <SignInButton prefetch href={'/'}>
+                                    <SignIn size={20} />
+                                </SignInButton>
+                            </AppTooltip>
                         </SignInButtonContainer>
                     }
 
@@ -104,6 +111,7 @@ export default function Layout({children}: {children: ReactNode}){
                 {children}
             </MainContainer>
         </AppContainer>
+    </TooltipProvider> 
     )
 }
 
