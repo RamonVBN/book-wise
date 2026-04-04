@@ -124,22 +124,23 @@ export const ProfileBookTime = styled("span", {
 });
 
 export const ModalBody = styled("div", {
-  height: "120px",
-
-  color: "$gray100",
+  
   display: "flex",
   flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: "24px",
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: "1.5rem",
+  color: "$gray100",
 
   p: {
     fontWeight: "$bold",
+    textAlign:'center'
   },
 
   div: {
     display: "flex",
     flexDirection: "row",
+    gap: "0.75rem",
 
     button: {
       display: "flex",
@@ -153,11 +154,11 @@ export const ModalBody = styled("div", {
 
       padding: "0.5rem",
 
-      backgroundColor: "$gray600",
+      backgroundColor: "$gray800",
       borderRadius: "4px",
 
       "&:hover": {
-        backgroundColor: "$gray500",
+        backgroundColor: "$gray700",
       },
     },
 

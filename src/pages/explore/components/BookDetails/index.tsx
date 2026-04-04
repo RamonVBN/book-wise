@@ -12,6 +12,7 @@ import {
   BookInfoFooter,
   BookDetailsRating,
   CloseButton,
+  BookDetailsModalBody,
 } from "./styles";
 
 import { capitalize } from "@/utils/capitalize";
@@ -303,7 +304,7 @@ export function BookDetails({
   }
 
   function onSelectChange(status: ReadingStatus) {
-    updateReadingStatusMutation({status});
+    updateReadingStatusMutation({ status });
     return;
   }
 
@@ -335,22 +336,24 @@ export function BookDetails({
   return (
     <>
       {isModalOpen && (
-        <Modal ref={loginModalRef}>
-          <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
-            <X />
-          </CloseButton>
-          <h3>Faça login para deixar sua avaliação</h3>
-          <div>
-            <ProviderButton onClick={async () => signIn("google")}>
-              <Image src={googleLogo} alt="" />
-              Entrar com Google
-            </ProviderButton>
+        <Modal ref={loginModalRef} onPointerDown={(e) => handleClickOutside(e)}>
+            <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
+              <X />
+            </CloseButton>
+          <BookDetailsModalBody>
+            <h3>Faça login para adicionar livros a sua estante</h3>
+            <div>
+              <ProviderButton onClick={async () => signIn("google")}>
+                <Image src={googleLogo} alt="" />
+                Entrar com Google
+              </ProviderButton>
 
-            <ProviderButton onClick={async () => signIn("github")}>
-              <Image src={githubLogo} alt="" />
-              Entrar com Github
-            </ProviderButton>
-          </div>
+              <ProviderButton onClick={async () => signIn("github")}>
+                <Image src={githubLogo} alt="" />
+                Entrar com Github
+              </ProviderButton>
+            </div>
+          </BookDetailsModalBody>
         </Modal>
       )}
 
@@ -411,7 +414,7 @@ export function BookDetails({
                     <span>{book?.pageCount}</span>
                   </span>
                 </div>
-                
+
                 <div>
                   <ReadingStatusSelect
                     openLoginModal={handleLoginModalOpen}
@@ -424,16 +427,13 @@ export function BookDetails({
                     onChange={onSelectChange}
                   />
 
-                  {
-                    bookRatings?.userStatus?.status === 'FINISHED' && (
-
+                  {bookRatings?.userStatus?.status === "FINISHED" && (
                     <FavoriteButton
-                    disabled={isUpdatingReadingStatus}
-                    isFavorite={isFavoriteBook}
-                    setIsFavorite={onFavoriteButtonClick}
-                  />
-                    )
-                  }
+                      disabled={isUpdatingReadingStatus}
+                      isFavorite={isFavoriteBook}
+                      setIsFavorite={onFavoriteButtonClick}
+                    />
+                  )}
                 </div>
               </BookInfoFooter>
             </BookInfo>

@@ -16,8 +16,6 @@ export const ModalOverlay = styled('div', {
     justifyContent: 'center',
     alignItems: 'center',
 
-
-
 })
 
 export const ModalContainer = styled('div', {
@@ -25,13 +23,9 @@ export const ModalContainer = styled('div', {
 
     padding: '3.5rem 4.5rem',
     borderRadius: '12px',
-    backgroundColor: '$gray700',
+    backgroundColor: '$gray600',
 
-    width: '32.25rem',
-
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2.5rem',
+    maxWidth: '32.25rem',
 
     h3: {
         fontWeight: '$bold',
@@ -41,13 +35,7 @@ export const ModalContainer = styled('div', {
         textAlign: 'center'
     },
 
-    div: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-    },
-
-    'button:has(svg)': {
+    '& > button:has(svg)': {
        position: 'absolute',
        top: 16,
        right: 16

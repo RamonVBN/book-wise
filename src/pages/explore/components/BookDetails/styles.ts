@@ -30,6 +30,16 @@ export const BookDetailsContainer = styled('div', {
  
 })
 
+export const BookDetailsModalBody = styled('div', {
+
+    width: '100%',
+    height: '100%',
+
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+})
+
 export const CloseButton = styled('button', {
 
     all: 'unset',

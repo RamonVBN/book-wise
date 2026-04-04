@@ -101,7 +101,7 @@ export const ProviderButton = styled('button', {
 
     width: '100%',
     borderRadius: 8,
-    backgroundColor: '#252D4A',
+    backgroundColor: '$gray600',
     padding: '1.25rem 1.5rem',
     
     display: 'flex',
@@ -115,7 +115,7 @@ export const ProviderButton = styled('button', {
     transition: 'all 0.2s ease-out',
 
     '&:hover': {
-        backgroundColor: '#303F73',
+        backgroundColor: '$gray500',
     }
 
         
