@@ -12,14 +12,7 @@ export async function getExploreBooksController(
 
   const userId = session?.user.id;
 
-  const querySchema = z.object({
-    q: z.string(),
-    startIndex: z.string().refine((startIndex) => !Number.isNaN(startIndex)),
-  });
-
-  const { q, startIndex = 0 } = querySchema.parse(req.query);
-
-  const books = await getExploreBooks({ userId, q, startIndex });
+  const books = await getExploreBooks({ userId, googleData: req.body.googleData });
 
   res.status(200).json({
     items: books,

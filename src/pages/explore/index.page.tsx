@@ -20,6 +20,7 @@ import BookCard from "./components/ExploreBooks";
 import LoadingSpinner from "./components/LoadingSpinner.tsx";
 import BackToTop from "./components/BackToTopButton.tsx";
 import { CategoriesContainer, Category } from "@/components/Category/styles.ts";
+import axios from "axios";
 
 const categories = [
     {queryName: 'Fiction', name: 'Ficção'},
@@ -36,17 +37,6 @@ const categories = [
     {queryName: 'Mystery', name: 'Mistério'}
 ]
 
-// Em caso de exceder o limite de requisições do Goggle Books API.
-
-// const fakeData = Array.from({ length: 57 }, (_, i) => ({
-//   id: `book-${i + 1}`,
-//   title: `Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} v Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1} Book Title ${i + 1}`,
-//   description: `This is a brief description for Book Title ${i + 1}. It covers interesting topics and insights to engage the reader.`,
-//   authors: [`Author ${i % 10 + 1}`, `Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}`],
-//   categories: [`Category ${i % 8 + 1}`, `Category ${i % 6 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1} ,Co-author ${i % 5 + 1}, Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} , Co-author ${i % 5 + 1} ,  Co-author ${i % 5 + 1} ,`],
-//   pageCount: Math.floor(Math.random() * 400) + 50, // páginas entre 50 e 450
-//   thumbnail: ''
-// }))
 
 const exploreFormSchema = z.object({
     query: z.string()
@@ -55,6 +45,7 @@ const exploreFormSchema = z.object({
 type ExploreFormType = z.infer<typeof exploreFormSchema>
 
 export default function Explore() {
+
     
     const [categoriesFilters, setCategoriesFilters] = useState<string[]>(['Fiction'])
 
@@ -111,14 +102,16 @@ export default function Explore() {
         queryKey: ['books', debouncedQuery, categoriesFilters.join(',')],
         queryFn: async ({pageParam = 0}) => {
 
-            const subjectString = categoriesFilters.map(c => `subject:${c}`).join('+')
+            const subjectString = categoriesFilters.map(c => `subject:${c}`).join(' ')
 
-            const q = debouncedQuery.length > 0 ? encodeURIComponent(`intitle:"${debouncedQuery}+${subjectString}"` )
-            : encodeURIComponent(subjectString)
+            const q = debouncedQuery.length > 0 ? `intitle:${debouncedQuery}"+${subjectString}` :subjectString
 
-            const response = await api.get(`/app/books?q=${q}&startIndex=${pageParam}`)
+            const googleResponse = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&country=BR&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`)
             
-            return response.data
+            const exploreBooksResponse = await api.post(`/app/books`, { googleData: googleResponse.data.items })
+
+            return exploreBooksResponse.data
+        
         },
         initialPageParam: 0,
         staleTime: 10 * 60 * 1000, // 10 minutos

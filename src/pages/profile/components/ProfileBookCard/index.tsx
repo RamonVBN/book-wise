@@ -108,6 +108,9 @@ export function ProfileBookCard({
       });
     },
     onMutate: async (data) => {
+
+      setisUserRatingFormOpen(false);
+
       await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
       const previousProfileData = queryClient.getQueryData(["profile", userId]);
@@ -135,9 +138,6 @@ export function ProfileBookCard({
       );
 
       return { previousProfileData };
-    },
-    onSuccess: () => {
-      setisUserRatingFormOpen(false);
     },
     onError: (err, __, context) => {
       console.log(err);
@@ -175,6 +175,9 @@ export function ProfileBookCard({
       });
     },
     onMutate: async (data) => {
+     
+      setisUserRatingFormOpen(false);
+
       await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
       const previousProfileData = queryClient.getQueryData(["profile", userId]);
@@ -202,9 +205,6 @@ export function ProfileBookCard({
       );
 
       return { previousProfileData };
-    },
-    onSuccess: () => {
-      setisUserRatingFormOpen(false);
     },
     onError: (err, __, context) => {
       console.log(err);

@@ -3,23 +3,16 @@ import { prisma } from "@/lib/prisma";
 
 interface GetExploreBooks {
   userId?: string;
-  q: string;
-  startIndex: string | number;
+  googleData: any
 }
 
 export async function getExploreBooks({
   userId,
-  q,
-  startIndex,
+  googleData
 }: GetExploreBooks) {
-  const response = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=${q}&langRestrict=pt&orderBy=relevance&startIndex=${startIndex}&maxResults=20&key=${process.env.GOOGLE_BOOKS_API_KEY}`,
-  );
-
-  const data = await response.json();
 
   const books: BookProps[] =
-    (data.items ?? [])
+    (googleData ?? [])
       ?.filter(
         (book: any) =>
           book.volumeInfo &&
@@ -90,6 +83,7 @@ export async function getExploreBooks({
       ratingsCount: stats?.ratingsCount ?? 0,
       ratingsSum: stats?.ratingsSum ?? 0,
       userBookStatus: stats?.userBookStatus ?? null,
+      ratings: []
     };
   });
 
