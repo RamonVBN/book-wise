@@ -94,3 +94,24 @@ export const ExploreFormButton = styled('button', {
     }
 })
 
+
+export const ExplorePageFallback = styled('div', {
+
+    width: '100%',
+
+    padding: '8rem',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '1rem',
+
+    fontSize: '1rem',
+    color: '$gray400',
+
+    svg: {
+        color: '$gray400',
+        width: '3rem',
+        height: '3rem'
+    }
+})

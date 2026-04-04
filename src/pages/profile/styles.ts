@@ -205,12 +205,12 @@ export const UserStats = styled("div", {
     alignItems: "flex-start",
     gap: "0.25rem",
 
-    h3: {
+    p: {
       fontWeight: "$bold",
-      fontSize: "1rem",
       lineHeight: "$short",
       color: "$gray200",
     },
+    
 
     span: {
       fontSize: "0.875rem",
@@ -219,4 +219,42 @@ export const UserStats = styled("div", {
       color: "$gray300",
     },
   },
+
+  variants: {
+    category: {
+      true: {
+        p: {
+          fontSize: "0.9rem",
+        },
+      },
+    },
+  },
 });
+
+export const ProfileBookFallback = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  paddingTop: '5rem',
+  alignItems: 'center',
+  gap: '1.5rem',
+
+  width: '100%',
+  height: '100%',
+
+  p: {
+    color: '$gray400',
+    fontSize: '1rem',
+    lineHeight: '$base',
+  },
+
+  svg: {
+    color: '$gray500',
+    width: '3rem',
+    height: '3rem',
+    
+    '&:hover': {
+      color: '$gray400',
+    }
+  }
+
+})

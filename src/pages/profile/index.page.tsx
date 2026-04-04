@@ -14,6 +14,7 @@ import {
   Container,
   ProfileContainer,
   ProfileBooksContainer,
+  ProfileBookFallback,
 } from "./styles";
 import {
   BookmarkSimple,
@@ -41,6 +42,8 @@ import { Fallback } from "@/components/Fallback";
 import Image from "next/image";
 import { ProfileBookCard } from "./components/ProfileBookCard";
 import { CategoriesContainer, Category } from "@/components/Category/styles";
+import { BookAlert } from "lucide-react";
+import Link from "next/link";
 
 const profileFormSchema = z.object({
   ratedBook: z.string().min(1),
@@ -268,7 +271,7 @@ export default function Profile() {
                   </div>
 
                   <ProfileBooksContainer>
-                    {booksByInput.map((b) => {
+                    {allUserBooks.length > 0 ? booksByInput.map((b) => {
                       if (typeof b === "object" && "rate" in b) {
                         return <ProfileBookCard  key={b.id} rating={b} />;
                       } else {
@@ -282,7 +285,14 @@ export default function Profile() {
                           />
                         );
                       }
-                    })}
+                    }) : (
+                      <ProfileBookFallback>
+                        <p>Você ainda não adicionou livros a sua estante...</p>
+                          <Link href={'/explore'}>
+                            <BookAlert/>
+                          </Link>
+                      </ProfileBookFallback>
+                    )}
                   </ProfileBooksContainer>
                 </ProfileMainContainer>
 
@@ -306,7 +316,7 @@ export default function Profile() {
                     <UserStats>
                       <BookOpen />
                       <span>
-                        <h3>{userTotalPages}</h3>
+                        <p>{userTotalPages}</p>
                         <span>Páginas lidas</span>
                       </span>
                     </UserStats>
@@ -314,7 +324,7 @@ export default function Profile() {
                     <UserStats>
                       <Books />
                       <span>
-                        <h3>{userRatings.length}</h3>
+                        <p>{userRatings.length}</p>
                         <span>Livros avaliados</span>
                       </span>
                     </UserStats>
@@ -322,19 +332,19 @@ export default function Profile() {
                     <UserStats>
                       <UserList />
                       <span>
-                        <h3>{userTotalAuthorsList.length}</h3>
+                        <p>{userTotalAuthorsList.length}</p>
                         <span>Autores lidos</span>
                       </span>
                     </UserStats>
 
-                    <UserStats>
+                    <UserStats category>
                       <BookmarkSimple />
                       <span>
-                        <h3>
-                          {mostReadCategories.map((category, i) => {
+                        <p>
+                          {mostReadCategories.length > 0 ? mostReadCategories.map((category, i) => {
                             return formatCategories(category.categoryName, i);
-                          })}
-                        </h3>
+                          }) : "Nenhuma categoria lida..."}
+                        </p>
                         <span>Categoria(s) mais lida(s)</span>
                       </span>
                     </UserStats>
