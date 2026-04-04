@@ -52,6 +52,13 @@ export const Trigger = styled(Select.Trigger, {
         color: "$gray100",
       },
     },
+
+    disabled: {
+      true: {
+        cursor: 'progress',
+        opacity: 0.9,
+      }
+    }
   },
 
 })

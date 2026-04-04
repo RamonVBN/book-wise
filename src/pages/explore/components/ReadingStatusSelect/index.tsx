@@ -43,7 +43,7 @@ export function ReadingStatusSelect({
       value={value ?? ""}
       onValueChange={handleValueChange}
     >
-      <Trigger status={value}>
+      <Trigger status={value} disabled={disabled}>
         <Select.Value placeholder="Adicionar" />
         <Select.Icon>
           <ChevronDownIcon />

@@ -33,7 +33,6 @@ import { ReadingProgress } from "../ReadingProgressBar";
 import { BookmarkPlus, BookPlus, BookUp2 } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
-import { useSession } from "next-auth/react";
 import { AppTooltip } from "@/components/Tooltip";
 
 interface ProfileBookCardProps {
@@ -76,6 +75,8 @@ export function ProfileBookCard({
     } else {
       createRatingMutation(data);
     }
+
+    setisUserRatingFormOpen(false);
   }
 
   function handleDelete() {
@@ -108,8 +109,6 @@ export function ProfileBookCard({
       });
     },
     onMutate: async (data) => {
-
-      setisUserRatingFormOpen(false);
 
       await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
@@ -175,9 +174,7 @@ export function ProfileBookCard({
       });
     },
     onMutate: async (data) => {
-     
-      setisUserRatingFormOpen(false);
-
+    
       await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
       const previousProfileData = queryClient.getQueryData(["profile", userId]);
