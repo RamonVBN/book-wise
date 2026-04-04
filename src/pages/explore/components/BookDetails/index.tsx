@@ -111,6 +111,21 @@ export function BookDetails({
 
   const book = findBookById(bookId);
 
+  const {data: translatedBookData} = useQuery<{categories: string[]}>({
+    queryKey: ['traslatedBook', bookId],
+    enabled: !!bookId && !!book,
+    queryFn: async () => {
+
+      const response = await api.post('/app/translate-book', {
+        categories: book?.categories
+      })
+
+      return response.data
+    }
+  })
+
+  console.log(translatedBookData)
+
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
 
@@ -400,9 +415,14 @@ export function BookDetails({
                   <span>
                     <span>Categoria(s)</span>
                     <span>
-                      {book?.categories.map((c, i) => {
+                      {
+                        translatedBookData ? translatedBookData.categories.map((c, i) => {
                         return formatCategories(c, i);
-                      })}
+                      })
+                         : book?.categories.map((c, i) => {
+                        return formatCategories(c, i);
+                      })
+                      }
                     </span>
                   </span>
                 </div>

@@ -341,9 +341,10 @@ export default function Profile() {
                       <BookmarkSimple />
                       <span>
                         <p>
-                          {mostReadCategories.length > 0 ? mostReadCategories.map((category, i) => {
-                            return formatCategories(category.categoryName, i);
-                          }) : "Nenhuma categoria lida..."}
+                          {mostReadCategories.length > 0 ? mostReadCategories.map((c, i) => {
+                            return formatCategories(c.categoryName, i);
+                          }) 
+                          : "Nenhuma categoria lida..."}
                         </p>
                         <span>Categoria(s) mais lida(s)</span>
                       </span>

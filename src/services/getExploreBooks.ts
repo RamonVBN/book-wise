@@ -20,15 +20,19 @@ export async function getExploreBooks({
           book.volumeInfo.imageLinks?.thumbnail &&
           book.volumeInfo.pageCount > 0,
       )
-      .map((book: any) => ({
-        id: book.id,
-        title: book.volumeInfo.title,
-        author: book.volumeInfo.authors ?? [],
-        description: book.volumeInfo.description ?? null,
-        coverUrl: book.volumeInfo.imageLinks?.thumbnail ?? null,
-        pageCount: book.volumeInfo.pageCount,
-        categories: book.volumeInfo.categories,
-      })) ?? [];
+      .map((book: any) => {
+
+        return {
+
+          id: book.id,
+          title: book.volumeInfo.title,
+          author: book.volumeInfo.authors ?? [],
+          description: book.volumeInfo.description ?? null,
+          coverUrl: book.volumeInfo.imageLinks?.thumbnail ?? null,
+          pageCount: book.volumeInfo.pageCount,
+          categories: book.volumeInfo.categories  ?? [],
+        }
+      }) ?? [];
 
   const googleIds = books.map((book: { id: string }) => book.id);
 
@@ -70,6 +74,7 @@ export async function getExploreBooks({
 
   const result = books.map((book) => {
     const stats = booksMap[book.id];
+
     return {
       id: book.id,
       title: book.title,
@@ -83,7 +88,6 @@ export async function getExploreBooks({
       ratingsCount: stats?.ratingsCount ?? 0,
       ratingsSum: stats?.ratingsSum ?? 0,
       userBookStatus: stats?.userBookStatus ?? null,
-      ratings: []
     };
   });
 
