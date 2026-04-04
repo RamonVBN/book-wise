@@ -1,53 +1,52 @@
-import { styled } from "@/pages/globalStyles"
+import { styled } from "@/pages/globalStyles";
 
-export const CategoriesContainer = styled('div', {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '0.75rem',
-})
+export const CategoriesContainer = styled("div", {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "0.75rem",
+});
 
-export const Category = styled('button', {
-    all: 'unset',
-    cursor: 'pointer',
-    padding: '0.25rem 1rem',
-    
-    borderRadius: '999px',
+export const Category = styled("button", {
+  all: "unset",
+  cursor: "pointer",
+  padding: "0.25rem 1rem",
 
-    fontSize: '1rem',
-    fontWeight: '$regular',
-    lineHeight: '$base',
+  borderRadius: "999px",
 
+  fontSize: "1rem",
+  fontWeight: "$regular",
+  lineHeight: "$base",
 
-    variants: {
+  "&:disabled": {
+    cursor: "progress",
+    opacity: 0.8,
+  },
 
-        isActive: {
-            true: {
-                color: '$gray100',
-                backgroundColor: '$purple200',
-                border: '1px solid $purple200',
+  variants: {
+    isActive: {
+      true: {
+        color: "$gray100",
+        backgroundColor: "$purple200",
+        border: "1px solid $purple200",
 
-                '&:hover': {
-                    border: '1px solid $purple100',
+        "&:hover": {
+          border: "1px solid $purple100",
+        },
+      },
 
-                },
-            },
+      false: {
+        color: "$purple100",
+        border: "1px solid $purple100",
 
-            false: {
-                color: '$purple100',
-                border: '1px solid $purple100',
-
-                '&:hover': {
-                    color: '$gray100',
-                    backgroundColor: '$purple200',
-                },
-                
-            }
-        }
+        "&:hover": {
+          color: "$gray100",
+          backgroundColor: "$purple200",
+        },
+      },
     },
+  },
 
-
-    defaultVariants: {
-        isActive: 'false'
-    }
-    
-})
+  defaultVariants: {
+    isActive: "false",
+  },
+});

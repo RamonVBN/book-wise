@@ -68,12 +68,18 @@ export default function Explore() {
     rootMargin: "300px",
   });
 
-  const { register, watch, setFocus } = useForm<ExploreFormType>({
+  const { register, watch, setFocus, reset, handleSubmit } = useForm<ExploreFormType>({
     resolver: zodResolver(exploreFormSchema),
     defaultValues: {
       query: "",
     },
   });
+
+  const debouncedQuery = useDebounce(watch("query"), 800);
+
+  function onSubmit({query}: ExploreFormType) {
+    console.log(query)
+  }
 
   function handleCategoriesFilters(categoryName: string) {
     if (categoriesFilters.includes(categoryName)) {
@@ -84,6 +90,10 @@ export default function Explore() {
       const newFilters = categoriesFilters.toSpliced(indexToRemove, 1);
 
       return setCategoriesFilters(newFilters);
+    }
+
+    if (debouncedQuery.length > 0) {
+      reset();
     }
 
     return setCategoriesFilters((prevState) => [...prevState, categoryName]);
@@ -98,14 +108,13 @@ export default function Explore() {
     setIsBookDetailsOpen(false);
   }
 
-  const debouncedQuery = useDebounce(watch("query"), 800);
-
   const {
     data: booksData,
     isLoading,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+
   } = useInfiniteQuery<BooksResponse>({
     queryKey: ["books", debouncedQuery, categoriesFilters.join(",")],
     queryFn: async ({ pageParam = 0 }) => {
@@ -114,9 +123,7 @@ export default function Explore() {
         .join(" ");
 
       const q =
-        debouncedQuery.length > 0
-          ? `intitle:${debouncedQuery}"+${subjectString}`
-          : subjectString;
+        debouncedQuery.length > 0 ? `intitle:${debouncedQuery}` : subjectString;
 
       const googleResponse = await axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&country=BR&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
@@ -157,9 +164,13 @@ export default function Explore() {
     [booksData],
   );
 
+  const scrollToTop = () => {
+    exploreContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   useEffect(() => {
     setFocus("query");
-  }, [setFocus]);
+  }, []);
 
   useEffect(() => {
     if (categoriesFilters.length === 0 && watch("query").trim().length === 0) {
@@ -176,9 +187,11 @@ export default function Explore() {
     return;
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const scrollToTop = () => {
-    exploreContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  useEffect(() => {
+    if (debouncedQuery.length > 0) {
+      return setCategoriesFilters([]);
+    }
+  }, [debouncedQuery]);
 
   return (
     <>
@@ -202,7 +215,7 @@ export default function Explore() {
               <h1>Explorar</h1>
             </PageHeader>
 
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <label>
                 <ExploreInput
                   {...register("query")}
@@ -215,12 +228,11 @@ export default function Explore() {
               </ExploreFormButton>
             </form>
           </ExploreHeader>
-          {!isLoading ? (
-            <>
-              <CategoriesContainer>
+          <CategoriesContainer>
                 {categories.map((category, i) => {
                   return (
                     <Category
+                      disabled={isLoading}
                       isActive={categoriesFilters.includes(category.queryName)}
                       onClick={() =>
                         handleCategoriesFilters(category.queryName)
@@ -231,8 +243,9 @@ export default function Explore() {
                     </Category>
                   );
                 })}
-              </CategoriesContainer>
-
+          </CategoriesContainer>
+          {!isLoading ? (
+            <>
               {books.length > 0 ? (
                 <ExploreBooksContainer>
                   {books.map((book) => {
@@ -254,7 +267,7 @@ export default function Explore() {
               ) : (
                 <ExplorePageFallback>
                   <p>Nenhum livro encontrado...</p>
-                  <BookX/>
+                  <BookX />
                 </ExplorePageFallback>
               )}
 
