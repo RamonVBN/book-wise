@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { z } from "zod";
 import { authOptions } from "@/pages/api/auth/[...nextauth].api";
 import { getExploreBooks } from "@/services/getExploreBooks";
 

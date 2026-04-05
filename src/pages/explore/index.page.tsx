@@ -150,14 +150,14 @@ export default function Explore() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<BooksResponse>({
-    queryKey: ["books", searchTerm, urlCategory.join(",")],
+    queryKey: ["books", searchTerm, [...urlCategory].sort().join(",")],
     queryFn: async ({ pageParam = 0 }) => {
       const subjectString = urlCategory.map((c) => `subject:${c}`).join(" ");
 
-      const q = searchTerm.length > 0 ? `intitle:${searchTerm}` : subjectString;
+      const q = searchTerm.length > 0 ? `intitle:"${searchTerm}"` : subjectString;
 
       const googleResponse = await axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&country=BR&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
+        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
       );
 
       const exploreBooksResponse = await api.post(`/app/books`, {
@@ -241,7 +241,7 @@ export default function Explore() {
         query: { category: "Fiction" },
       });
     }
-  }, [router.isReady]);
+  }, [router.isReady, searchTerm, urlCategory]);
 
   return (
     <>
