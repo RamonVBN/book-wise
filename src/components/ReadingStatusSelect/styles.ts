@@ -85,9 +85,15 @@ export const Item = styled(Select.Item, {
 
   display: "flex",
   alignItems: "center",
-  justifyContent: "space-between",
+  gap: '0.5rem',
 
   cursor: "pointer",
+
+  svg: {
+    color: '$green100',
+    width: '1.5rem',
+    height: '1.5rem'
+  },
 
   "&[data-highlighted]": {
     backgroundColor: "$gray700",

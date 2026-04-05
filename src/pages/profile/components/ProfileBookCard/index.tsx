@@ -27,8 +27,8 @@ import { api } from "@/lib/axios";
 import { Modal } from "@/components/Modal";
 import { CloseButton } from "@/pages/explore/components/BookDetails/styles";
 import { ReadingStatus } from "@/generated/prisma";
-import { ReadingStatusSelect } from "@/pages/explore/components/ReadingStatusSelect";
-import { FavoriteButton } from "@/pages/explore/components/FavoriteButton";
+import { ReadingStatusSelect } from "@/components/ReadingStatusSelect";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { ReadingProgress } from "../ReadingProgressBar";
 import { BookmarkPlus, BookPlus, BookUp2 } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
@@ -109,7 +109,6 @@ export function ProfileBookCard({
       });
     },
     onMutate: async (data) => {
-
       await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
       const previousProfileData = queryClient.getQueryData(["profile", userId]);
@@ -174,7 +173,6 @@ export function ProfileBookCard({
       });
     },
     onMutate: async (data) => {
-    
       await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
       const previousProfileData = queryClient.getQueryData(["profile", userId]);

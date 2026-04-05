@@ -1,6 +1,6 @@
 import * as Select from "@radix-ui/react-select";
 import { Content, Item, Trigger } from "./styles";
-import { CheckIcon, ChevronDownIcon } from "lucide-react";
+import { BookmarkCheck, CheckIcon, ChevronDownIcon } from "lucide-react";
 import { ReadingStatus } from "@/generated/prisma";
 import React, { useEffect, useState } from "react";
 
@@ -57,7 +57,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Quero ler</Select.ItemText>
 
               <Select.ItemIndicator>
-                <CheckIcon />
+                <BookmarkCheck/>
               </Select.ItemIndicator>
             </Item>
 
@@ -65,7 +65,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Lendo</Select.ItemText>
 
               <Select.ItemIndicator>
-                <CheckIcon />
+                <BookmarkCheck/>
               </Select.ItemIndicator>
             </Item>
 
@@ -73,7 +73,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Lido</Select.ItemText>
 
               <Select.ItemIndicator>
-                <CheckIcon />
+               <BookmarkCheck/>
               </Select.ItemIndicator>
             </Item>
 
@@ -81,7 +81,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Abandonei</Select.ItemText>
 
               <Select.ItemIndicator>
-                <CheckIcon />
+                <BookmarkCheck/>
               </Select.ItemIndicator>
             </Item>
           </Select.Viewport>

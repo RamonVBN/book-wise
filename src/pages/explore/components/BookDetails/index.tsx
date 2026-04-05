@@ -49,9 +49,9 @@ import {
   UserRatingSubmitData,
 } from "@/components/UserRatingForm";
 import { Modal } from "@/components/Modal";
-import { ReadingStatusSelect } from "../ReadingStatusSelect";
+import { ReadingStatusSelect } from "../../../../components/ReadingStatusSelect";
 import { ReadingStatus } from "@/generated/prisma";
-import { FavoriteButton } from "../FavoriteButton";
+import { FavoriteButton } from "../../../../components/FavoriteButton";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 type BookDetailsProps = {
@@ -111,20 +111,19 @@ export function BookDetails({
 
   const book = findBookById(bookId);
 
-  const {data: translatedBookData} = useQuery<{categories: string[]}>({
-    queryKey: ['traslatedBook', bookId],
+  const { data: translatedBookData } = useQuery<{ categories: string[] }>({
+    queryKey: ["traslatedBook", bookId],
     enabled: !!bookId && !!book,
     queryFn: async () => {
+      const response = await api.post("/app/translate-book", {
+        categories: book?.categories,
+      });
 
-      const response = await api.post('/app/translate-book', {
-        categories: book?.categories
-      })
+      return response.data;
+    },
+  });
 
-      return response.data
-    }
-  })
-
-  console.log(translatedBookData)
+  console.log(translatedBookData);
 
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
@@ -352,9 +351,9 @@ export function BookDetails({
     <>
       {isModalOpen && (
         <Modal ref={loginModalRef} onPointerDown={(e) => handleClickOutside(e)}>
-            <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
-              <X />
-            </CloseButton>
+          <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
+            <X />
+          </CloseButton>
           <BookDetailsModalBody>
             <h3>Faça login para adicionar livros a sua estante</h3>
             <div>
@@ -415,14 +414,13 @@ export function BookDetails({
                   <span>
                     <span>Categoria(s)</span>
                     <span>
-                      {
-                        translatedBookData ? translatedBookData.categories.map((c, i) => {
-                        return formatCategories(c, i);
-                      })
-                         : book?.categories.map((c, i) => {
-                        return formatCategories(c, i);
-                      })
-                      }
+                      {translatedBookData
+                        ? translatedBookData.categories.map((c, i) => {
+                            return formatCategories(c, i);
+                          })
+                        : book?.categories.map((c, i) => {
+                            return formatCategories(c, i);
+                          })}
                     </span>
                   </span>
                 </div>
