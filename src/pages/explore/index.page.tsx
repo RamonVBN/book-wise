@@ -28,32 +28,30 @@ import BackToTop from "./components/BackToTopButton.tsx";
 import { CategoriesContainer, Category } from "@/components/Category/styles.ts";
 import axios from "axios";
 import { BookX } from "lucide-react";
+import { useRouter } from "next/router";
 
 const categories = [
   { queryName: "Fiction", name: "Ficção" },
   { queryName: "Fantasy", name: "Fantasia" },
-  { queryName: "Science Fiction", name: "Ficção Científica" },
-  { queryName: "History", name: "História" },
-  { queryName: "Philosophy", name: "Filosofia" },
-  { queryName: "Technology", name: "Tecnologia" },
-  { queryName: "Business", name: "Negócios" },
-  { queryName: "Psychology", name: "Psicologia" },
-  { queryName: "Self-Help", name: "Autoajuda" },
   { queryName: "Romance", name: "Romance" },
   { queryName: "Horror", name: "Horror" },
   { queryName: "Mystery", name: "Mistério" },
+  { queryName: "History", name: "História" },
+  { queryName: "Philosophy", name: "Filosofia" },
+  { queryName: "Psychology", name: "Psicologia" },
+  { queryName: "Technology", name: "Tecnologia" },
+  { queryName: "Business", name: "Negócios" },
+  { queryName: "Self-Help", name: "Autoajuda" },
 ];
 
 const exploreFormSchema = z.object({
-  query: z.string(),
+  search: z.string(),
 });
 
 type ExploreFormType = z.infer<typeof exploreFormSchema>;
 
 export default function Explore() {
-  const [categoriesFilters, setCategoriesFilters] = useState<string[]>([
-    "Fiction",
-  ]);
+  const router = useRouter();
 
   const [isBookDetailsOpen, setIsBookDetailsOpen] = useState(false);
 
@@ -68,35 +66,72 @@ export default function Explore() {
     rootMargin: "300px",
   });
 
-  const { register, watch, setFocus, reset, handleSubmit } = useForm<ExploreFormType>({
-    resolver: zodResolver(exploreFormSchema),
-    defaultValues: {
-      query: "",
-    },
-  });
+  const searchTerm = typeof router.query.q === "string" ? router.query.q : "";
 
-  const debouncedQuery = useDebounce(watch("query"), 800);
+  const urlCategory =
+    typeof router.query.category === "string"
+      ? router.query.category.split(" ")
+      : [];
+  const { register, watch, setFocus, reset, handleSubmit, setValue } =
+    useForm<ExploreFormType>({
+      resolver: zodResolver(exploreFormSchema),
+      defaultValues: {
+        search: "",
+      },
+    });
 
-  function onSubmit({query}: ExploreFormType) {
-    console.log(query)
+  const debouncedSearch = useDebounce(watch("search"), 800);
+
+  function handleUrlSearch({
+    param,
+    value,
+  }: {
+    param: "q" | "category";
+    value?: string;
+  }) {
+    const params = new URLSearchParams(router.query as any);
+    console.log(param, params);
+    if (value) {
+      params.set(param, value);
+    } else {
+      params.delete(param);
+    }
+
+    router.replace(`/explore?${params.toString()}`);
+    return;
+  }
+
+  function onSubmit({ search }: ExploreFormType) {
+    router.replace({
+      pathname: "/explore",
+      query: search ? { q: search } : {},
+    });
   }
 
   function handleCategoriesFilters(categoryName: string) {
-    if (categoriesFilters.includes(categoryName)) {
-      const indexToRemove = categoriesFilters.findIndex(
+    handleUrlSearch({ param: "q" });
+    reset();
+
+    if (urlCategory.includes(categoryName)) {
+      const indexToRemove = urlCategory.findIndex(
         (category) => category === categoryName,
       );
 
-      const newFilters = categoriesFilters.toSpliced(indexToRemove, 1);
+      const newFilters = urlCategory.toSpliced(indexToRemove, 1).join(" ");
 
-      return setCategoriesFilters(newFilters);
+      router.replace({
+        pathname: "/explore",
+        query: newFilters ? { category: newFilters } : {},
+      });
+      return;
     }
 
-    if (debouncedQuery.length > 0) {
-      reset();
-    }
-
-    return setCategoriesFilters((prevState) => [...prevState, categoryName]);
+    const newFilters = urlCategory.concat([categoryName]).join(" ");
+    router.replace({
+      pathname: "/explore",
+      query: newFilters ? { category: newFilters } : {},
+    });
+    return;
   }
 
   const handleOpenBookDetails = useCallback((bookId: string) => {
@@ -114,16 +149,12 @@ export default function Explore() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-
   } = useInfiniteQuery<BooksResponse>({
-    queryKey: ["books", debouncedQuery, categoriesFilters.join(",")],
+    queryKey: ["books", searchTerm, urlCategory.join(",")],
     queryFn: async ({ pageParam = 0 }) => {
-      const subjectString = categoriesFilters
-        .map((c) => `subject:${c}`)
-        .join(" ");
+      const subjectString = urlCategory.map((c) => `subject:${c}`).join(" ");
 
-      const q =
-        debouncedQuery.length > 0 ? `intitle:${debouncedQuery}` : subjectString;
+      const q = searchTerm.length > 0 ? `intitle:${searchTerm}` : subjectString;
 
       const googleResponse = await axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&country=BR&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
@@ -139,6 +170,9 @@ export default function Explore() {
     staleTime: 10 * 60 * 1000, // 10 minutos
     gcTime: 30 * 60 * 1000, // 30 minutos
     refetchOnWindowFocus: false,
+    enabled:
+      (!!searchTerm && searchTerm.length > 0) ||
+      (urlCategory && urlCategory.length > 0),
     getNextPageParam: (lastPage, pages) => {
       const nextIndex = pages.length * 20;
 
@@ -169,16 +203,6 @@ export default function Explore() {
   };
 
   useEffect(() => {
-    setFocus("query");
-  }, []);
-
-  useEffect(() => {
-    if (categoriesFilters.length === 0 && watch("query").trim().length === 0) {
-      setCategoriesFilters(["Fiction"]);
-    }
-  }, [categoriesFilters, watch("query")]);
-
-  useEffect(() => {
     if (!inView) return;
     if (!hasNextPage) return;
     if (isFetchingNextPage) return;
@@ -188,10 +212,36 @@ export default function Explore() {
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
-    if (debouncedQuery.length > 0) {
-      return setCategoriesFilters([]);
+    if (debouncedSearch.length > 0) {
+      router.replace({
+        pathname: "/explore",
+        query: debouncedSearch ? { q: debouncedSearch } : {},
+      });
     }
-  }, [debouncedQuery]);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    setValue("search", searchTerm.replace("+", " "));
+  }, [searchTerm]);
+
+  useEffect(() => {
+    setFocus("search");
+  }, []);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const hasSearch = typeof router.query.q === "string";
+    const hasCategory = typeof router.query.category === "string";
+
+    if (!hasSearch && !hasCategory) {
+      router.replace({
+        pathname: "/explore",
+        query: { category: "Fiction" },
+      });
+    }
+  }, [router.isReady]);
 
   return (
     <>
@@ -202,8 +252,8 @@ export default function Explore() {
       <Layout>
         {isBookDetailsOpen && (
           <BookDetails
-            debouncedQuery={debouncedQuery}
-            categoriesFilters={categoriesFilters.join(",")}
+            debouncedQuery={debouncedSearch}
+            categoriesFilters={urlCategory.join(",")}
             bookId={bookDetailsId}
             closeBookDetails={handleCloseBookDetails}
           />
@@ -218,7 +268,7 @@ export default function Explore() {
             <form onSubmit={handleSubmit(onSubmit)}>
               <label>
                 <ExploreInput
-                  {...register("query")}
+                  {...register("search")}
                   placeholder="Buscar livro"
                   type="text"
                 />
@@ -229,20 +279,18 @@ export default function Explore() {
             </form>
           </ExploreHeader>
           <CategoriesContainer>
-                {categories.map((category, i) => {
-                  return (
-                    <Category
-                      disabled={isLoading}
-                      isActive={categoriesFilters.includes(category.queryName)}
-                      onClick={() =>
-                        handleCategoriesFilters(category.queryName)
-                      }
-                      key={i}
-                    >
-                      {category.name}
-                    </Category>
-                  );
-                })}
+            {categories.map((category, i) => {
+              return (
+                <Category
+                  disabled={isLoading}
+                  isActive={urlCategory.includes(category.queryName)}
+                  onClick={() => handleCategoriesFilters(category.queryName)}
+                  key={i}
+                >
+                  {category.name}
+                </Category>
+              );
+            })}
           </CategoriesContainer>
           {!isLoading ? (
             <>
