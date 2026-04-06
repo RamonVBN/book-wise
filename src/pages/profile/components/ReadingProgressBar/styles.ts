@@ -14,7 +14,7 @@ export const ProgressRoot = styled(Progress.Root, {
 export const ProgressIndicator = styled(Progress.Indicator, {
   width: "100%",
   height: "1.25rem",
-  backgroundColor: "#10B981",
+  backgroundColor: "$green400",
   borderRadius: "9999px",
   transition: "transform 300ms ease",
 });

@@ -13,26 +13,26 @@ export const StatusMark = styled("span", {
     status: {
       FINISHED: {
         svg: {
-          color: "#10B981",
-          fill: "#10B981",
+          color: "$green400",
+          fill: "$green400",
         },
       },
       READING: {
         svg: {
-          color: "#D4AF37",
-          fill: "#D4AF37",
+          color: "$yellow100",
+          fill: "$yellow100",
         },
       },
       WANT_TO_READ: {
         svg: {
-          color: "#2563EB",
-          fill: "#2563EB",
+          color: "$blue100",
+          fill: "$blue100",
         },
       },
       ABANDONED: {
         svg: {
-          color: "#222222",
-          fill: "#222222",
+          color: "$red100",
+          fill: "$red100",
         },
       },
     },

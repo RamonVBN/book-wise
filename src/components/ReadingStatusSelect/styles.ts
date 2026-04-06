@@ -33,22 +33,22 @@ export const Trigger = styled(Select.Trigger, {
   variants: {
     status: {
       WANT_TO_READ: {
-        backgroundColor: "#2563EB",
+        backgroundColor: "$blue100",
         color: "$gray100",
       },
 
       READING: {
-        backgroundColor: "#D4AF37",
+        backgroundColor: "$yellow100",
         color: "$gray100",
       },
 
       FINISHED: {
-        backgroundColor: "#10B981",
+        backgroundColor: "$green400",
         color: "$gray200",
       },
 
       ABANDONED: {
-        backgroundColor: "#222222",
+        backgroundColor: "$red100",
         color: "$gray100",
       },
     },

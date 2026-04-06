@@ -53,6 +53,11 @@ export const { styled, getCssText, globalCss } = createStitches({
       gray700: '#181C2A',
       gray800: '#0E1116',
 
+      blue100: '#1976D2',
+      red100: '#C82732',
+      green400: '#3DAC78',
+      yellow100: '#DBA529',
+
 		'gradient-vertical': `linear-gradient(180deg, #7FD1CC 0%, #9694F5 100%)`,
       'gradient-horizontal': `linear-gradient(90deg, #7FD1CC 0%, #9694F5 100%)`,
     },
