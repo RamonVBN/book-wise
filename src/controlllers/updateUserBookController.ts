@@ -15,6 +15,7 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
   const bodySchema = z.object({
     isFavorite: z.boolean().optional(),
     currentPage: z.number().optional(),
+    customTotalPage: z.number().optional(),
     readStatus: z.enum(["WANT_TO_READ", "READING", "FINISHED", "ABANDONED"]).optional(),
 
     bookId: z.string(),
@@ -50,8 +51,15 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
   })
   
   const 
-  { bookId, author, coverUrl, pageCount, title, categories, readStatus,  isFavorite, currentPage } = 
+  { bookId, author, coverUrl, pageCount, title, categories, readStatus,  isFavorite, currentPage, customTotalPage } = 
   bodySchema.parse(req.body)
+
+  if ((currentPage && customTotalPage) && (currentPage > customTotalPage)) {
+
+    return res.status(400).json({
+      message: 'Current page cannot be higher than total page.'
+    })
+  }
   
   await updateUserBook({
     userId: session.user.id,
@@ -63,7 +71,8 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
     coverUrl,
     pageCount,
     title,
-    categories
+    categories,
+    customTotalPage
   })
 
   return res.status(200).json({})

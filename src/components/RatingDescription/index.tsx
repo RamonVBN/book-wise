@@ -3,7 +3,6 @@ import { ShowMoreButton } from "./styles"
 
 
 type RatingDescription = {
-
     description: string
 }
 

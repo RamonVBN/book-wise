@@ -37,7 +37,10 @@ export const PageInput = styled("input", {
 });
 
 export const TotalPagesText = styled("span", {
-  fontSize: "0.8rem",
+  fontSize: "1rem",
+  display: 'flex',
+  alignItems: 'baseline',
+  gap: '0.5rem'
 });
 
 export const SaveButton = styled("button", {

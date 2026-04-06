@@ -23,9 +23,8 @@ export function ReadingStatusSelect({
   handleSelectOpenChange,
   disabled,
   isAuthenticated,
-  openLoginModal
+  openLoginModal,
 }: ReadingStatusSelectProps) {
-
   function handleValueChange(value: ReadingStatus) {
     if (!isAuthenticated && openLoginModal) {
       openLoginModal();
@@ -44,10 +43,14 @@ export function ReadingStatusSelect({
       onValueChange={handleValueChange}
     >
       <Trigger status={value} disabled={disabled}>
-        <Select.Value placeholder="Adicionar" />
-        <Select.Icon>
-          <ChevronDownIcon />
-        </Select.Icon>
+        {!disabled && (
+          <>
+            <Select.Value placeholder="Adicionar" />
+            <Select.Icon>
+              <ChevronDownIcon />
+            </Select.Icon>
+          </>
+        )}
       </Trigger>
 
       <Select.Portal container={containerRef?.current}>
@@ -57,7 +60,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Quero ler</Select.ItemText>
 
               <Select.ItemIndicator>
-                <BookmarkCheck/>
+                <BookmarkCheck />
               </Select.ItemIndicator>
             </Item>
 
@@ -65,7 +68,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Lendo</Select.ItemText>
 
               <Select.ItemIndicator>
-                <BookmarkCheck/>
+                <BookmarkCheck />
               </Select.ItemIndicator>
             </Item>
 
@@ -73,7 +76,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Lido</Select.ItemText>
 
               <Select.ItemIndicator>
-               <BookmarkCheck/>
+                <BookmarkCheck />
               </Select.ItemIndicator>
             </Item>
 
@@ -81,7 +84,7 @@ export function ReadingStatusSelect({
               <Select.ItemText>Abandonei</Select.ItemText>
 
               <Select.ItemIndicator>
-                <BookmarkCheck/>
+                <BookmarkCheck />
               </Select.ItemIndicator>
             </Item>
           </Select.Viewport>

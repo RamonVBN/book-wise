@@ -20,7 +20,6 @@ export const MainContainer = styled("main", {
   justifyContent: "center",
 
   overflowY: "hidden",
-
 });
 
 export const MenuContainer = styled("div", {
@@ -39,9 +38,9 @@ export const MenuContainer = styled("div", {
   backgroundColor: "#0B1120",
   overflow: "hidden",
 
-    '&::before': {
-    content: '',
-    position: 'absolute',
+  "&::before": {
+    content: "",
+    position: "absolute",
     inset: 0,
 
     background: `
@@ -51,19 +50,8 @@ export const MenuContainer = styled("div", {
       radial-gradient(circle at 40% 90%, rgba(16,185,129,0.20), transparent 50%)
     `,
 
-    filter: 'blur(160px)',
+    filter: "blur(160px)",
     opacity: 0.75,
-    zIndex: 0,
-  },
-
-  "&::after": {
-    content: "",
-    position: "absolute",
-    inset: 0,
-
-    backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")',
-
-    opacity: 0.035,
     zIndex: 0,
   },
 

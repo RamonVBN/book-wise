@@ -55,6 +55,7 @@ export type UserBookProps = {
     isFavorite: boolean
     rated: boolean
     currentPage?: number
+    customTotalPage?: number
     updatedAt: string
     book: BookProps
 }

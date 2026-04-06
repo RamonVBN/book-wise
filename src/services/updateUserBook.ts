@@ -9,6 +9,7 @@ type UpdateUserBookProps = {
   readStatus?: ReadingStatus;
   isFavorite?: boolean;
   currentPage?: number;
+  customTotalPage?: number
 
   title: string;
   coverUrl: string;
@@ -28,6 +29,7 @@ export default async function updateUserBook({
   readStatus,
   currentPage,
   isFavorite,
+  customTotalPage
 }: UpdateUserBookProps) {
   return prisma.$transaction(async (tx) => {
 
@@ -72,6 +74,8 @@ export default async function updateUserBook({
       return;
     }
 
+    const totalPages = customTotalPage ? customTotalPage : (userBook.customTotalPage ? userBook.customTotalPage : book.pageCount)
+    
     await tx.userBook.update({
       where: {
         userId_bookId: {
@@ -81,11 +85,12 @@ export default async function updateUserBook({
       },
       data: {
         status:
-          book.pageCount === currentPage
+          totalPages === currentPage
             ? "FINISHED"
             : (readStatus ?? userBook.status),
         isFavorite,
         currentPage: currentPage ?? userBook.currentPage,
+        customTotalPage
       },
     });
 

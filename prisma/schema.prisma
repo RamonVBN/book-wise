@@ -64,6 +64,7 @@ model UserBook {
   isFavorite Boolean @default(false) @map("is_favorite")
 
   currentPage Int? @map("current_page")
+  customTotalPage Int? @map("custom_total_page") 
   rated Boolean @default(false)
   
   startedAt  DateTime? @map("started_at")

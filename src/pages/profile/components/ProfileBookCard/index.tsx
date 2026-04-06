@@ -93,9 +93,10 @@ export function ProfileBookCard({
     setIsSelectOpen(!isOpen);
   }
 
-  function updateReadingProgress(newPage: number) {
+  function updateReadingProgress(newPage: number, customTotalPage?: number) {
     updateUserBookMutation({
       currentPage: newPage,
+      customTotalPage
     });
   }
 
@@ -274,15 +275,20 @@ export function ProfileBookCard({
         status,
         isFavorite,
         currentPage,
+        customTotalPage
       }: {
         status?: ReadingStatus;
         isFavorite?: boolean;
         currentPage?: number;
+        customTotalPage?: number
       }) => {
+        
         return await api.patch("/app/userBook", {
           readStatus: status,
           isFavorite: isFavorite,
           currentPage: currentPage,
+          customTotalPage,
+
           bookId: book?.id,
           title: book?.title,
           author: book?.author,
@@ -634,7 +640,7 @@ export function ProfileBookCard({
               !isFavoriteList && (
                 <ReadingProgress
                   currentPage={userBook.currentPage ? userBook.currentPage : 0}
-                  totalPages={userBook.book.pageCount}
+                  totalPages={userBook.customTotalPage ? userBook.customTotalPage : userBook.book.pageCount}
                 />
               )}
           </div>
@@ -659,7 +665,7 @@ export function ProfileBookCard({
               }
               onUpdate={updateReadingProgress}
               currentPage={userBook.currentPage ? userBook.currentPage : 0}
-              totalPages={userBook.book.pageCount}
+              totalPages={userBook.customTotalPage ? userBook.customTotalPage : userBook.book.pageCount}
             />
           )}
         </ProfileBook>

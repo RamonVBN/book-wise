@@ -13,6 +13,7 @@ import {
   BookDetailsRating,
   CloseButton,
   BookDetailsModalBody,
+  BookDescription,
 } from "./styles";
 
 import { capitalize } from "@/utils/capitalize";
@@ -36,10 +37,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import {
-  BookProps,
   BooksQueryData,
   BooksResponse,
-  RatingProps,
   RatingQueryData,
 } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
@@ -52,7 +51,6 @@ import { Modal } from "@/components/Modal";
 import { ReadingStatusSelect } from "../../../../components/ReadingStatusSelect";
 import { ReadingStatus } from "@/generated/prisma";
 import { FavoriteButton } from "../../../../components/FavoriteButton";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -111,19 +109,18 @@ export function BookDetails({
 
   const book = findBookById(bookId);
 
-  const { data: translatedBookData } = useQuery<{ categories: string[] }>({
+  const { data: translatedBookData } = useQuery<{ categories: string[], description: string }>({
     queryKey: ["traslatedBook", bookId],
     enabled: !!bookId && !!book,
     queryFn: async () => {
       const response = await api.post("/app/translate-book", {
         categories: book?.categories,
+        description: book?.description
       });
 
       return response.data;
     },
   });
-
-  console.log(translatedBookData);
 
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
@@ -273,10 +270,10 @@ export function BookDetails({
       const previousRatings = queryClient.getQueryData(["ratings", bookId]);
 
       queryClient.setQueryData<RatingQueryData>(
-        ["ratings", bookId],
-        (oldData) => {
-          if (!oldData || !oldData.userStatus) return oldData;
+        ["ratings", bookId], (oldData) => {
 
+          if (!oldData || !oldData.userStatus) return oldData;
+          console.log('passou por aqui')
           return {
             ...oldData,
             userStatus: {
@@ -410,49 +407,55 @@ export function BookDetails({
 
               <BookInfoFooter>
                 <div>
-                  <BookmarkSimple />
-                  <span>
-                    <span>Categoria(s)</span>
+                  <div>
+                    <BookmarkSimple />
                     <span>
-                      {translatedBookData
-                        ? translatedBookData.categories.map((c, i) => {
-                            return formatCategories(c, i);
-                          })
-                        : book?.categories.map((c, i) => {
-                            return formatCategories(c, i);
-                          })}
+                      <span>Categoria(s)</span>
+                      <span>
+                        {translatedBookData
+                          ? translatedBookData.categories.map((c, i) => {
+                              return formatCategories(c, i);
+                            })
+                          : book?.categories.map((c, i) => {
+                              return formatCategories(c, i);
+                            })}
+                      </span>
                     </span>
-                  </span>
-                </div>
+                  </div>
 
-                <div>
-                  <BookOpen />
-                  <span>
-                    <span>Páginas</span>
-                    <span>{book?.pageCount}</span>
-                  </span>
-                </div>
+                  <div>
+                    <BookOpen />
+                    <span>
+                      <span>Páginas</span>
+                      <span>{book?.pageCount}</span>
+                    </span>
+                  </div>
 
-                <div>
-                  <ReadingStatusSelect
-                    openLoginModal={handleLoginModalOpen}
-                    isAuthenticated={session.status === "authenticated"}
-                    disabled={isUpdatingReadingStatus}
-                    handleSelectOpenChange={handleSelectOpenChange}
-                    isSelectOpen={isSelectOpen}
-                    containerRef={bookDetailsContainerRef}
-                    value={bookStatus}
-                    onChange={onSelectChange}
-                  />
-
-                  {bookRatings?.userStatus?.status === "FINISHED" && (
-                    <FavoriteButton
+                  <div>
+                    <ReadingStatusSelect
+                      openLoginModal={handleLoginModalOpen}
+                      isAuthenticated={session.status === "authenticated"}
                       disabled={isUpdatingReadingStatus}
-                      isFavorite={isFavoriteBook}
-                      setIsFavorite={onFavoriteButtonClick}
+                      handleSelectOpenChange={handleSelectOpenChange}
+                      isSelectOpen={isSelectOpen}
+                      containerRef={bookDetailsContainerRef}
+                      value={bookStatus}
+                      onChange={onSelectChange}
                     />
-                  )}
+
+                    {bookRatings?.userStatus?.status === "FINISHED" && (
+                      <FavoriteButton
+                        disabled={isUpdatingReadingStatus}
+                        isFavorite={isFavoriteBook}
+                        setIsFavorite={onFavoriteButtonClick}
+                      />
+                    )}
+                  </div>
                 </div>
+                
+                <BookDescription style={{ fontSize: "14px" }}>
+                    <RatingDescription description={translatedBookData?.description ? translatedBookData.description : book.description}/>
+                </BookDescription>
               </BookInfoFooter>
             </BookInfo>
 
