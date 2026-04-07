@@ -25,21 +25,21 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { capitalize } from "@/utils/capitalize";
-import { PageHeader } from "@/components/pageHeader";
+import { PageHeader } from "@/components/PageHeader";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useSession } from "next-auth/react";
-import { HomeDataResponse, RatingProps } from "@/@types/query-types";
+import { HomeDataResponse } from "@/@types/query-types";
 import Layout from "@/components/Layout";
 import { formatBookName } from "@/utils/formatBookName";
 import { StarRating } from "@/components/StarsRating";
 
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
-import { RatingDescription } from "@/components/RatingDescription";
 import Image from "next/image";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { Flame } from "lucide-react";
+import { DescripitionText } from "@/components/DescriptionText";
 
 export default function Home() {
   const session = useSession();
@@ -122,7 +122,7 @@ export default function Home() {
                           </div>
                           {typeof homeData.lastUserActivity == "object" &&
                           "review" in homeData.lastUserActivity ? (
-                            <RatingDescription
+                            <DescripitionText
                               description={homeData.lastUserActivity.review}
                             />
                           ) : null}
@@ -177,7 +177,7 @@ export default function Home() {
                                   <h2>{rating.book.title}</h2>
                                   <span>{rating.book.author}</span>
                                 </span>
-                                <RatingDescription
+                                <DescripitionText
                                   description={rating.review}
                                 />
                               </BookRatingDescription>
@@ -192,7 +192,7 @@ export default function Home() {
                   <span>
                     <span>
                       Livros em alta
-                      <Flame/>
+                      <Flame />
                     </span>
                     <LinkButton prefetch href={"/explore"}>
                       Ver todos

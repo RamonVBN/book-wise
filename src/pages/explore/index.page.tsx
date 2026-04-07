@@ -6,12 +6,14 @@ import {
   ExploreInput,
   ExploreFormButton,
   ExplorePageFallback,
+  CategoriesContainer,
+  Category,
 } from "./styles.tsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { PageHeader } from "@/components/pageHeader";
+import { PageHeader } from "@/components/PageHeader/index.ts";
 import { BookDetails } from "./components/BookDetails";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
@@ -23,9 +25,8 @@ import { useInView } from "react-intersection-observer";
 import { api } from "@/lib/axios";
 import { ExploreBooksContainer } from "./components/ExploreBooks/style";
 import BookCard from "./components/ExploreBooks";
-import LoadingSpinner from "./components/LoadingSpinner.tsx";
-import BackToTop from "./components/BackToTopButton.tsx";
-import { CategoriesContainer, Category } from "@/components/Category/styles.ts";
+import LoadingSpinner from "../../components/LoadingSpinner.tsx";
+import BackToTop from "./components/BackToTopButton/index.tsx";
 import axios from "axios";
 import { BookX } from "lucide-react";
 import { useRouter } from "next/router";
@@ -154,7 +155,8 @@ export default function Explore() {
     queryFn: async ({ pageParam = 0 }) => {
       const subjectString = urlCategory.map((c) => `subject:${c}`).join(" ");
 
-      const q = searchTerm.length > 0 ? `intitle:"${searchTerm}"` : subjectString;
+      const q =
+        searchTerm.length > 0 ? `intitle:"${searchTerm}"` : subjectString;
 
       const googleResponse = await axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,

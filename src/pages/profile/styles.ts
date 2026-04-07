@@ -3,14 +3,14 @@ import { styled } from "@/pages/globalStyles";
 export const Container = styled("div", {
   display: "flex",
   flexDirection: "column",
-  
+  width: '100%',
+
   "@media(max-width: 900px)": {
     marginTop: "18rem",
     paddingInline: "2rem",
     overflow: "scroll",
     scrollbarWidth: "none",
   },
-
 });
 
 export const ProfileContainer = styled("div", {
@@ -26,15 +26,12 @@ export const ProfileMainContainer = styled("div", {
   display: "flex",
   flexDirection: "column",
   flexBasis: "38rem",
-  flexShrink: 0,
+  flexShrink: 1,
+  // flexGrow: 1,
   minHeight: 0,
 
   "@media(max-width: 1236px)": {
     width: "100%",
-  },
-
-  "& > div:first-child": {
-    paddingBottom: "2rem",
   },
 });
 
@@ -118,6 +115,7 @@ export const ProfileButton = styled("button", {
 });
 
 export const UserContainer = styled("div", {
+  marginTop: '7.1rem',
   maxWidth: "20.25rem",
 
   display: "flex",
@@ -126,6 +124,7 @@ export const UserContainer = styled("div", {
   gap: "2rem",
 
   borderLeft: "1px solid $gray700",
+  height: "min-content",
 
   "@media(max-width: 1236px)": {
     width: "100%",
@@ -210,7 +209,6 @@ export const UserStats = styled("div", {
       lineHeight: "$short",
       color: "$gray200",
     },
-    
 
     span: {
       fontSize: "0.875rem",
@@ -231,30 +229,145 @@ export const UserStats = styled("div", {
   },
 });
 
-export const ProfileBookFallback = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  paddingTop: '5rem',
-  alignItems: 'center',
-  gap: '1.5rem',
+export const ProfileBookFallback = styled("div", {
+  display: "flex",
+  flexDirection: "column",
+  paddingTop: "5rem",
+  alignItems: "center",
+  gap: "1.5rem",
 
-  width: '100%',
-  height: '100%',
+  width: "100%",
+  height: "100%",
 
   p: {
-    color: '$gray400',
-    fontSize: '1rem',
-    lineHeight: '$base',
+    color: "$gray400",
+    fontSize: "1rem",
+    lineHeight: "$base",
   },
 
   svg: {
-    color: '$gray500',
-    width: '3rem',
-    height: '3rem',
-    
-    '&:hover': {
-      color: '$gray400',
-    }
-  }
+    color: "$gray500",
+    width: "3rem",
+    height: "3rem",
 
-})
+    "&:hover": {
+      color: "$gray400",
+    },
+  },
+});
+
+export const ProfileCategoriesContainer = styled("div", {
+  marginTop: '7.1rem',
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.75rem",
+  padding: "1rem 1.5rem 1rem 0.75rem",
+  border: "1px solid $gray600",
+  borderRadius: "$lg",
+  height: "max-content",
+});
+
+export const ProfileCategory = styled("button", {
+  all: "unset",
+  cursor: "pointer",
+
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "1rem",
+
+  fontSize: "1rem",
+  fontWeight: "$regular",
+  lineHeight: "$base",
+  color: "$gray200",
+
+  span: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: "0.5rem",
+    flexBasis: "100%",
+    border: "1px solid transparent",
+    borderRadius: "999px",
+    padding: "0.25rem 1rem",
+
+    transition: "all 0.2s ease-out",
+
+    "&:hover": {
+      color: "$gray200",
+      backgroundColor: "$purple200",
+      border: "1px solid $purple200",
+
+      svg: {
+        color: "$gray200",
+        fill: "$gray200",
+      },
+    },
+  },
+
+  variants: {
+    status: {
+      FINISHED: {
+        svg: {
+          color: "$green400",
+          fill: "$green400",
+        },
+      },
+
+      READING: {
+        svg: {
+          color: "$yellow100",
+          fill: "$yellow100",
+        },
+      },
+
+      WANT_TO_READ: {
+        svg: {
+          color: "$blue100",
+          fill: "$blue100",
+        },
+      },
+
+      ABANDONED: {
+        svg: {
+          color: "$red200",
+          fill: "$red200",
+        },
+      },
+
+      USER_RATINGS: {
+        svg: {
+          color: "$purple100",
+          fill: "$purple100",
+        },
+      },
+
+      FAVORITES: {
+        svg: {
+          color: "$green100",
+          fill: "$green100",
+        },
+      },
+
+      ALL_USER_BOOKS: {
+        svg: {
+          color: "$gray200",
+        },
+      },
+    },
+
+    isActive: {
+      true: {
+        span: {
+          color: "$gray200",
+          backgroundColor: "$purple200",
+          border: "1px solid $purple200",
+          svg: {
+            color: "$gray200",
+            fill: "$gray200",
+          },
+        },
+      },
+    },
+  },
+});

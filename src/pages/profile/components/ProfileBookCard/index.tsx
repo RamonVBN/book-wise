@@ -30,7 +30,7 @@ import { ReadingStatus } from "@/generated/prisma";
 import { ReadingStatusSelect } from "@/components/ReadingStatusSelect";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ReadingProgress } from "../ReadingProgressBar";
-import { BookmarkPlus, BookPlus, BookUp2 } from "lucide-react";
+import { BookmarkPlus } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { AppTooltip } from "@/components/Tooltip";
@@ -62,7 +62,7 @@ export function ProfileBookCard({
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   const ratingId = rating?.id;
-  const userId = rating?.user.id ?? userBook?.userId;
+  const userId = rating?.user?.id ?? userBook?.userId;
   const book = rating?.book ?? userBook?.book;
 
   function handleCloseUserRatingForm() {
@@ -96,133 +96,146 @@ export function ProfileBookCard({
   function updateReadingProgress(newPage: number, customTotalPage?: number) {
     updateUserBookMutation({
       currentPage: newPage,
-      customTotalPage
+      customTotalPage,
     });
   }
 
-  const { mutate: updateRatingMutation } = useMutation({
-    mutationFn: async (data: UserRatingSubmitData) => {
-      const newRate = data.rate;
-      const newReview = data.review;
-      return await api.put(`/app/ratings/users/${rating?.id}`, {
-        newReview,
-        newRate,
-      });
-    },
-    onMutate: async (data) => {
-      await queryClient.cancelQueries({ queryKey: ["profile", userId] });
+  const { mutate: updateRatingMutation, isPending: isUpdatingRating } =
+    useMutation({
+      mutationFn: async (data: UserRatingSubmitData) => {
+        const newRate = data.rate;
+        const newReview = data.review;
+        return await api.put(`/app/ratings/users/${rating?.id}`, {
+          newReview,
+          newRate,
+        });
+      },
+      onMutate: async (data) => {
+        await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
-      const previousProfileData = queryClient.getQueryData(["profile", userId]);
+        const previousProfileData = queryClient.getQueryData([
+          "profile",
+          userId,
+        ]);
 
-      queryClient.setQueryData<ProfileResponse>(
-        ["profile", userId],
-        (oldData) => {
-          if (!oldData) return oldData;
+        queryClient.setQueryData<ProfileResponse>(
+          ["profile", userId],
+          (oldData) => {
+            if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            userRatings: oldData.userRatings.map((r) => {
-              if (r.id === ratingId) {
-                return {
-                  ...r,
-                  review: data.review,
-                  rate: data.rate,
-                };
-              }
+            const newUpdatedAt = new Date();
 
-              return r;
-            }),
-          };
-        },
-      );
+            return {
+              ...oldData,
+              userRatings: oldData.userRatings.map((r) => {
+                if (r.id === ratingId) {
+                  return {
+                    ...r,
+                    review: data.review,
+                    rate: data.rate,
+                    updatedAt: newUpdatedAt.toString(),
+                  };
+                }
 
-      return { previousProfileData };
-    },
-    onError: (err, __, context) => {
-      console.log(err);
-      queryClient.setQueryData(
-        ["profile", userId],
-        context?.previousProfileData,
-      );
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["profile", userId],
-      });
+                return r;
+              }),
+            };
+          },
+        );
 
-      queryClient.invalidateQueries({
-        queryKey: ["books"],
-      });
+        return { previousProfileData };
+      },
+      onError: (err, __, context) => {
+        console.log(err);
+        queryClient.setQueryData(
+          ["profile", userId],
+          context?.previousProfileData,
+        );
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["profile", userId],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["home"],
-      });
-    },
-  });
+        queryClient.invalidateQueries({
+          queryKey: ["books"],
+        });
 
-  const { mutate: createRatingMutation } = useMutation({
-    mutationFn: async (data: UserRatingSubmitData) => {
-      return await api.post(`/app/ratings/users/${userId}`, {
-        rate: data.rate,
-        review: data.review,
-        bookId: book?.id,
-        title: book?.title,
-        author: book?.author,
-        coverUrl: book?.coverUrl,
-        pageCount: book?.pageCount,
-        categories: book?.categories,
-      });
-    },
-    onMutate: async (data) => {
-      await queryClient.cancelQueries({ queryKey: ["profile", userId] });
+        queryClient.invalidateQueries({
+          queryKey: ["home"],
+        });
+      },
+    });
 
-      const previousProfileData = queryClient.getQueryData(["profile", userId]);
+  const { mutate: createRatingMutation, isPending: isCreatingRating } =
+    useMutation({
+      mutationFn: async (data: UserRatingSubmitData) => {
+        return await api.post(`/app/ratings/users/${userId}`, {
+          rate: data.rate,
+          review: data.review,
+          bookId: book?.id,
+          title: book?.title,
+          author: book?.author,
+          coverUrl: book?.coverUrl,
+          pageCount: book?.pageCount,
+          categories: book?.categories,
+        });
+      },
+      onMutate: async (data) => {
+        await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
-      queryClient.setQueryData<ProfileResponse>(
-        ["profile", userId],
-        (oldData) => {
-          if (!oldData) return oldData;
+        const previousProfileData = queryClient.getQueryData([
+          "profile",
+          userId,
+        ]);
 
-          return {
-            ...oldData,
-            userRatings: oldData.userRatings.map((r) => {
-              if (r.id === ratingId) {
-                return {
-                  ...r,
-                  review: data.review,
-                  rate: data.rate,
-                };
-              }
+        queryClient.setQueryData<ProfileResponse>(
+          ["profile", userId],
+          (oldData) => {
+            if (!oldData) return oldData;
 
-              return r;
-            }),
-          };
-        },
-      );
+            const newRating: RatingProps = {
+              id: "cache rating id",
+              rate: data.rate,
+              review: data.review,
+              book: book!,
+              user: userBook!.user,
+              createdAt: new Date().toString(),
+              updatedAt: new Date().toString(),
+            };
 
-      return { previousProfileData };
-    },
-    onError: (err, __, context) => {
-      console.log(err);
-      queryClient.setQueryData(
-        ["profile", userId],
-        context?.previousProfileData,
-      );
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["profile", userId],
-      });
+            const newUserRatings = oldData.userRatings.concat([newRating]);
 
-      queryClient.invalidateQueries({
-        queryKey: ["books"],
-      });
+            return {
+              ...oldData,
+              userRatings: newUserRatings,
+            };
+          },
+        );
 
-      queryClient.invalidateQueries({
-        queryKey: ["home"],
-      });
-    },
-  });
+        return { previousProfileData };
+      },
+      onError: (err, __, context) => {
+        console.log(err);
+        queryClient.setQueryData(
+          ["profile", userId],
+          context?.previousProfileData,
+        );
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["profile", userId],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["books"],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["home"],
+        });
+      },
+    });
 
   const { mutate: deleteRatingMutation } = useMutation({
     mutationFn: async (ratingId: string) => {
@@ -275,14 +288,13 @@ export function ProfileBookCard({
         status,
         isFavorite,
         currentPage,
-        customTotalPage
+        customTotalPage,
       }: {
         status?: ReadingStatus;
         isFavorite?: boolean;
         currentPage?: number;
-        customTotalPage?: number
+        customTotalPage?: number;
       }) => {
-        
         return await api.patch("/app/userBook", {
           readStatus: status,
           isFavorite: isFavorite,
@@ -318,11 +330,13 @@ export function ProfileBookCard({
               )
               .map((ub) => {
                 if (ub.id === userBook?.id) {
+                  const newUpdatedAt = new Date();
                   return {
                     ...ub,
                     status: status ?? ub.status,
                     isFavorite: isFavorite ?? ub.isFavorite,
                     currentPage: currentPage ?? ub.currentPage,
+                    updatedAt: newUpdatedAt.toString(),
                   };
                 }
                 return ub;
@@ -363,9 +377,6 @@ export function ProfileBookCard({
           ["profile", userId],
           context?.previousProfileData,
         );
-      },
-      onSuccess: () => {
-        console.log("UserBook updated successfully");
       },
       onSettled: () => {
         queryClient.invalidateQueries({
@@ -422,6 +433,7 @@ export function ProfileBookCard({
 
           return {
             ...oldData,
+            allUserBooks: updatedProfileData,
             currentlyReadingBooks,
             wantToReadBooks,
             finishedBooks,
@@ -560,7 +572,12 @@ export function ProfileBookCard({
                       }
                     >
                       <ProfileBookButton
-                        disabled={userBook?.rated}
+                        disabled={
+                          userBook?.rated ||
+                          isCreatingRating ||
+                          isUpdatingRating
+                        }
+                        isLoading={isCreatingRating || isUpdatingRating}
                         onClick={() =>
                           setisUserRatingFormOpen(!isUserRatingFormOpen)
                         }
@@ -569,7 +586,11 @@ export function ProfileBookCard({
 
                         {userBook?.status === "FINISHED" &&
                           !isFavoriteList &&
-                          (userBook.rated ? <Star weight="fill" /> : <Star />)}
+                          (userBook.rated || isCreatingRating ? (
+                            <Star weight="fill" />
+                          ) : (
+                            <Star />
+                          ))}
                       </ProfileBookButton>
                     </AppTooltip>
                   )}
@@ -580,6 +601,8 @@ export function ProfileBookCard({
                   !isFavoriteList && (
                     <AppTooltip content="Atualizar progresso de leitura">
                       <ProfileBookButton
+                        disabled={isUpdatingReadingStatus}
+                        isLoading={isUpdatingReadingStatus}
                         onClick={() =>
                           setIsReadingProgressUpdaterOpen(
                             !isReadingProgressUpdaterOpen,
@@ -640,7 +663,11 @@ export function ProfileBookCard({
               !isFavoriteList && (
                 <ReadingProgress
                   currentPage={userBook.currentPage ? userBook.currentPage : 0}
-                  totalPages={userBook.customTotalPage ? userBook.customTotalPage : userBook.book.pageCount}
+                  totalPages={
+                    userBook.customTotalPage
+                      ? userBook.customTotalPage
+                      : userBook.book.pageCount
+                  }
                 />
               )}
           </div>
@@ -665,7 +692,11 @@ export function ProfileBookCard({
               }
               onUpdate={updateReadingProgress}
               currentPage={userBook.currentPage ? userBook.currentPage : 0}
-              totalPages={userBook.customTotalPage ? userBook.customTotalPage : userBook.book.pageCount}
+              totalPages={
+                userBook.customTotalPage
+                  ? userBook.customTotalPage
+                  : userBook.book.pageCount
+              }
             />
           )}
         </ProfileBook>

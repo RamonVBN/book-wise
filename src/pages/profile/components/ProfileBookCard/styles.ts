@@ -25,7 +25,7 @@ export const ProfileBook = styled("div", {
   borderRadius: "8px",
 
   p: {
-    paddingTop: '1rem',
+    paddingTop: "1rem",
     fontWeight: "$regular",
     fontSize: "0.875rem",
     lineHeight: "$base",
@@ -33,10 +33,10 @@ export const ProfileBook = styled("div", {
     textAlign: "justify",
   },
 
-  '& > :first-child': {
+  "& > :first-child": {
     display: "flex",
     justifyContent: "space-between",
-    gap: '1.5rem'
+    gap: "1.5rem",
   },
 });
 
@@ -73,7 +73,6 @@ export const ProfileBookInfo = styled("div", {
         color: "$gray400",
       },
     },
-
   },
 });
 
@@ -81,40 +80,49 @@ export const ProfileBookOptions = styled("div", {
   display: "flex",
   flexDirection: "column",
 
-  '& > div:first-child': {
+  "& > div:first-child": {
     display: "flex",
     flexDirection: "row",
-    alignItems: 'center',
+    alignItems: "center",
     gap: "0.75rem",
-  }
-
+  },
 });
 
 export const ProfileBookButton = styled("button", {
-    all: "unset",
-    
-    width: "2.5rem",
-    height: "2.5rem",
-    boxSizing: "border-box",
+  all: "unset",
 
-    padding: "0.5rem",
-    borderRadius: "$full",
+  width: "2.5rem",
+  height: "2.5rem",
+  boxSizing: "border-box",
 
-    svg: {
-      color: "$green100",
-      width: "1.5rem",
-      height: "1.5rem",
+  padding: "0.5rem",
+  borderRadius: "$full",
+
+  transition: "all 0.2s ease-out",
+
+  svg: {
+    color: "$green100",
+    width: "1.5rem",
+    height: "1.5rem",
+  },
+
+  "&:not(:disabled)": {
+    cursor: "pointer",
+  },
+
+  "&:not(:disabled):hover": {
+    backgroundColor: "$gray500",
+  },
+
+  variants: {
+    isLoading: {
+      true: {
+        cursor: "progress",
+        opacity: 0.5,
+      },
     },
-
-    "&:not(:disabled)": {
-      cursor: "pointer",
-    },
-
-    "&:not(:disabled):hover": {
-      backgroundColor: "$gray500",
-    },
-
-})
+  },
+});
 
 export const ProfileBookTime = styled("span", {
   fontSize: "0.875rem",
@@ -124,17 +132,16 @@ export const ProfileBookTime = styled("span", {
 });
 
 export const ModalBody = styled("div", {
-  
   display: "flex",
   flexDirection: "column",
-  justifyContent: 'center',
-  alignItems: 'center',
+  justifyContent: "center",
+  alignItems: "center",
   gap: "1.5rem",
-  color: "$gray100",
+  color: "$gray200",
 
   p: {
     fontWeight: "$bold",
-    textAlign:'center'
+    textAlign: "center",
   },
 
   div: {
@@ -154,18 +161,18 @@ export const ModalBody = styled("div", {
 
       padding: "0.5rem",
 
-      backgroundColor: "$gray800",
+      backgroundColor: "$gray700",
       borderRadius: "4px",
 
       "&:hover": {
-        backgroundColor: "$gray700",
+        backgroundColor: "$gray500",
       },
     },
 
     "button:first-child": {
-      backgroundColor: "#B91C1C",
+      backgroundColor: "$red200",
       "&:hover": {
-        backgroundColor: "#EF4444",
+        backgroundColor: "$red100",
       },
     },
   },

@@ -10,6 +10,8 @@ export const FavoriteButtonComponent = styled("button", {
   borderRadius: "$full",
   padding: "$2",
 
+  transition: "all 0.2s ease-out",
+
   "&:not(:disabled):hover": {
     backgroundColor: "$gray500",
   },

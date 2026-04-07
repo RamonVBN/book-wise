@@ -58,6 +58,7 @@ export type UserBookProps = {
     customTotalPage?: number
     updatedAt: string
     book: BookProps
+    user: RatingUserProps
 }
 
 export type HomeDataResponse = {

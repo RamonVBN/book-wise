@@ -32,7 +32,8 @@ export async function deleteUserBookController(req: NextApiRequest, res: NextApi
     if (session.user.id !== userBook.userId) {
         return res.status(404).json({ message: "You cannot delete another user book" })
     } 
-        
+
+
     await deleteUserBook({
         userBookId: id,
         userId: session.user.id,

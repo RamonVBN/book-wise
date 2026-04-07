@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { AuthContainer, LogoFilter, Container, ImageContainer, LoginContainer, LoginContainerHeader,  ProviderButton, ProviderContainer } from "./styles";
+import { AuthContainer, LogoFilter, Container, ImageContainer, LoginContainer, LoginContainerHeader, ProviderContainer } from "./styles";
 
 import logo from '../../../assets/Logo.png'
 
@@ -10,6 +10,7 @@ import visitLogo from '../../../assets/RocketLaunch.png'
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { NextSeo } from "next-seo";
+import { ProviderButton } from "@/components/ProviderButton/styles";
 
 export default function Login(){
 
@@ -61,15 +62,15 @@ export default function Login(){
                     </LoginContainerHeader>
 
                     <ProviderContainer>
-                    <ProviderButton onClick={handleGoogleSignIn}>
+                    <ProviderButton login onClick={handleGoogleSignIn}>
                         <Image src={googleLogo} alt=""/>
                         Entrar com Google
                     </ProviderButton>
-                    <ProviderButton onClick={handleGithubSignIn}>
+                    <ProviderButton login onClick={handleGithubSignIn}>
                         <Image src={githubLogo} alt=""/>
                         Entrar com Github
                     </ProviderButton>
-                    <ProviderButton onClick={handleRedirect}>
+                    <ProviderButton login onClick={handleRedirect}>
                         <Image src={visitLogo} alt=""/>
                         Acessar como visitante
                     </ProviderButton>

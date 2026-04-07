@@ -2,11 +2,11 @@ import { useState } from "react"
 import { ShowMoreButton } from "./styles"
 
 
-type RatingDescription = {
+type DescripitionTextProps = {
     description: string
 }
 
-export function RatingDescription({description}: RatingDescription){
+export function DescripitionText({description}: DescripitionTextProps){
     
     const [showMore, setShowMore] = useState(false)
 

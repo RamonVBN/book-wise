@@ -1,9 +1,7 @@
 import { styled } from "@/pages/globalStyles";
-import { useState, useEffect } from 'react';
-import { ArrowUp } from 'lucide-react'
 
 
-const TopButton = styled('button', {
+export const TopButton = styled('button', {
   position: 'fixed',
   bottom: '40px',
   right: '40px',
@@ -23,14 +21,3 @@ const TopButton = styled('button', {
     transform: 'scale(1.1)',
   },
 });
-
-export default function BackToTop({onClick}: {onClick: () => void}) {
-  
-  return (
-    (
-      <TopButton onClick={onClick}>
-        <ArrowUp />
-      </TopButton>
-    )
-  );
-}

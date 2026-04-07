@@ -1,6 +1,5 @@
-import { styled } from "@/pages/globalStyles"
-import * as Select from "@radix-ui/react-select"
-
+import { styled } from "@/pages/globalStyles";
+import * as Select from "@radix-ui/react-select";
 
 export const Trigger = styled(Select.Trigger, {
   all: "unset",
@@ -18,9 +17,16 @@ export const Trigger = styled(Select.Trigger, {
   color: "$gray100",
 
   fontSize: "14px",
-  fontWeight: '$medium',
+  fontWeight: "$medium",
 
   cursor: "pointer",
+
+  transition: "all 0.2s ease-out",
+
+  "&:disabled": {
+    cursor: "progress",
+    opacity: 0.5,
+  },
 
   "&:hover": {
     borderColor: "$gray500",
@@ -48,20 +54,13 @@ export const Trigger = styled(Select.Trigger, {
       },
 
       ABANDONED: {
-        backgroundColor: "$red100",
+        backgroundColor: "$red200",
         color: "$gray100",
       },
     },
 
-    disabled: {
-      true: {
-        cursor: 'progress',
-        opacity: 0.9,
-      }
-    }
   },
-
-})
+});
 
 export const Content = styled(Select.Content, {
   zIndex: 9999,
@@ -72,9 +71,8 @@ export const Content = styled(Select.Content, {
 
   border: "1px solid $gray600",
 
-  boxShadow:
-    "0px 10px 38px rgba(0,0,0,0.35), 0px 10px 20px rgba(0,0,0,0.2)",
-})
+  boxShadow: "0px 10px 38px rgba(0,0,0,0.35), 0px 10px 20px rgba(0,0,0,0.2)",
+});
 
 export const Item = styled(Select.Item, {
   fontSize: "14px",
@@ -85,18 +83,17 @@ export const Item = styled(Select.Item, {
 
   display: "flex",
   alignItems: "center",
-  gap: '0.5rem',
+  gap: "0.5rem",
 
   cursor: "pointer",
 
   svg: {
-    color: '$green100',
-    width: '1.5rem',
-    height: '1.5rem'
+    color: "$green100",
+    width: "1.5rem",
+    height: "1.5rem",
   },
 
   "&[data-highlighted]": {
     backgroundColor: "$gray700",
   },
-})
-
+});

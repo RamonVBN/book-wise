@@ -22,7 +22,6 @@ import { ptBR } from "date-fns/locale/pt-BR";
 import { formatCategories } from "@/utils/formatCategories";
 import { useEffect, useRef, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { ProviderButton } from "@/pages/login/styles";
 
 import Image from "next/image";
 
@@ -42,7 +41,6 @@ import {
   RatingQueryData,
 } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
-import { RatingDescription } from "@/components/RatingDescription";
 import {
   UserRatingForm,
   UserRatingSubmitData,
@@ -51,6 +49,8 @@ import { Modal } from "@/components/Modal";
 import { ReadingStatusSelect } from "../../../../components/ReadingStatusSelect";
 import { ReadingStatus } from "@/generated/prisma";
 import { FavoriteButton } from "../../../../components/FavoriteButton";
+import { ProviderButton } from "@/components/ProviderButton/styles";
+import { DescripitionText } from "@/components/DescriptionText";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -109,13 +109,16 @@ export function BookDetails({
 
   const book = findBookById(bookId);
 
-  const { data: translatedBookData } = useQuery<{ categories: string[], description: string }>({
+  const { data: translatedBookData } = useQuery<{
+    categories: string[];
+    description: string;
+  }>({
     queryKey: ["traslatedBook", bookId],
     enabled: !!bookId && !!book,
     queryFn: async () => {
       const response = await api.post("/app/translate-book", {
         categories: book?.categories,
-        description: book?.description
+        description: book?.description,
       });
 
       return response.data;
@@ -270,10 +273,10 @@ export function BookDetails({
       const previousRatings = queryClient.getQueryData(["ratings", bookId]);
 
       queryClient.setQueryData<RatingQueryData>(
-        ["ratings", bookId], (oldData) => {
-
+        ["ratings", bookId],
+        (oldData) => {
           if (!oldData || !oldData.userStatus) return oldData;
-          console.log('passou por aqui')
+          console.log(oldData);
           return {
             ...oldData,
             userStatus: {
@@ -339,6 +342,10 @@ export function BookDetails({
   useEffect(() => {
     bookDetailsContainerRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    console.log(bookStatus);
+  }, [bookStatus]);
 
   if (!book) {
     return;
@@ -452,9 +459,15 @@ export function BookDetails({
                     )}
                   </div>
                 </div>
-                
+
                 <BookDescription style={{ fontSize: "14px" }}>
-                    <RatingDescription description={translatedBookData?.description ? translatedBookData.description : book.description}/>
+                  <DescripitionText
+                    description={
+                      translatedBookData?.description
+                        ? translatedBookData.description
+                        : book.description
+                    }
+                  />
                 </BookDescription>
               </BookInfoFooter>
             </BookInfo>
@@ -522,7 +535,7 @@ export function BookDetails({
                           </span>
                         </div>
 
-                        <RatingDescription description={rating.review} />
+                        <DescripitionText description={rating.review} />
                       </BookDetailsRating>
                     );
                   })}

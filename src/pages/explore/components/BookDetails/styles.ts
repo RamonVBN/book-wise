@@ -5,6 +5,7 @@ export const BookDetailsOverlay = styled("div", {
   top: 0,
   right: 0,
   zIndex: 10,
+  overflow: "hidden",
 
   width: "100vw",
   height: "100vh",
@@ -17,7 +18,11 @@ export const BookDetailsContainer = styled("div", {
   width: "41.25rem",
 
   backgroundColor: "$gray800",
-  boxShadow: "-4px 0px 30px 0 rgba(0, 0, 0, 0.5)",
+
+  boxShadow: `
+  0px 10px 38px rgba(0, 0, 0, 0.45),
+  0px 10px 20px rgba(0, 0, 0, 0.25)
+`,
   padding: "1.5rem 3rem",
   marginLeft: "auto",
 
@@ -33,6 +38,12 @@ export const BookDetailsModalBody = styled("div", {
   display: "flex",
   flexDirection: "column",
   gap: "1rem",
+
+  div: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+  },
 });
 
 export const CloseButton = styled("button", {
@@ -179,6 +190,14 @@ export const BookInfoFooter = styled("div", {
           fontWeight: "$bold",
           fontSize: "1rem",
           lineHeight: "$short",
+          color: "$gray200",
+        },
+      },
+    },
+
+    "& > div:last-child": {
+      "& > button:first-child": {
+        svg: {
           color: "$gray200",
         },
       },

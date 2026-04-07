@@ -14,7 +14,7 @@ export interface UserRatingSubmitData extends UserRatingFormData {
     rate: number
 }
 
-type UserRatinFormProps = {
+type UserRatingFormProps = {
     handleRatingSubmit: (data: UserRatingSubmitData) => void
     handleCloseUserRatingForm: () => void
     avatarUrl?: string
@@ -32,7 +32,7 @@ export function UserRatingForm(
         userName,
         initialRate = null,
         initialReview = ''
-    }: UserRatinFormProps
+    }: UserRatingFormProps
 ){
 
     const [rateHover, setRateHover] = useState(0)
@@ -133,6 +133,7 @@ export function UserRatingForm(
                         )  
                     }
                 </span>
+                
                 <span>
 
                     <span>

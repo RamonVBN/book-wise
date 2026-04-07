@@ -31,8 +31,8 @@ export const StatusMark = styled("span", {
       },
       ABANDONED: {
         svg: {
-          color: "$red100",
-          fill: "$red100",
+          color: "$red200",
+          fill: "$red200",
         },
       },
     },

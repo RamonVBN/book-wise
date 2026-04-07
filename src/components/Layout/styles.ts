@@ -236,6 +236,6 @@ export const SignOutButton = styled("button", {
   },
 
   svg: {
-    color: "#F75A68",
+    color: "$red100",
   },
 });

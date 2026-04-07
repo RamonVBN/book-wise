@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -15,17 +15,20 @@ import {
   ProfileContainer,
   ProfileBooksContainer,
   ProfileBookFallback,
+  ProfileCategoriesContainer,
+  ProfileCategory,
 } from "./styles";
 import {
   BookmarkSimple,
+  BookmarksSimple,
   BookOpen,
   Books,
   MagnifyingGlass,
   User,
   UserList,
 } from "phosphor-react";
-import { getYear, set } from "date-fns";
-import { PageHeader } from "@/components/pageHeader";
+import { getYear } from "date-fns";
+import { PageHeader } from "@/components/PageHeader";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useSession } from "next-auth/react";
@@ -41,8 +44,7 @@ import { useRouter } from "next/router";
 import { Fallback } from "@/components/Fallback";
 import Image from "next/image";
 import { ProfileBookCard } from "./components/ProfileBookCard";
-import { CategoriesContainer, Category } from "@/components/Category/styles";
-import { BookAlert } from "lucide-react";
+import { BookAlert, Bookmark, Heart, StarIcon } from "lucide-react";
 import Link from "next/link";
 
 const profileFormSchema = z.object({
@@ -57,13 +59,41 @@ type MostReadCategory = {
 };
 
 export type Categories = {
-  'Sua estante': UserBookProps[];
-  Avaliações: RatingProps[];
-  Lidos: UserBookProps[];
-  Favoritos: UserBookProps[];
-  Abandonados: UserBookProps[];
-  "Quero Ler": UserBookProps[];
-  Lendo: UserBookProps[];
+  allUserBooks: {
+    items: UserBookProps[];
+    categoryName: "Sua estante";
+    iconColor: "ALL_USER_BOOKS";
+  };
+  userRatings: {
+    items: RatingProps[];
+    categoryName: "Avaliações";
+    iconColor: "USER_RATINGS";
+  };
+  currentlyReadingBooks: {
+    items: UserBookProps[];
+    categoryName: "Lendo";
+    iconColor: "READING";
+  };
+  wantToReadBooks: {
+    items: UserBookProps[];
+    categoryName: "Quero ler";
+    iconColor: "WANT_TO_READ";
+  };
+  finishedBooks: {
+    items: UserBookProps[];
+    categoryName: "Lidos";
+    iconColor: "FINISHED";
+  };
+  favoriteBooks: {
+    items: UserBookProps[];
+    categoryName: "Favoritos";
+    iconColor: "FAVORITES";
+  };
+  abandonedBooks: {
+    items: UserBookProps[];
+    categoryName: "Abandonados";
+    iconColor: "ABANDONED";
+  };
 };
 
 export default function Profile() {
@@ -75,7 +105,7 @@ export default function Profile() {
     useForm<ProfileFormData>();
 
   const [profileCategory, setProfileCategory] =
-    useState<keyof Categories>("Sua estante");
+    useState<keyof Categories>("allUserBooks");
 
   function onSubmit() {
     reset();
@@ -104,45 +134,71 @@ export default function Profile() {
         return response.data;
       },
       enabled: !!userId,
-      staleTime: Infinity
+      staleTime: Infinity,
     });
 
-
-    const userRatings = useMemo(() => {
-      return profileData?.userRatings ?? [];
-    }, [profileData]);
-    const allUserBooks = useMemo(() => {
-      return profileData?.allUserBooks ?? [];
-    }, [profileData]);
-    const currentlyReadingBooks = useMemo(() => {
-      return profileData?.currentlyReadingBooks ?? [];
-    }, [profileData]);
-    const wantToReadBooks = useMemo(() => {
-      return profileData?.wantToReadBooks ?? [];
-    }, [profileData]);
-    const finishedBooks = useMemo(() => {
-      return profileData?.finishedBooks ?? [];
-    }, [profileData]);
-    const favoriteBooks = useMemo(() => {
-      return profileData?.favoriteBooks ?? [];
-    }, [profileData]);
-    const abandonedBooks = useMemo(() => {
-      return profileData?.abandonedBooks ?? [];
-    }, [profileData]);
-
+  const userRatings = useMemo(() => {
+    return profileData?.userRatings ?? [];
+  }, [profileData]);
+  const allUserBooks = useMemo(() => {
+    return profileData?.allUserBooks ?? [];
+  }, [profileData]);
+  const currentlyReadingBooks = useMemo(() => {
+    return profileData?.currentlyReadingBooks ?? [];
+  }, [profileData]);
+  const wantToReadBooks = useMemo(() => {
+    return profileData?.wantToReadBooks ?? [];
+  }, [profileData]);
+  const finishedBooks = useMemo(() => {
+    return profileData?.finishedBooks ?? [];
+  }, [profileData]);
+  const favoriteBooks = useMemo(() => {
+    return profileData?.favoriteBooks ?? [];
+  }, [profileData]);
+  const abandonedBooks = useMemo(() => {
+    return profileData?.abandonedBooks ?? [];
+  }, [profileData]);
 
   const categories: Categories = {
-    'Sua estante': allUserBooks,
-    Avaliações: userRatings,
-    Lendo: currentlyReadingBooks,
-    "Quero Ler": wantToReadBooks,
-    Lidos: finishedBooks,
-    Favoritos: favoriteBooks,
-    Abandonados: abandonedBooks,
+    allUserBooks: {
+      items: allUserBooks,
+      categoryName: "Sua estante",
+      iconColor: "ALL_USER_BOOKS",
+    },
+    userRatings: {
+      items: userRatings,
+      categoryName: "Avaliações",
+      iconColor: "USER_RATINGS",
+    },
+    currentlyReadingBooks: {
+      items: currentlyReadingBooks,
+      categoryName: "Lendo",
+      iconColor: "READING",
+    },
+    wantToReadBooks: {
+      items: wantToReadBooks,
+      categoryName: "Quero ler",
+      iconColor: "WANT_TO_READ",
+    },
+    finishedBooks: {
+      items: finishedBooks,
+      categoryName: "Lidos",
+      iconColor: "FINISHED",
+    },
+    favoriteBooks: {
+      items: favoriteBooks,
+      categoryName: "Favoritos",
+      iconColor: "FAVORITES",
+    },
+    abandonedBooks: {
+      items: abandonedBooks,
+      categoryName: "Abandonados",
+      iconColor: "ABANDONED",
+    },
   };
 
   const booksByInput =
-    categories[profileCategory]?.filter((userBook) =>
+    categories[profileCategory].items?.filter((userBook) =>
       userBook.book.title
         .toLowerCase()
         .trim()
@@ -232,13 +288,41 @@ export default function Profile() {
             <Fallback />
           ) : (
             <>
-              <PageHeader>
-                <User />
-                <h1>Perfil</h1>
-              </PageHeader>
-              
               <ProfileContainer>
+                <ProfileCategoriesContainer>
+                  {(Object.keys(categories) as (keyof Categories)[]).map(
+                    (categoryKey) => (
+                      <ProfileCategory
+                        status={categories[categoryKey].iconColor}
+                        onClick={() => handleProfileCategories(categoryKey)}
+                        isActive={profileCategory === categoryKey}
+                        key={categoryKey}
+                      >
+                        <span>
+                          {categories[categoryKey].categoryName ===
+                            "Avaliações" && <StarIcon />}
+                          {categories[categoryKey].categoryName ===
+                            "Favoritos" && <Heart />}
+                          {categories[categoryKey].categoryName ===
+                            "Sua estante" && <BookmarksSimple size={24} />}
+                          {categories[categoryKey].categoryName !==
+                            "Avaliações" &&
+                            categories[categoryKey].categoryName !==
+                              "Favoritos" &&
+                            categories[categoryKey].categoryName !==
+                              "Sua estante" && <Bookmark />}
+                          {categories[categoryKey].categoryName}
+                        </span>
+                        {categories[categoryKey].items?.length || 0}
+                      </ProfileCategory>
+                    ),
+                  )}
+                </ProfileCategoriesContainer>
                 <ProfileMainContainer>
+                  <PageHeader>
+                    <User />
+                    <h1>Perfil</h1>
+                  </PageHeader>
                   <div>
                     <ProfileForm onSubmit={handleSubmit(onSubmit)}>
                       <label>
@@ -251,46 +335,34 @@ export default function Profile() {
                         <MagnifyingGlass />
                       </ProfileButton>
                     </ProfileForm>
-
-                    <CategoriesContainer>
-                      {(Object.keys(categories) as (keyof Categories)[]).map(
-                        (categoryName) => (
-                          <Category
-                            onClick={() =>
-                              handleProfileCategories(categoryName)
-                            }
-                            isActive={profileCategory === categoryName}
-                            key={categoryName}
-                          >
-                            {categoryName} (
-                            {categories[categoryName]?.length || 0})
-                          </Category>
-                        ),
-                      )}
-                    </CategoriesContainer>
                   </div>
 
                   <ProfileBooksContainer>
-                    {allUserBooks.length > 0 ? booksByInput.map((b) => {
-                      if (typeof b === "object" && "rate" in b) {
-                        return <ProfileBookCard  key={b.id} rating={b} />;
-                      } else {
-                        return (
-                          <ProfileBookCard
-                            
-                            isFavoriteList={profileCategory === "Favoritos"}
-                            isAllUserBooks={profileCategory === "Sua estante"}
-                            key={b.id}
-                            userBook={b}
-                          />
-                        );
-                      }
-                    }) : (
+                    {allUserBooks.length > 0 ? (
+                      booksByInput.map((b) => {
+                        if (typeof b === "object" && "rate" in b) {
+                          return <ProfileBookCard key={b.id} rating={b} />;
+                        } else {
+                          return (
+                            <ProfileBookCard
+                              isFavoriteList={
+                                profileCategory === "favoriteBooks"
+                              }
+                              isAllUserBooks={
+                                profileCategory === "allUserBooks"
+                              }
+                              key={b.id}
+                              userBook={b}
+                            />
+                          );
+                        }
+                      })
+                    ) : (
                       <ProfileBookFallback>
                         <p>Você ainda não adicionou livros a sua estante...</p>
-                          <Link href={'/explore'}>
-                            <BookAlert/>
-                          </Link>
+                        <Link href={"/explore"}>
+                          <BookAlert />
+                        </Link>
                       </ProfileBookFallback>
                     )}
                   </ProfileBooksContainer>
@@ -341,10 +413,11 @@ export default function Profile() {
                       <BookmarkSimple />
                       <span>
                         <p>
-                          {mostReadCategories.length > 0 ? mostReadCategories.map((c, i) => {
-                            return formatCategories(c.categoryName, i);
-                          }) 
-                          : "Nenhuma categoria lida..."}
+                          {mostReadCategories.length > 0
+                            ? mostReadCategories.map((c, i) => {
+                                return formatCategories(c.categoryName, i);
+                              })
+                            : "Nenhuma categoria lida..."}
                         </p>
                         <span>Categoria(s) mais lida(s)</span>
                       </span>

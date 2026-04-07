@@ -2,7 +2,7 @@ import * as Select from "@radix-ui/react-select";
 import { Content, Item, Trigger } from "./styles";
 import { BookmarkCheck, CheckIcon, ChevronDownIcon } from "lucide-react";
 import { ReadingStatus } from "@/generated/prisma";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 type ReadingStatusSelectProps = {
   value?: ReadingStatus;
@@ -43,14 +43,10 @@ export function ReadingStatusSelect({
       onValueChange={handleValueChange}
     >
       <Trigger status={value} disabled={disabled}>
-        {!disabled && (
-          <>
-            <Select.Value placeholder="Adicionar" />
-            <Select.Icon>
-              <ChevronDownIcon />
-            </Select.Icon>
-          </>
-        )}
+        <Select.Value placeholder="Adicionar" />
+        <Select.Icon>
+          <ChevronDownIcon />
+        </Select.Icon>
       </Trigger>
 
       <Select.Portal container={containerRef?.current}>
