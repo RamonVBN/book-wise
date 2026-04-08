@@ -352,8 +352,8 @@ export function ProfileBookCard({
       }) => {
         return await api.patch("/app/userBook", {
           readStatus: status,
-          isFavorite: isFavorite,
-          currentPage: currentPage,
+          isFavorite,
+          currentPage,
           customTotalPage,
 
           bookId: book?.id,
@@ -391,11 +391,12 @@ export function ProfileBookCard({
               .map((ub) => {
                 if (ub.id === userBook?.id) {
                   const newUpdatedAt = new Date();
+                  const totalPages = customTotalPage ? customTotalPage : (ub.customTotalPage ?? ub.book.pageCount)
                   return {
                     ...ub,
-                    status: status ?? ub.status,
+                    status: totalPages === currentPage ? 'FINISHED' : (status ?? ub.status),
                     isFavorite: isFavorite ?? ub.isFavorite,
-                    currentPage: currentPage ?? ub.currentPage,
+                    currentPage: currentPage ?? (status === 'FINISHED' ? totalPages : ub.currentPage),
                     customTotalPage: customTotalPage ?? ub.customTotalPage,
                     updatedAt: newUpdatedAt.toString(),
                   };
@@ -438,6 +439,9 @@ export function ProfileBookCard({
           ["profile", userId],
           context?.previousProfileData,
         );
+      },
+      onSuccess: ()  => {
+        console.log('terminou agora')
       },
       onSettled: () => {
         queryClient.invalidateQueries({

@@ -61,7 +61,7 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
     })
   }
   
-  await updateUserBook({
+   await updateUserBook({
     userId: session.user.id,
     bookId,
     readStatus,
