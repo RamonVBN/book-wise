@@ -1,9 +1,10 @@
 import translate from "translate"
+import { franc } from "franc"
 
 translate.engine = "google"
 
 function isPortuguese(text: string) {
-  return /[ãõáéíóúç]/i.test(text)
+  return franc(text) === "por"
 }
 
 export async function translateText(text?: string | null) {
