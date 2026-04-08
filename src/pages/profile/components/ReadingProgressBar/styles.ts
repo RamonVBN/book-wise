@@ -17,6 +17,14 @@ export const ProgressIndicator = styled(Progress.Indicator, {
   backgroundColor: "$green400",
   borderRadius: "9999px",
   transition: "transform 300ms ease",
+
+  variants: {
+    abandoned: {
+      true: {
+        backgroundColor: '$red200',
+      }
+    }
+  }
 });
 
 export const Label = styled("label", {

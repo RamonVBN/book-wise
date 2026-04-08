@@ -3,9 +3,10 @@ import { Label, ProgressIndicator, ProgressRoot, ReadingProgressBarContainer } f
 type ReadingProgressProps = {
   currentPage: number
   totalPages: number
+  abandoned: boolean
 }
 
-export function ReadingProgress({currentPage, totalPages}: ReadingProgressProps) {
+export function ReadingProgress({currentPage, totalPages, abandoned}: ReadingProgressProps) {
 
   const progress = Math.round((currentPage / totalPages) * 100) || 0
 
@@ -21,6 +22,7 @@ export function ReadingProgress({currentPage, totalPages}: ReadingProgressProps)
       </div>
       <ProgressRoot value={progress}>
         <ProgressIndicator
+          abandoned={abandoned}
           style={{ transform: `translateX(-${100 - progress}%)` }}
         />
       </ProgressRoot>

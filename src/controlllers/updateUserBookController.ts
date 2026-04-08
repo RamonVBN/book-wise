@@ -35,7 +35,7 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
     if (filledFields === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Envie exatamente um campo para atualização",
+        message: "Envie exatamente um desses campos para atualização [currentPage, readStatus, isFavorite]",
         path: [],
       })
     }
@@ -43,7 +43,7 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
     if (filledFields > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Apenas um campo pode ser atualizado por vez",
+        message: "Apenas um desses campos pode ser atualizado por vez [currentPage, readStatus, isFavorite]",
         path: [],
       })
     }
