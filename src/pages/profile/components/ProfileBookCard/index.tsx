@@ -263,9 +263,6 @@ export function ProfileBookCard({
           context?.previousProfileData,
         );
       },
-      onSuccess: () => {
-        console.log('terminou agora fi')
-      },
       onSettled: () => {
         queryClient.invalidateQueries({
           queryKey: ["profile", userId],
@@ -295,8 +292,22 @@ export function ProfileBookCard({
         (oldData) => {
           if (!oldData) return oldData;
 
+          const ratingToDelete = oldData.userRatings.find((r) => r.id === ratingId)
+          const updatedFinishedBooks = oldData.finishedBooks.map((ub) => {
+
+            if( (ub.book.id === ratingToDelete?.book.id) && (ub.userId === rating?.user.id) ) {
+              return {
+                ...ub,
+                rated: false
+              }
+            } 
+
+            return ub
+          })
+
           return {
             ...oldData,
+            finishedBooks: updatedFinishedBooks,
             userRatings: oldData.userRatings.filter((r) => r.id !== ratingId),
           };
         },
@@ -709,10 +720,11 @@ export function ProfileBookCard({
           <div>
             {!isAllUserBooks &&
               userBook &&
-              userBook.status === "READING" &&
+              (userBook.status === "READING" || userBook.status === 'ABANDONED' || userBook.status === 'FINISHED') &&
               !isFavoriteList && (
                 <ReadingProgress
-                  currentPage={userBook.currentPage ? userBook.currentPage : 0}
+                  abandoned={ userBook.status === 'ABANDONED' }
+                  currentPage={ userBook.currentPage ? userBook.currentPage : 0 }
                   totalPages={
                     userBook.customTotalPage
                       ? userBook.customTotalPage
