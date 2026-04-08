@@ -198,8 +198,10 @@ export function BookDetails({
                 const newRatingsSum = book.ratingsSum + data.rate!;
                 const newAvg = newRatingsSum / newRatingsCount;
 
+                const newCacheRatingId = crypto.randomUUID()
+                
                 const newRating: RatingProps = {
-                  id: "new rating cache id",
+                  id: newCacheRatingId,
                   rate: data.rate,
                   review: data.review,
                   book: {

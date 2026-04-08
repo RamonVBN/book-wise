@@ -36,7 +36,7 @@ export async function createRatingController(
     categories,
   } = bodySchema.parse(req.body);
 
-    await createRating({
+      await createRating({
       userId: session.user.id,
       bookId,
       rate,

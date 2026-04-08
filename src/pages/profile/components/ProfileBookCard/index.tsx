@@ -195,8 +195,10 @@ export function ProfileBookCard({
           (oldData) => {
             if (!oldData) return oldData;
 
+            const newCacheId = crypto.randomUUID()
+
             const newRating: RatingProps = {
-              id: "cache rating id",
+              id: newCacheId,
               rate: data.rate,
               review: data.review,
               book: book!,
@@ -205,7 +207,7 @@ export function ProfileBookCard({
               updatedAt: new Date().toString(),
             };
 
-            const newUserRatings = oldData.userRatings.concat([newRating]);
+            const newUserRatings = [newRating].concat(oldData.userRatings)
 
             const updatedUserbooks = oldData.abandonedBooks
               .concat(
@@ -642,7 +644,6 @@ export function ProfileBookCard({
                           isCreatingRating ||
                           isUpdatingRating
                         }
-                        isLoading={isCreatingRating || isUpdatingRating}
                         onClick={() =>
                           setisUserRatingFormOpen(!isUserRatingFormOpen)
                         }
