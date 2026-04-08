@@ -52,23 +52,28 @@ export async function getExploreBooks({
         where: {
           userId,
         },
-        select: {
-          id: true,
-        },
+        include: {
+          user: true
+        }
       },
     },
   });
 
   const booksMap: Record<string, BookStats> = {};
 
-  dbBooks.forEach((book: any) => {
-    const userBook = book.userBooks.find((ub: any) => ub.userId === userId) ?? null;
+  dbBooks.forEach((dbBook: any) => {
+    const userBook = dbBook.userBooks.find((ub: any) => ub.userId === userId) ?? null;
 
-    booksMap[book.id] = {
-      avgRating: book.avgRating,
-      ratingsCount: book.ratingsCount,
-      ratingsSum: book.ratingsSum,
-      userBookStatus: userBook?.status ?? null,
+    booksMap[dbBook.id] = {
+      avgRating: dbBook.avgRating,
+      ratingsCount: dbBook.ratingsCount,
+      ratingsSum: dbBook.ratingsSum,
+      ratings: dbBook.ratings,
+      userBookInfo: {
+        status: userBook?.status,
+        isFavorite: userBook?.isFavorite,
+        rated: userBook?.rated
+      } 
     };
   });
 
@@ -83,13 +88,16 @@ export async function getExploreBooks({
       coverUrl: book.coverUrl,
       pageCount: book.pageCount,
       categories: book.categories,
+      ratings: stats?.ratings ?? [],
 
       avgRating: stats?.avgRating ?? 0,
       ratingsCount: stats?.ratingsCount ?? 0,
       ratingsSum: stats?.ratingsSum ?? 0,
-      userBookStatus: stats?.userBookStatus ?? null,
+      userBookInfo: stats?.userBookInfo ?? null,
     };
   });
+
+  console.log(result)
 
   return result;
 }

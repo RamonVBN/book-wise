@@ -14,8 +14,8 @@ const BookCard = React.memo(function BookCard({
 }) {
   return (
     <ExploreBook onClick={() => handleOpenBookDetails(book.id)}>
-      {book.userBookStatus && (
-        <BooksStatusFlag explore={true} status={book.userBookStatus} />
+      {book.userBookInfo?.status && (
+        <BooksStatusFlag explore={true} status={book.userBookInfo.status} />
       )}
 
       <Image

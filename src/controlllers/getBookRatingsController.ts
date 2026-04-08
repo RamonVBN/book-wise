@@ -1,24 +1,28 @@
-import { authOptions } from "@/pages/api/auth/[...nextauth].api"
-import { getBookRatings } from "@/services/getBookRatings"
-import { NextApiRequest, NextApiResponse } from "next"
-import { getServerSession } from "next-auth"
+import { authOptions } from "@/pages/api/auth/[...nextauth].api";
+import { getBookRatings } from "@/services/getBookRatings";
+import { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
 
-import { z } from 'zod'
+import { z } from "zod";
 
-export async function getBookRatingsController(req: NextApiRequest, res: NextApiResponse) {
+export async function getBookRatingsController(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const session = await getServerSession(req, res, authOptions);
 
-    const session = await getServerSession(req, res, authOptions)
+  const querySchema = z.object({
+    id: z.string().optional(),
+  });
 
-    const querySchema = z.object({
-        id: z.string().optional(),
-    })
+  const { id } = querySchema.parse(req.query);
 
-    const { id } = querySchema.parse(req.query)
-
+  setTimeout( async () => {
     const ratings = await getBookRatings({
-        bookId: id,
-        userId: session?.user?.id
-    })
+      bookId: id,
+      userId: session?.user?.id,
+    });
 
-    return res.json(ratings)
+    return res.json(ratings);
+  }, 5000);
 }
