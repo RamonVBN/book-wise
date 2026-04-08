@@ -344,7 +344,7 @@ export function BookDetails({
                   userBookInfo: {
                     ...book.userBookInfo!,
                     status: status ?? book.userBookInfo!.status,
-                    isFavorite: isFavorite ?? book.userBookInfo!.isFavorite
+                    isFavorite: isFavorite ?? book.userBookInfo?.isFavorite ?? false
                   },
                 };
               }),

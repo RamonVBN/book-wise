@@ -74,7 +74,7 @@ export default async function updateUserBook({
       return;
     }
 
-    const totalPages = customTotalPage ? customTotalPage : (userBook.customTotalPage ? userBook.customTotalPage : book.pageCount)
+    const totalPages = customTotalPage ? customTotalPage : (userBook.customTotalPage ?? book.pageCount)
     
     await tx.userBook.update({
       where: {
@@ -89,7 +89,7 @@ export default async function updateUserBook({
             ? "FINISHED"
             : (readStatus ?? userBook.status),
         isFavorite,
-        currentPage: currentPage ?? userBook.currentPage,
+        currentPage: currentPage ?? (readStatus === 'FINISHED' ? totalPages : userBook.currentPage),
         customTotalPage
       },
     });
