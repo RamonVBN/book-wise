@@ -63,6 +63,7 @@ export function ProfileBookCard({
 
   const ratingId = rating?.id;
   const userId = rating?.user?.id ?? userBook?.userId;
+  const user = rating?.user ?? userBook?.user;
   const book = rating?.book ?? userBook?.book;
 
   function handleCloseUserRatingForm() {
@@ -199,16 +200,56 @@ export function ProfileBookCard({
               rate: data.rate,
               review: data.review,
               book: book!,
-              user: userBook!.user,
+              user: user!,
               createdAt: new Date().toString(),
               updatedAt: new Date().toString(),
             };
 
             const newUserRatings = oldData.userRatings.concat([newRating]);
 
+            const updatedUserbooks = oldData.abandonedBooks
+              .concat(
+                oldData.currentlyReadingBooks,
+                oldData.finishedBooks,
+                oldData.wantToReadBooks,
+              )
+              .map((ub) => {
+                if (ub.id === userBook?.id) {
+                  const newUpdatedAt = new Date();
+                  return {
+                    ...ub,
+                    rated: true,
+                    updatedAt: newUpdatedAt.toString(),
+                  };
+                }
+                return ub;
+              });
+
+            const currentlyReadingBooks = updatedUserbooks.filter(
+              (ub) => ub.status === "READING",
+            );
+            const wantToReadBooks = updatedUserbooks.filter(
+              (ub) => ub.status === "WANT_TO_READ",
+            );
+            const finishedBooks = updatedUserbooks.filter(
+              (ub) => ub.status === "FINISHED",
+            );
+            const abandonedBooks = updatedUserbooks.filter(
+              (ub) => ub.status === "ABANDONED",
+            );
+            const favoriteBooks = updatedUserbooks.filter(
+              (ub) => ub.isFavorite,
+            );
+
             return {
-              ...oldData,
+              allUserBooks: updatedUserbooks,
               userRatings: newUserRatings,
+              currentlyReadingBooks,
+              wantToReadBooks,
+              finishedBooks,
+              favoriteBooks,
+              abandonedBooks,
+
             };
           },
         );
@@ -221,6 +262,9 @@ export function ProfileBookCard({
           ["profile", userId],
           context?.previousProfileData,
         );
+      },
+      onSuccess: () => {
+        console.log('terminou agora fi')
       },
       onSettled: () => {
         queryClient.invalidateQueries({
@@ -309,7 +353,12 @@ export function ProfileBookCard({
           categories: book?.categories,
         });
       },
-      onMutate: async ({ status, isFavorite, currentPage }) => {
+      onMutate: async ({
+        status,
+        isFavorite,
+        currentPage,
+        customTotalPage,
+      }) => {
         await queryClient.cancelQueries({ queryKey: ["profile", userId] });
 
         const previousProfileData = queryClient.getQueryData([
@@ -336,6 +385,7 @@ export function ProfileBookCard({
                     status: status ?? ub.status,
                     isFavorite: isFavorite ?? ub.isFavorite,
                     currentPage: currentPage ?? ub.currentPage,
+                    customTotalPage: customTotalPage ?? ub.customTotalPage,
                     updatedAt: newUpdatedAt.toString(),
                   };
                 }

@@ -4,6 +4,7 @@
 import { ReadingStatus } from "@/generated/prisma"
 
 type RatingBookProps = {
+    id: string
     author: string
     title: string
     coverUrl: string
@@ -22,7 +23,7 @@ export type RatingProps = {
     id: string
     rate : number
     review: string
-    book: BookProps
+    book: RatingBookProps
     user: RatingUserProps
     createdAt: string
     updatedAt: string

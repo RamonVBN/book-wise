@@ -38,6 +38,7 @@ import {
 import {
   BooksQueryData,
   BooksResponse,
+  RatingProps,
   RatingQueryData,
 } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
@@ -90,8 +91,9 @@ export function BookDetails({
     return setIsUserRatingOpen(false);
   }
 
-  async function handleRatingSubmit(data: UserRatingSubmitData) {
+  function handleRatingSubmit(data: UserRatingSubmitData) {
     createRatingMutation(data);
+    setIsUserRatingOpen(false);
   }
 
   function findBookById(bookId: string) {
@@ -108,6 +110,8 @@ export function BookDetails({
   }
 
   const book = findBookById(bookId);
+
+  const user = session.data?.user
 
   const { data: translatedBookData } = useQuery<{
     categories: string[];
@@ -154,7 +158,7 @@ export function BookDetails({
     }
   }
 
-  const { data: bookRatings, refetch } = useQuery<RatingQueryData>({
+  const { data: bookRatings } = useQuery<RatingQueryData>({
     queryKey: ["ratings", bookId],
     queryFn: async () => {
       const response = await api.get(`/app/ratings/books/${bookId}`);
@@ -166,7 +170,7 @@ export function BookDetails({
 
   const { mutate: createRatingMutation } = useMutation({
     mutationFn: async (data: UserRatingSubmitData) => {
-      return await api.post(`/app/ratings/users/${session.data?.user.id}`, {
+      return await api.post(`/app/ratings/users/${user?.id}`, {
         rate: data.rate,
         review: data.review,
         bookId: book?.id,
@@ -179,13 +183,18 @@ export function BookDetails({
     },
     onMutate: async (data) => {
       await queryClient.cancelQueries({
-        queryKey: ["books", debouncedQuery, categoriesFilters],
+        queryKey: ["ratings", bookId],
       });
 
+      const previousBookRatings = queryClient.getQueryData([
+        'ratings',
+        bookId
+      ]);
+
       const previousBooks = queryClient.getQueryData([
-        "books",
+        'books',
         debouncedQuery,
-        categoriesFilters,
+        categoriesFilters
       ]);
 
       queryClient.setQueryData<BooksQueryData>(
@@ -217,20 +226,62 @@ export function BookDetails({
         },
       );
 
-      return { previousBooks };
+      queryClient.setQueryData<RatingQueryData>(
+        ['ratings', bookId],
+        (oldData) => {
+          if (!oldData) return oldData;
+          if (!oldData.userStatus) return oldData;
+
+          const newRating: RatingProps = {
+            id: 'new rating cache id',
+            rate: data.rate,
+            review: data.review,
+            book: {
+              id: book!.id,
+              title: book!.title,
+              author: book!.author.join(','),
+              categories: book!.categories.join(','),
+              pageCount: book!.pageCount,
+              coverUrl: book!.coverUrl,
+            },
+            user: user!,
+            createdAt: new Date().toString(),
+            updatedAt: new Date().toString(),
+          }
+          const newBookRatings = [newRating].concat(oldData.ratings)
+          const newUserStatus = {
+            ...oldData.userStatus,
+            rated: true
+          }
+
+          return {
+            ratings: newBookRatings,
+            userStatus: newUserStatus
+          };
+        },
+      );
+
+      return { previousBookRatings, previousBooks };
     },
     onError: (err, __, context) => {
       console.log(err);
+      queryClient.setQueryData(
+        ["ratings", bookId],
+        context?.previousBookRatings,
+      );
       queryClient.setQueryData(
         ["books", debouncedQuery, categoriesFilters],
         context?.previousBooks,
       );
     },
     onSuccess() {
-      setIsUserRatingOpen(false);
-      refetch();
+      console.log('terminou')
     },
     onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ratings", bookId],
+      });
+
       queryClient.invalidateQueries({
         queryKey: ["books", debouncedQuery, categoriesFilters],
       });
