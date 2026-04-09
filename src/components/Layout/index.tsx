@@ -10,7 +10,6 @@ import { ReactNode, useState } from "react";
 
 import { useRouter } from "next/router";
 
-import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { AppTooltip } from "../Tooltip";
 
 
@@ -43,7 +42,7 @@ export default function Layout({children}: {children: ReactNode}){
     }
 
     return (
-    <TooltipProvider delayDuration={250}>
+    
         <AppContainer>
             <MenuContainer>
                 <Image priority width={128} height={32} src={logo} alt=""/>
@@ -111,7 +110,6 @@ export default function Layout({children}: {children: ReactNode}){
                 {children}
             </MainContainer>
         </AppContainer>
-    </TooltipProvider> 
     )
 }
 

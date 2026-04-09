@@ -168,6 +168,7 @@ export const SignInButtonContainer = styled("span", {
   display: "flex",
   gap: "0.25rem",
   alignItems: "center",
+  
 
   marginTop: "auto",
 
@@ -183,6 +184,8 @@ export const SignInButton = styled(Link, {
   display: "flex",
   gap: "0.75rem",
   alignItems: "center",
+
+  transition: "all 0.2s ease-out",
 
   padding: "$2",
   borderRadius: "$full",
@@ -225,6 +228,8 @@ export const SignOutButton = styled("button", {
   all: "unset",
   cursor: "pointer",
 
+  transition: "all 0.2s ease-out",
+  
   display: "flex",
   alignItems: "center",
 

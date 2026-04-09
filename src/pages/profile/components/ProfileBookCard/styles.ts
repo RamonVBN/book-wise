@@ -159,6 +159,8 @@ export const ModalBody = styled("div", {
       height: "3rem",
       boxSizing: "border-box",
 
+     transition: "all 0.2s ease-out",
+
       padding: "0.5rem",
 
       backgroundColor: "$gray700",
