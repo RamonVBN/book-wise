@@ -1,29 +1,40 @@
 import type { AppProps } from "next/app";
 import { globalStyles } from "./globalStyles";
-import {SessionProvider} from 'next-auth/react'
+import { SessionProvider } from "next-auth/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query";
 
 import { DefaultSeo } from "next-seo";
+import { Toaster } from "sonner";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+globalStyles();
 
-globalStyles()
-
-export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
-    <SessionProvider session={session}>
-     
-      <DefaultSeo
-      openGraph={{
-        type: 'website',
-        locale: 'pt_BR',
-        url: 'https://book-wise.ramon.com.br',
-        siteName: 'BookWise',
-      }}
-      />
-      <Component {...pageProps} />
-    
-    </SessionProvider>
+      <SessionProvider session={session}>
+        <DefaultSeo
+          openGraph={{
+            type: "website",
+            locale: "pt_BR",
+            url: "https://book-wise.ramon.com.br",
+            siteName: "BookWise",
+          }}
+        />
+        <Toaster
+          position="top-right"
+          richColors          
+          toastOptions={{
+            duration: 3000,
+          }}
+        />
+        <TooltipProvider delayDuration={250}>
+          <Component {...pageProps} />
+        </TooltipProvider>
+      </SessionProvider>
     </QueryClientProvider>
-  )
+  );
 }

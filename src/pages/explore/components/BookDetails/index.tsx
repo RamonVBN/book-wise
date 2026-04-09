@@ -52,6 +52,8 @@ import { ReadingStatus } from "@/generated/prisma";
 import { FavoriteButton } from "../../../../components/FavoriteButton";
 import { ProviderButton } from "@/components/ProviderButton/styles";
 import { DescripitionText } from "@/components/DescriptionText";
+import { toast } from "sonner";
+import { toastMessages } from "@/lib/toast-messages";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -172,6 +174,8 @@ export function BookDetails({
       });
     },
     onMutate: async (data) => {
+      toast.success(toastMessages.addRating.success);
+
       await queryClient.cancelQueries({
         queryKey: ["ratings", bookId],
       });
@@ -198,8 +202,8 @@ export function BookDetails({
                 const newRatingsSum = book.ratingsSum + data.rate!;
                 const newAvg = newRatingsSum / newRatingsCount;
 
-                const newCacheRatingId = crypto.randomUUID()
-                
+                const newCacheRatingId = crypto.randomUUID();
+
                 const newRating: RatingProps = {
                   id: newCacheRatingId,
                   rate: data.rate,
@@ -217,7 +221,7 @@ export function BookDetails({
                   updatedAt: new Date().toString(),
                 };
 
-                const newBookRatings = [newRating].concat(book.ratings)
+                const newBookRatings = [newRating].concat(book.ratings);
 
                 return {
                   ...book,
@@ -226,162 +230,180 @@ export function BookDetails({
                   ratingsCount: newRatingsCount,
                   userBookInfo: {
                     ...book.userBookInfo!,
-                    rated: true
+                    rated: true,
                   },
-                  ratings: newBookRatings
+                  ratings: newBookRatings,
                 };
               }),
             })),
           };
         },
       );
-      //   ['ratings', bookId],
-      //   (oldData) => {
-      //     if (!oldData) return oldData;
-      //     if (!oldData.userStatus) return oldData;
-
-      //     const newRating: RatingProps = {
-      //       id: 'new rating cache id',
-      //       rate: data.rate,
-      //       review: data.review,
-      //       book: {
-      //         id: book!.id,
-      //         title: book!.title,
-      //         author: book!.author.join(','),
-      //         categories: book!.categories.join(','),
-      //         pageCount: book!.pageCount,
-      //         coverUrl: book!.coverUrl,
-      //       },
-      //       user: user!,
-      //       createdAt: new Date().toString(),
-      //       updatedAt: new Date().toString(),
-      //     }
-      //     const newBookRatings = [newRating].concat(oldData.ratings)
-      //     const newUserStatus = {
-      //       ...oldData.userStatus,
-      //       rated: true
-      //     }
-
-      //     return {
-      //       ratings: newBookRatings,
-      //       userStatus: newUserStatus
-      //     };
-      //   },
-      // );
 
       return { previousBooks };
     },
+    mutationKey: ["createRating"],
     onError: (err, __, context) => {
+      toast.error(toastMessages.addRating.error);
       console.log(err);
-      
       queryClient.setQueryData(
         ["books", debouncedQuery, categoriesFilters],
         context?.previousBooks,
       );
     },
-    onSuccess() {
-      console.log("terminou");
-    },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["ratings", bookId],
+      const isStillMutating = queryClient.isMutating({
+        mutationKey: ["createRating"],
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["books", debouncedQuery, categoriesFilters],
-      });
+      if (isStillMutating === 0) {
+        queryClient.invalidateQueries({
+          queryKey: ["books", debouncedQuery, categoriesFilters],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["profile"],
-      });
+        queryClient.invalidateQueries({
+          queryKey: ["profile", user?.id],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["home"],
-      });
+        queryClient.invalidateQueries({
+          queryKey: ["home"],
+        });
+      }
     },
   });
 
-  const {
-    mutate: updateReadingStatusMutation,
-    isPending: isUpdatingReadingStatus,
-  } = useMutation({
-    mutationFn: async ({
-      status,
-      isFavorite,
-    }: {
-      status?: ReadingStatus;
-      isFavorite?: boolean;
-    }) => {
-      return await api.patch("/app/userBook", {
-        readStatus: status,
-        isFavorite: isFavorite,
-        bookId: book?.id,
-        title: book?.title,
-        author: book?.author.join(","),
-        coverUrl: book?.coverUrl,
-        pageCount: book?.pageCount,
-        categories: book?.categories.join(","),
-      });
-    },
-    onMutate: async ({ status, isFavorite }) => {
+  const { mutate: updateUserBookMutation, isPending: isUpdatingReadingStatus } =
+    useMutation({
+      mutationFn: async ({
+        status,
+        isFavorite,
+      }: {
+        status?: ReadingStatus;
+        isFavorite?: boolean;
+      }) => {
+        return await api.patch("/app/userBook", {
+          readStatus: status,
+          isFavorite: isFavorite,
+          bookId: book?.id,
+          title: book?.title,
+          author: book?.author.join(","),
+          coverUrl: book?.coverUrl,
+          pageCount: book?.pageCount,
+          categories: book?.categories.join(","),
+        });
+      },
+      mutationKey: ["updateUserBook"],
+      onMutate: async ({ status, isFavorite }) => {
+        await queryClient.cancelQueries({
+          queryKey: ["books", debouncedQuery, categoriesFilters],
+        });
 
-      await queryClient.cancelQueries({ queryKey: ["books", debouncedQuery, categoriesFilters] });
+        const previousBooks = queryClient.getQueryData<BooksQueryData>([
+          "books",
+          debouncedQuery,
+          categoriesFilters,
+        ]);
 
-      const previousBooks = queryClient.getQueryData(["books", debouncedQuery, categoriesFilters]);
+        queryClient.setQueryData<BooksQueryData>(
+          ["books", debouncedQuery, categoriesFilters],
+          (oldData) => {
+            if (!oldData) return oldData;
 
-      queryClient.setQueryData<BooksQueryData>(
-        ["books", debouncedQuery, categoriesFilters],
-        (oldData) => {
-          if (!oldData) return oldData;
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((book) => {
+                  if (book.id !== bookId) return book;
 
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              items: page.items.map((book) => {
-                if (book.id !== bookId) return book;
+                  return {
+                    ...book,
+                    userBookInfo: {
+                      ...book.userBookInfo!,
+                      status: status ?? book.userBookInfo!.status,
+                      isFavorite:
+                        isFavorite ?? book.userBookInfo?.isFavorite ?? false,
+                    },
+                  };
+                }),
+              })),
+            };
+          },
+        );
 
-                return {
-                  ...book,
-                  userBookInfo: {
-                    ...book.userBookInfo!,
-                    status: status ?? book.userBookInfo!.status,
-                    isFavorite: isFavorite ?? book.userBookInfo?.isFavorite ?? false
-                  },
-                };
-              }),
-            })),
-          };
-        },
-      );
+        return { previousBooks };
+      },
+      onError: (err, __, context) => {
+        const books = context?.previousBooks;
 
-      return { previousBooks };
-    },
-    onError: (err, __, context) => {
-      console.log(err);
-      queryClient.setQueryData(["books", debouncedQuery, categoriesFilters], context?.previousBooks);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["books", debouncedQuery, categoriesFilters],
-      });
+        const isUserUpdatingBook = books?.pages.some((page) => {
+          return page.items.some((book) => {
+            if (book.id === bookId) {
+              return book.userBookInfo !== null;
+            }
 
-      queryClient.invalidateQueries({
-        queryKey: ["profile"],
-      });
+            return false;
+          });
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["home"],
-      });
-    },
-  });
+        if (isUserUpdatingBook) {
+          toast.error(toastMessages.updateBook.error);
+        } else {
+          toast.error(toastMessages.addBook.error);
+        }
+
+        console.log(err);
+        queryClient.setQueryData(
+          ["books", debouncedQuery, categoriesFilters],
+          context?.previousBooks,
+        );
+      },
+      onSuccess: (_, __, context) => {
+        const books = context.previousBooks;
+
+        const isUserUpdatingBook = books?.pages.some((page) => {
+          return page.items.some((book) => {
+            if (book.id === bookId) {
+              return book.userBookInfo !== null;
+            }
+
+            return false;
+          });
+        });
+
+        if (isUserUpdatingBook) {
+          toast.success(toastMessages.updateBook.success);
+        } else {
+          toast.success(toastMessages.addBook.success);
+        }
+      },
+      onSettled: () => {
+        const isStillMutating = queryClient.isMutating({
+          mutationKey: ["updateUserBook"],
+        });
+
+        if (isStillMutating === 0) {
+          queryClient.invalidateQueries({
+            queryKey: ["books", debouncedQuery, categoriesFilters],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: ["profile", user?.id],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: ["home"],
+          });
+        }
+      },
+    });
 
   function handleSelectOpenChange(isOpen: boolean) {
     setIsSelectOpen(!isOpen);
   }
 
   function onSelectChange(status: ReadingStatus) {
-    updateReadingStatusMutation({ status });
+    updateUserBookMutation({ status });
     return;
   }
 
@@ -390,7 +412,7 @@ export function BookDetails({
       return setIsModalOpen(true);
     }
 
-    updateReadingStatusMutation({ isFavorite });
+    updateUserBookMutation({ isFavorite });
     return;
   }
 
@@ -398,13 +420,11 @@ export function BookDetails({
     setIsModalOpen(true);
   }
 
-  const bookStatus =
-    book?.userBookInfo?.status 
+  const bookStatus = book?.userBookInfo?.status;
 
-  const isFavoriteBook =
-    book?.userBookInfo?.isFavorite ?? false
-  
-  const rated = book?.userBookInfo?.rated
+  const isFavoriteBook = book?.userBookInfo?.isFavorite ?? false;
+
+  const rated = book?.userBookInfo?.rated;
 
   const ratings = book?.ratings;
 
