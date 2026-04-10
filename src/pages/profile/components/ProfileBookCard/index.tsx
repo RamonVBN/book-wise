@@ -164,10 +164,11 @@ export function ProfileBookCard({
           context?.previousProfileData,
         );
       },
-      onSettled: () => {
-        const isStillMutating = queryClient.isMutating({
-          mutationKey: ["updateRating"],
-        });
+      onSuccess: () => {
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["updateRating"],
+          }) - 1;
 
         if (isStillMutating === 0) {
           queryClient.invalidateQueries({
@@ -286,10 +287,11 @@ export function ProfileBookCard({
           context?.previousProfileData,
         );
       },
-      onSettled: () => {
-        const isStillMutating = queryClient.isMutating({
-          mutationKey: ["createRating"],
-        });
+      onSuccess: () => {
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["createRating"],
+          }) - 1;
 
         if (isStillMutating === 0) {
           queryClient.invalidateQueries({
@@ -359,10 +361,11 @@ export function ProfileBookCard({
         context?.previousProfileData,
       );
     },
-    onSettled: () => {
-      const isStillMutating = queryClient.isMutating({
-        mutationKey: ["deleteRating"],
-      });
+    onSuccess: () => {
+      const isStillMutating =
+        queryClient.isMutating({
+          mutationKey: ["deleteRating"],
+        }) - 1;
 
       if (isStillMutating === 0) {
         queryClient.invalidateQueries({
@@ -424,58 +427,6 @@ export function ProfileBookCard({
           "profile",
           userId,
         ]);
-        //   ["profile", userId],
-        //   (oldData) => {
-        //     if (!oldData) return oldData;
-
-        //     const updatedProfileData = oldData.abandonedBooks
-        //       .concat(
-        //         oldData.currentlyReadingBooks,
-        //         oldData.finishedBooks,
-        //         oldData.wantToReadBooks,
-        //       )
-        //       .map((ub) => {
-        //         if (ub.id === userBook?.id) {
-        //           const newUpdatedAt = new Date();
-        //           const totalPages = customTotalPage ? customTotalPage : (ub.customTotalPage ?? ub.book.pageCount)
-        //           return {
-        //             ...ub,
-        //             status: totalPages === currentPage ? 'FINISHED' : (status ?? ub.status),
-        //             isFavorite: isFavorite ?? ub.isFavorite,
-        //             currentPage: currentPage ?? (status === 'FINISHED' ? totalPages : ub.currentPage),
-        //             customTotalPage: customTotalPage ?? ub.customTotalPage,
-        //             updatedAt: newUpdatedAt.toString(),
-        //           };
-        //         }
-        //         return ub;
-        //       });
-
-        //     const currentlyReadingBooks = updatedProfileData.filter(
-        //       (ub) => ub.status === "READING",
-        //     );
-        //     const wantToReadBooks = updatedProfileData.filter(
-        //       (ub) => ub.status === "WANT_TO_READ",
-        //     );
-        //     const finishedBooks = updatedProfileData.filter(
-        //       (ub) => ub.status === "FINISHED",
-        //     );
-        //     const abandonedBooks = updatedProfileData.filter(
-        //       (ub) => ub.status === "ABANDONED",
-        //     );
-        //     const favoriteBooks = updatedProfileData.filter(
-        //       (ub) => ub.isFavorite,
-        //     );
-
-        //     return {
-        //       ...oldData,
-        //       currentlyReadingBooks,
-        //       wantToReadBooks,
-        //       finishedBooks,
-        //       abandonedBooks,
-        //       favoriteBooks,
-        //     };
-        //   },
-        // );
 
         queryClient.setQueryData<ProfileResponse>(
           ["profile", userId],
@@ -557,11 +508,11 @@ export function ProfileBookCard({
         if ((!status && isFavorite) || currentPage) {
           toast.success(toastMessages.updateBook.success);
         }
-      },
-      onSettled: async () => {
-        const isStillMutating = queryClient.isMutating({
-          mutationKey: ["updateUserBook"],
-        });
+
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["updateUserBook"],
+          }) - 1;
 
         if (isStillMutating === 0) {
           queryClient.invalidateQueries({
@@ -570,6 +521,7 @@ export function ProfileBookCard({
 
           queryClient.invalidateQueries({
             queryKey: ["books"],
+            refetchType: "all",
           });
 
           queryClient.invalidateQueries({
@@ -642,10 +594,11 @@ export function ProfileBookCard({
         context?.previousProfileData,
       );
     },
-    onSettled: () => {
-      const isStillMutating = queryClient.isMutating({
-        mutationKey: ["deleteUserBook"],
-      });
+    onSuccess: () => {
+      const isStillMutating =
+        queryClient.isMutating({
+          mutationKey: ["deleteUserBook"],
+        }) - 1;
 
       if (isStillMutating === 0) {
         queryClient.invalidateQueries({

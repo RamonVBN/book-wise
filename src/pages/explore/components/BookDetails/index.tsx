@@ -251,10 +251,11 @@ export function BookDetails({
         context?.previousBooks,
       );
     },
-    onSettled: () => {
-      const isStillMutating = queryClient.isMutating({
-        mutationKey: ["createRating"],
-      });
+    onSuccess: () => {
+      const isStillMutating =
+        queryClient.isMutating({
+          mutationKey: ["createRating"],
+        }) - 1;
 
       if (isStillMutating === 0) {
         queryClient.invalidateQueries({
@@ -376,11 +377,11 @@ export function BookDetails({
         } else {
           toast.success(toastMessages.addBook.success);
         }
-      },
-      onSettled: () => {
-        const isStillMutating = queryClient.isMutating({
-          mutationKey: ["updateUserBook"],
-        });
+
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["updateUserBook"],
+          }) - 1;
 
         if (isStillMutating === 0) {
           queryClient.invalidateQueries({
