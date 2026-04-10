@@ -73,6 +73,7 @@ export default function Explore() {
     typeof router.query.category === "string"
       ? router.query.category.split(" ")
       : [];
+
   const { register, watch, setFocus, reset, handleSubmit, setValue } =
     useForm<ExploreFormType>({
       resolver: zodResolver(exploreFormSchema),
@@ -103,10 +104,18 @@ export default function Explore() {
   }
 
   function onSubmit({ search }: ExploreFormType) {
-    router.replace({
-      pathname: "/explore",
-      query: search ? { q: search } : {},
-    });
+
+    if (search.trim().length > 0) {
+
+      router.replace({
+        pathname: "/explore",
+        query: search ? { q: search } : {},
+      });
+
+      return
+    }
+
+    return
   }
 
   function handleCategoriesFilters(categoryName: string) {
@@ -235,7 +244,8 @@ export default function Explore() {
     if (!router.isReady) return;
 
     const hasSearch = typeof router.query.q === "string";
-    const hasCategory = typeof router.query.category === "string";
+    const hasCategory = typeof router.query.category === "string" &&
+    router.query.category.length > 0
 
     if (!hasSearch && !hasCategory) {
       router.replace({
