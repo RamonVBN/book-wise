@@ -48,7 +48,7 @@ import { BookAlert, Bookmark, Heart, StarIcon } from "lucide-react";
 import Link from "next/link";
 
 const profileFormSchema = z.object({
-  ratedBook: z.string().min(1),
+  searchBook: z.string().min(1),
 });
 
 type ProfileFormData = z.infer<typeof profileFormSchema>;
@@ -101,15 +101,21 @@ export default function Profile() {
 
   const router = useRouter();
 
-  const { register, handleSubmit, setFocus, reset, watch } =
-    useForm<ProfileFormData>();
+  const { register, handleSubmit, setFocus, reset, watch} =
+    useForm<ProfileFormData>({
+      defaultValues: {
+        searchBook: ""
+      }
+    });
 
-  const [profileCategory, setProfileCategory] =
-    useState<keyof Categories>("allUserBooks");
+    const profileFilter =
+    typeof router.query.filter === "string"
+      ? router.query.filter
+      : "";
 
   function onSubmit() {
     reset();
-    setFocus("ratedBook");
+    setFocus("searchBook");
   }
 
   async function handlePossibleRedirect() {
@@ -117,7 +123,10 @@ export default function Profile() {
   }
 
   function handleProfileCategories(categoryName: keyof Categories) {
-    setProfileCategory(categoryName);
+    router.replace({
+        pathname: "/profile",
+        query: { filter: categoryName},
+      });
   }
 
   const userId = session.data?.user.id;
@@ -198,12 +207,12 @@ export default function Profile() {
   };
 
   const booksByInput =
-    categories[profileCategory].items?.filter((userBook) =>
+    categories[profileFilter as keyof Categories]?.items?.filter((userBook) =>
       userBook.book.title
         .toLowerCase()
         .trim()
         .includes(
-          watch("ratedBook") ? watch("ratedBook").trim().toLowerCase() : "",
+          watch("searchBook") ? watch("searchBook").trim().toLowerCase() : "",
         ),
     ) ?? [];
 
@@ -272,6 +281,19 @@ export default function Profile() {
       }, []);
   }, [profileData]);
 
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const hasFilter = typeof router.query.filter === "string"
+
+    if (!hasFilter) {
+      router.replace({
+        pathname: "/profile",
+        query: { filter: "allUserBooks" },
+      });
+    }
+  }, [router.isReady, profileFilter]);
+
   if (session.status === "unauthenticated") {
     handlePossibleRedirect();
   }
@@ -295,7 +317,7 @@ export default function Profile() {
                       <ProfileCategory
                         status={categories[categoryKey].iconColor}
                         onClick={() => handleProfileCategories(categoryKey)}
-                        isActive={profileCategory === categoryKey}
+                        isActive={profileFilter === categoryKey}
                         key={categoryKey}
                       >
                         <span>
@@ -327,7 +349,7 @@ export default function Profile() {
                     <ProfileForm onSubmit={handleSubmit(onSubmit)}>
                       <label>
                         <ProfileInput
-                          {...register("ratedBook")}
+                          {...register("searchBook")}
                           placeholder="Buscar livro"
                         />
                       </label>
@@ -346,10 +368,10 @@ export default function Profile() {
                           return (
                             <ProfileBookCard
                               isFavoriteList={
-                                profileCategory === "favoriteBooks"
+                                profileFilter === "favoriteBooks"
                               }
                               isAllUserBooks={
-                                profileCategory === "allUserBooks"
+                                profileFilter === "allUserBooks"
                               }
                               key={b.id}
                               userBook={b}
