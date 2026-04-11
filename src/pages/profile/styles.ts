@@ -261,10 +261,6 @@ export const ProfileCategoriesContainer = styled("div", {
   display: "flex",
   flexDirection: "column",
   gap: "0.75rem",
-  padding: "1rem 1.5rem 1rem 0.75rem",
-  border: "1px solid $gray600",
-  borderRadius: "$lg",
-  height: "max-content",
 });
 
 export const ProfileCategory = styled("button", {
@@ -280,6 +276,11 @@ export const ProfileCategory = styled("button", {
   fontWeight: "$regular",
   lineHeight: "$base",
   color: "$gray200",
+
+  border: "1px solid $gray600",
+  borderRadius: "$lg",
+
+  padding: '0.5rem 1.25rem 0.5rem 0.5rem',
 
   span: {
     display: "flex",
