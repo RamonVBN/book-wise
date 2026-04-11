@@ -55,7 +55,7 @@ export default function Layout({children}: {children: ReactNode}){
                                 Início
                             </span>
                             </NavButton>
-                        <NavButton prefetch isActive={router.pathname.includes(navigation[1].buttonName)} href={'/explore'}>
+                        <NavButton prefetch isActive={router.pathname.includes(navigation[1].buttonName)} href={'/explore?category=Fiction'}>
                             <span>
                                 <Binoculars size={24} />
                                 Explorar
@@ -65,7 +65,7 @@ export default function Layout({children}: {children: ReactNode}){
 
                         {
                             isSigned && (
-                        <NavButton prefetch isActive={router.pathname.includes(navigation[2].buttonName)} href={'/profile'}>
+                        <NavButton prefetch isActive={router.pathname.includes(navigation[2].buttonName)} href={'/profile?filter=allUserBooks'}>
                             <span>
                                 <User size={24} />
                                 Perfil

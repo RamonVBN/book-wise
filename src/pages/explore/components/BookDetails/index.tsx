@@ -39,7 +39,6 @@ import {
   BooksQueryData,
   BooksResponse,
   RatingProps,
-  RatingQueryData,
 } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import {
@@ -115,8 +114,6 @@ export function BookDetails({
   }
 
   const book = findBookById(bookId);
-
-  console.log(book?.coverUrl);
 
   const user = session.data?.user;
 

@@ -1,5 +1,6 @@
 import { BookProps, BookStats } from "@/@types/query-types";
 import { prisma } from "@/lib/prisma";
+import { getBestBookCover } from "@/utils/getBestBookCover";
 
 interface GetExploreBooks {
   userId?: string;
@@ -7,7 +8,7 @@ interface GetExploreBooks {
 }
 
 export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
-  const books: BookProps[] =
+  const books: BookProps[] =  await Promise.all(
     (googleData ?? [])
       ?.filter(
         (book: any) =>
@@ -16,8 +17,8 @@ export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
           book.volumeInfo.imageLinks &&
           book.volumeInfo.pageCount > 0,
       )
-      .map((book: any) => {
-        const coverUrl =
+      .map(async (book: any) => {
+        const googleCoverUrl =
           book.volumeInfo.imageLinks.extraLarge ||
           book.volumeInfo.imageLinks.large ||
           book.volumeInfo.imageLinks.medium ||
@@ -25,16 +26,18 @@ export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
           book.volumeInfo.imageLinks.thumbnail ||
           book.volumeInfo.imageLinks.smallThumbnail;
 
+          const coverUrl = await getBestBookCover({googleCover: googleCoverUrl, industryIdentifiers: book.volumeInfo.industryIdentifiers})
+
         return {
           id: book.id,
           title: book.volumeInfo.title,
           author: book.volumeInfo.authors ?? [],
           description: book.volumeInfo.description ?? null,
-          coverUrl: coverUrl.replace("&edge=curl", "") ?? null,
+          coverUrl: coverUrl ?? null,
           pageCount: book.volumeInfo.pageCount,
           categories: book.volumeInfo.categories ?? [],
         };
-      }) ?? [];
+      })) ?? [];
 
   const googleIds = books.map((book: { id: string }) => book.id);
 
