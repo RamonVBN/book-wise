@@ -301,7 +301,7 @@ export const PopBookDescription = styled('div', {
 
 })
 
-export const LastReadContainer = styled('div', {
+export const LastActivityContainer = styled('div', {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
@@ -309,7 +309,7 @@ export const LastReadContainer = styled('div', {
     width: '100%',
 })
 
-export const LastReadHeader = styled('div', {
+export const LastActivityHeader = styled('div', {
 
     width: '100%',
 
@@ -325,7 +325,7 @@ export const LastReadHeader = styled('div', {
 
 })
 
-export const LastReadBody = styled(Link, {
+export const LastActivityBody = styled(Link, {
     all: 'unset',
     cursor: 'pointer',
     boxSizing: 'border-box',
@@ -344,7 +344,7 @@ export const LastReadBody = styled(Link, {
     img: {
         height: '9.5rem',
         width: '6.75rem',
-        borderRadius: '4px',
+        borderRadius: '6px',
     },
 
     '&:hover': {
@@ -353,7 +353,7 @@ export const LastReadBody = styled(Link, {
 
 })
 
-export const LastReadContent = styled('div', {
+export const LastActivityContent = styled('div', {
 
     display: 'flex',
     flexDirection: 'column',

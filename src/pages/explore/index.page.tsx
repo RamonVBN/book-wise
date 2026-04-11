@@ -171,6 +171,8 @@ export default function Explore() {
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
       );
 
+      console.log(googleResponse)
+
       const exploreBooksResponse = await api.post(`/app/books`, {
         googleData: googleResponse.data.items,
       });
@@ -255,6 +257,7 @@ export default function Explore() {
     }
   }, [router.isReady, searchTerm, urlCategory]);
 
+
   return (
     <>
       <NextSeo
@@ -262,14 +265,15 @@ export default function Explore() {
         description="Explore o mundo dos livros junto conosco!"
       />
       <Layout>
-        {isBookDetailsOpen && (
+        
           <BookDetails
-            debouncedQuery={debouncedSearch}
-            categoriesFilters={urlCategory.join(",")}
+            isOpen={isBookDetailsOpen && !!bookDetailsId}
+            searchTerm={searchTerm}
+            categoriesFilters={[...urlCategory].sort().join(",")}
             bookId={bookDetailsId}
             closeBookDetails={handleCloseBookDetails}
           />
-        )}
+      
         <ExploreContainer onScroll={handleScroll} ref={exploreContainerRef}>
           <ExploreHeader>
             <PageHeader>

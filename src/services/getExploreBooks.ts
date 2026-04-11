@@ -3,35 +3,37 @@ import { prisma } from "@/lib/prisma";
 
 interface GetExploreBooks {
   userId?: string;
-  googleData: any
+  googleData: any;
 }
 
-export async function getExploreBooks({
-  userId,
-  googleData
-}: GetExploreBooks) {
-
+export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
   const books: BookProps[] =
     (googleData ?? [])
       ?.filter(
         (book: any) =>
           book.volumeInfo &&
           book.volumeInfo.categories &&
-          book.volumeInfo.imageLinks?.thumbnail &&
+          book.volumeInfo.imageLinks &&
           book.volumeInfo.pageCount > 0,
       )
       .map((book: any) => {
+        const coverUrl =
+          book.volumeInfo.imageLinks.extraLarge ||
+          book.volumeInfo.imageLinks.large ||
+          book.volumeInfo.imageLinks.medium ||
+          book.volumeInfo.imageLinks.small ||
+          book.volumeInfo.imageLinks.thumbnail ||
+          book.volumeInfo.imageLinks.smallThumbnail;
 
         return {
-
           id: book.id,
           title: book.volumeInfo.title,
           author: book.volumeInfo.authors ?? [],
           description: book.volumeInfo.description ?? null,
-          coverUrl: book.volumeInfo.imageLinks?.thumbnail ?? null,
+          coverUrl: coverUrl.replace("&edge=curl", "") ?? null,
           pageCount: book.volumeInfo.pageCount,
-          categories: book.volumeInfo.categories  ?? [],
-        }
+          categories: book.volumeInfo.categories ?? [],
+        };
       }) ?? [];
 
   const googleIds = books.map((book: { id: string }) => book.id);
@@ -53,8 +55,8 @@ export async function getExploreBooks({
           userId,
         },
         include: {
-          user: true
-        }
+          user: true,
+        },
       },
     },
   });
@@ -62,7 +64,8 @@ export async function getExploreBooks({
   const booksMap: Record<string, BookStats> = {};
 
   dbBooks.forEach((dbBook: any) => {
-    const userBook = dbBook.userBooks.find((ub: any) => ub.userId === userId) ?? null;
+    const userBook =
+      dbBook.userBooks.find((ub: any) => ub.userId === userId) ?? null;
 
     booksMap[dbBook.id] = {
       avgRating: dbBook.avgRating,
@@ -72,8 +75,8 @@ export async function getExploreBooks({
       userBookInfo: {
         status: userBook?.status,
         isFavorite: userBook?.isFavorite,
-        rated: userBook?.rated
-      } 
+        rated: userBook?.rated,
+      },
     };
   });
 
@@ -96,8 +99,6 @@ export async function getExploreBooks({
       userBookInfo: stats?.userBookInfo ?? null,
     };
   });
-
-  console.log(result)
 
   return result;
 }

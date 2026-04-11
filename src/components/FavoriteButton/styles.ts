@@ -24,6 +24,6 @@ export const FavoriteButtonComponent = styled("button", {
   svg: {
     width: "1.5rem",
     height: "1.5rem",
-    color: "$green100",
+    color: "$pink100",
   },
 });

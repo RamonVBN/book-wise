@@ -260,7 +260,7 @@ export const ProfileCategoriesContainer = styled("div", {
   marginTop: '7.1rem',
   display: "flex",
   flexDirection: "column",
-  gap: "0.75rem",
+  gap: "2.25rem",
 });
 
 export const ProfileCategory = styled("button", {
@@ -341,12 +341,12 @@ export const ProfileCategory = styled("button", {
           color: "$purple100",
           fill: "$purple100",
         },
-      },
+      },  
 
       FAVORITES: {
         svg: {
-          color: "$green100",
-          fill: "$green100",
+          color: "$pink100",
+          fill: "$pink100",
         },
       },
 

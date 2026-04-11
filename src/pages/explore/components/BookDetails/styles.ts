@@ -10,7 +10,19 @@ export const BookDetailsOverlay = styled("div", {
   width: "100vw",
   height: "100vh",
 
-  backgroundColor: "rgba(0, 0, 0, 0.6)",
+  pointerEvents: "none",
+  backgroundColor: "rgba(0,0,0,0)",
+  transition: "background-color 200ms ease-out",
+
+  variants: {
+    open: {
+      true: {
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        transform: "translateX(0)",
+        pointerEvents: "all",
+      },
+    }
+  }
 });
 
 export const BookDetailsContainer = styled("div", {
@@ -18,6 +30,13 @@ export const BookDetailsContainer = styled("div", {
   width: "41.25rem",
 
   backgroundColor: "$gray800",
+
+  position: "fixed",
+  top: 0,
+  right: 0,
+
+  transform: "translateX(100%)",
+  transition: "transform 250ms ease-out",
 
   boxShadow: `
   0px 10px 38px rgba(0, 0, 0, 0.45),
@@ -29,6 +48,14 @@ export const BookDetailsContainer = styled("div", {
   display: "flex",
   gap: "1rem",
   flexDirection: "column",
+
+  variants: {
+    open: {
+      true: {
+        transform: "translateX(0)",
+      }
+    }
+  }
 });
 
 export const BookDetailsModalBody = styled("div", {
@@ -86,9 +113,11 @@ export const BookInfoBody = styled("div", {
   gap: "2rem",
 
   img: {
-    height: "100%",
+    height: "15.125rem",
     width: "10.75rem",
     borderRadius: "10px",
+    objectFit: 'cover',
+    flexShrink: 0,
   },
 
   div: {
@@ -106,10 +135,10 @@ export const BookInfoBody = styled("div", {
         fontSize: "1.125rem",
         lineHeight: "$short",
         color: "$gray100",
-        display: "-webkit-box",
-        WebkitLineClamp: 2,
-        WebkitBoxOrient: "vertical",
-        overflow: "hidden",
+        // display: "-webkit-box",
+        // WebkitLineClamp: 2,
+        // WebkitBoxOrient: "vertical",
+        // overflow: "hidden",
       },
 
       span: {

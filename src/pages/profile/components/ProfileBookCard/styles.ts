@@ -47,6 +47,9 @@ export const ProfileBookInfo = styled("div", {
   img: {
     width: "6.125rem",
     height: "8.375rem",
+    objectFit: 'cover',
+    borderRadius: '6px',
+    flexShrink: 0,
   },
 
   div: {
@@ -121,6 +124,16 @@ export const ProfileBookButton = styled("button", {
         opacity: 0.5,
       },
     },
+
+    isRating: {
+      true: {
+        svg: {
+          color: "$purple100",
+          width: "1.5rem",
+          height: "1.5rem",
+        },
+      },
+    },
   },
 });
 
@@ -159,7 +172,7 @@ export const ModalBody = styled("div", {
       height: "3rem",
       boxSizing: "border-box",
 
-     transition: "all 0.2s ease-out",
+      transition: "all 0.2s ease-out",
 
       padding: "0.5rem",
 

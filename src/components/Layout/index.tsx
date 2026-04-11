@@ -45,7 +45,7 @@ export default function Layout({children}: {children: ReactNode}){
     
         <AppContainer>
             <MenuContainer>
-                <Image priority width={128} height={32} src={logo} alt=""/>
+                <Image priority quality={100} width={128} height={32} src={logo} alt=""/>
                 <MenuNavigation>
 
                     <div>

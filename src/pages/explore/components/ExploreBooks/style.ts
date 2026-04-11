@@ -41,9 +41,11 @@ export const ExploreBook = styled('button', {
     },
 
     img: {
-        borderRadius: '0.25rem',
-        height: 'auto',
-        width: 'auto',
+        borderRadius: '8px',
+        height: '9.5rem',
+        width: '6.75rem',
+        objectFit: 'cover',
+        flexShrink: 0,
     },
 
     div: {

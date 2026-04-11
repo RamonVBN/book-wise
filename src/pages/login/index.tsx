@@ -49,7 +49,11 @@ export default function Login(){
             <ImageContainer>
                
                 <LogoFilter>
-                    <Image src={logo} alt="" />
+                    <Image
+                    priority
+                    quality={100}
+                    src={logo} 
+                    alt="" />
                 </LogoFilter>
                 
             </ImageContainer>

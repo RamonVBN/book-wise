@@ -8,10 +8,10 @@ import {
   BooksRatingsContainer,
   Container,
   HomeContainer,
-  LastReadBody,
-  LastReadContainer,
-  LastReadContent,
-  LastReadHeader,
+  LastActivityBody,
+  LastActivityContainer,
+  LastActivityContent,
+  LastActivityHeader,
   PopBookContainer,
   PopBookBody,
   PopBook,
@@ -40,6 +40,7 @@ import Image from "next/image";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { Flame } from "lucide-react";
 import { DescripitionText } from "@/components/DescriptionText";
+import { BookCover } from "@/components/BookCover";
 
 export default function Home() {
   const session = useSession();
@@ -74,22 +75,23 @@ export default function Home() {
               <HomeContainer>
                 <ContentContainer>
                   {isSigned && homeData?.lastUserActivity && (
-                    <LastReadContainer>
-                      <LastReadHeader>
+                    <LastActivityContainer>
+                      <LastActivityHeader>
                         <span>Sua última atividade</span>
                         <LinkButton prefetch href={"/profile"}>
                           Ver todas
                           <CaretRight />
                         </LinkButton>
-                      </LastReadHeader>
-                      <LastReadBody prefetch href={"/profile"}>
-                        <Image
-                          width={108}
-                          height={152}
-                          src={homeData.lastUserActivity.book.coverUrl}
-                          alt=""
-                        />
-                        <LastReadContent>
+                      </LastActivityHeader>
+                      <LastActivityBody prefetch href={"/profile"}>
+                          {/* <Image
+                            width={108}
+                            height={152}
+                            src={homeData.lastUserActivity.book.coverUrl}
+                            alt=""
+                          /> */}
+                          <BookCover key={homeData.lastUserActivity.book.id} width={108} height={152} sizes="108px" priority src={homeData.lastUserActivity.book.coverUrl}/>
+                        <LastActivityContent>
                           <div>
                             <div>
                               <span>
@@ -126,9 +128,9 @@ export default function Home() {
                               description={homeData.lastUserActivity.review}
                             />
                           ) : null}
-                        </LastReadContent>
-                      </LastReadBody>
-                    </LastReadContainer>
+                        </LastActivityContent>
+                      </LastActivityBody>
+                    </LastActivityContainer>
                   )}
 
                   <BooksRatingsContainer>
@@ -166,12 +168,13 @@ export default function Home() {
                               </Rating>
                             </BookRatingUserContainer>
                             <BookRatingBody>
-                              <Image
-                                width={108}
-                                height={152}
-                                src={rating.book.coverUrl}
-                                alt=""
-                              />
+                                {/* <Image
+                                  width={108}
+                                  height={152}
+                                  src={rating.book.coverUrl}
+                                  alt=""
+                                /> */}
+                                <BookCover key={rating.id} width={108} height={152} sizes="108px" priority src={rating.book.coverUrl}/>
                               <BookRatingDescription>
                                 <span>
                                   <h2>{rating.book.title}</h2>
@@ -205,12 +208,13 @@ export default function Home() {
                       homeData.popularBooks.map((book) => {
                         return (
                           <PopBook key={book.id}>
-                            <Image
+                            {/* <Image
                               width={64}
                               height={94}
                               src={book.coverUrl}
                               alt=""
-                            />
+                            /> */}
+                            <BookCover key={book.id} width={64} height={94} src={book.coverUrl} priority sizes="64px"/>
                             <PopBookDescription>
                               <span>
                                 <h2>{formatBookName(book.title)}</h2>

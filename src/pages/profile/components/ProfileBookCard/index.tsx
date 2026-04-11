@@ -37,6 +37,7 @@ import { AppTooltip } from "@/components/Tooltip";
 import { toast } from "sonner";
 import { toastMessages } from "@/lib/toast-messages";
 import { compareDesc } from "date-fns";
+import { BookCover } from "@/components/BookCover";
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
@@ -692,7 +693,24 @@ export function ProfileBookCard({
           <div>
             <ProfileBookInfo>
               {book && (
-                <Image width={98} height={134} src={book?.coverUrl} alt="" />
+                // <Image
+                // key={book.id}
+                // width={98}
+                // height={134}
+                // quality={100}
+                // sizes="98px"
+                // priority
+                // src={book?.coverUrl}
+                // alt="" />
+
+                <BookCover
+                  key={book.id}
+                  width={98}
+                  height={134}
+                  sizes="98px"
+                  src={book.coverUrl}
+                  priority
+                />
               )}
               <div>
                 <span>

@@ -54,19 +54,22 @@ import { ProviderButton } from "@/components/ProviderButton/styles";
 import { DescripitionText } from "@/components/DescriptionText";
 import { toast } from "sonner";
 import { toastMessages } from "@/lib/toast-messages";
+import { BookCover } from "../../../../components/BookCover";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
   bookId: string;
-  debouncedQuery: string;
+  searchTerm: string;
   categoriesFilters: string;
+  isOpen: boolean;
 };
 
 export function BookDetails({
   closeBookDetails,
   bookId,
-  debouncedQuery,
+  searchTerm,
   categoriesFilters,
+  isOpen,
 }: BookDetailsProps) {
   const queryClient = useQueryClient();
 
@@ -100,7 +103,7 @@ export function BookDetails({
 
   function findBookById(bookId: string) {
     const queries = queryClient.getQueriesData<InfiniteData<BooksResponse>>({
-      queryKey: ["books", debouncedQuery, categoriesFilters],
+      queryKey: ["books", searchTerm, categoriesFilters],
     });
 
     const book = queries
@@ -112,6 +115,8 @@ export function BookDetails({
   }
 
   const book = findBookById(bookId);
+
+  console.log(book?.coverUrl);
 
   const user = session.data?.user;
 
@@ -182,12 +187,12 @@ export function BookDetails({
 
       const previousBooks = queryClient.getQueryData([
         "books",
-        debouncedQuery,
+        searchTerm,
         categoriesFilters,
       ]);
 
       queryClient.setQueryData<BooksQueryData>(
-        ["books", debouncedQuery, categoriesFilters],
+        ["books", searchTerm, categoriesFilters],
         (oldData) => {
           if (!oldData) return oldData;
 
@@ -247,7 +252,7 @@ export function BookDetails({
       toast.error(toastMessages.addRating.error);
       console.log(err);
       queryClient.setQueryData(
-        ["books", debouncedQuery, categoriesFilters],
+        ["books", searchTerm, categoriesFilters],
         context?.previousBooks,
       );
     },
@@ -259,7 +264,7 @@ export function BookDetails({
 
       if (isStillMutating === 0) {
         queryClient.invalidateQueries({
-          queryKey: ["books", debouncedQuery, categoriesFilters],
+          queryKey: ["books", searchTerm, categoriesFilters],
         });
 
         queryClient.invalidateQueries({
@@ -296,17 +301,17 @@ export function BookDetails({
       mutationKey: ["updateUserBook"],
       onMutate: async ({ status, isFavorite }) => {
         await queryClient.cancelQueries({
-          queryKey: ["books", debouncedQuery, categoriesFilters],
+          queryKey: ["books", searchTerm, categoriesFilters],
         });
 
         const previousBooks = queryClient.getQueryData<BooksQueryData>([
           "books",
-          debouncedQuery,
+          searchTerm,
           categoriesFilters,
         ]);
 
         queryClient.setQueryData<BooksQueryData>(
-          ["books", debouncedQuery, categoriesFilters],
+          ["books", searchTerm, categoriesFilters],
           (oldData) => {
             if (!oldData) return oldData;
 
@@ -355,7 +360,7 @@ export function BookDetails({
 
         console.log(err);
         queryClient.setQueryData(
-          ["books", debouncedQuery, categoriesFilters],
+          ["books", searchTerm, categoriesFilters],
           context?.previousBooks,
         );
       },
@@ -385,7 +390,7 @@ export function BookDetails({
 
         if (isStillMutating === 0) {
           queryClient.invalidateQueries({
-            queryKey: ["books", debouncedQuery, categoriesFilters],
+            queryKey: ["books", searchTerm, categoriesFilters],
           });
 
           queryClient.invalidateQueries({
@@ -433,10 +438,6 @@ export function BookDetails({
     bookDetailsContainerRef.current?.focus();
   }, []);
 
-  if (!book) {
-    return;
-  }
-
   return (
     <>
       {isModalOpen && (
@@ -461,10 +462,14 @@ export function BookDetails({
         </Modal>
       )}
 
-      <BookDetailsOverlay onPointerDown={(e) => handleClickOutside(e)}>
+      <BookDetailsOverlay
+        open={isOpen}
+        onKeyDown={(e) => handleEsc(e)}
+        onPointerDown={(e) => handleClickOutside(e)}
+      >
         <BookDetailsContainer
+          open={isOpen}
           tabIndex={-1}
-          onKeyDown={(e) => handleEsc(e)}
           ref={bookDetailsContainerRef}
         >
           <CloseButton onClick={closeBookDetails}>
@@ -473,14 +478,26 @@ export function BookDetails({
           <BookDetailsBody>
             <BookInfo>
               <BookInfoBody>
-                <Image
-                  loading="eager"
-                  quality={100}
-                  width={171.65}
-                  height={242}
-                  src={book.coverUrl}
-                  alt=""
-                />
+                {book?.coverUrl && (
+                  //     <Image
+                  //   key={bookId}
+                  //   quality={100}
+                  //   width={172}
+                  //   height={242}
+                  //   sizes="172px"
+                  //   priority
+                  //   src={book.coverUrl}
+                  //   alt=""
+                  // />
+                  <BookCover
+                    width={172}
+                    height={242}
+                    src={book.coverUrl}
+                    key={book.id}
+                    priority
+                    sizes="172px"
+                  />
+                )}
                 <div>
                   <span>
                     <h2>{book?.title}</h2>
@@ -488,11 +505,11 @@ export function BookDetails({
                   </span>
                   <span>
                     <span>
-                      <StarRating param={book.avgRating} />
+                      <StarRating param={book?.avgRating ?? 0} />
                     </span>
                     <span>
-                      {book.ratingsCount}{" "}
-                      {book.ratingsCount === 1 ? "avaliação" : "avaliações"}
+                      {book?.ratingsCount}{" "}
+                      {book?.ratingsCount === 1 ? "avaliação" : "avaliações"}
                     </span>
                   </span>
                 </div>
@@ -549,9 +566,9 @@ export function BookDetails({
                 <BookDescription style={{ fontSize: "14px" }}>
                   <DescripitionText
                     description={
-                      translatedBookData?.description
+                      (translatedBookData?.description
                         ? translatedBookData.description
-                        : book.description
+                        : book?.description) ?? ""
                     }
                   />
                 </BookDescription>

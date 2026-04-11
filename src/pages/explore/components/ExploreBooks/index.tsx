@@ -4,6 +4,7 @@ import React from "react";
 import { StarRating } from "@/components/StarsRating";
 import { ExploreBooksProps } from "@/@types/query-types";
 import { BooksStatusFlag } from "../../../../components/BooksStatusFlag";
+import { BookCover } from "../../../../components/BookCover";
 
 const BookCard = React.memo(function BookCard({
   book,
@@ -18,12 +19,22 @@ const BookCard = React.memo(function BookCard({
         <BooksStatusFlag explore={true} status={book.userBookInfo.status} />
       )}
 
-      <Image
+      {/* <Image
+        key={book.id}
         width={108}
         height={152}
-        loading="lazy"
+        sizes="108px"
+        priority  
         src={book.coverUrl}
         alt=""
+      /> */}
+      <BookCover
+        key={book.id}
+        width={108}
+        height={152}
+        sizes="108px"
+        src={book.coverUrl}
+        priority
       />
 
       <div>
@@ -42,9 +53,7 @@ const BookCard = React.memo(function BookCard({
           </span>
         </span>
 
-        
         <StarRating param={book.avgRating} />
-     
       </div>
     </ExploreBook>
   );
