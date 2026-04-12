@@ -66,6 +66,8 @@ model UserBook {
   currentPage Int? @map("current_page")
   customTotalPage Int? @map("custom_total_page") 
   rated Boolean @default(false)
+  wantToReadPosition Int? @map("want_to_read_position")
+  favoritePosition Int? @map("favorite_position")
   
   startedAt  DateTime? @map("started_at")
   finishedAt DateTime? @map("finished_at")

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -27,9 +27,9 @@ import {
   User,
   UserList,
 } from "phosphor-react";
-import { getYear } from "date-fns";
+import { compareDesc, getYear } from "date-fns";
 import { PageHeader } from "@/components/PageHeader";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import Layout from "@/components/Layout";
@@ -37,6 +37,7 @@ import {
   ProfileResponse,
   RatingProps,
   UserBookProps,
+  UserBookReorderProps,
 } from "@/@types/query-types";
 import { formatCategories } from "@/utils/formatCategories";
 import { NextSeo } from "next-seo";
@@ -46,6 +47,9 @@ import Image from "next/image";
 import { ProfileBookCard } from "./components/ProfileBookCard";
 import { BookAlert, Bookmark, Heart, StarIcon } from "lucide-react";
 import Link from "next/link";
+import { DragHandleProps } from "./components/SortableItem";
+import { SortableBooksList } from "./components/SortableBooksList";
+import { queryClient } from "@/lib/query";
 
 const profileFormSchema = z.object({
   searchBook: z.string().min(1),
@@ -101,17 +105,17 @@ export default function Profile() {
 
   const router = useRouter();
 
-  const { register, handleSubmit, setFocus, reset, watch} =
+  const [orderedBooks, setOrderedBooks] = useState<UserBookProps[]>([])
+
+  const { register, handleSubmit, setFocus, reset, watch } =
     useForm<ProfileFormData>({
       defaultValues: {
-        searchBook: ""
-      }
+        searchBook: "",
+      },
     });
 
-    const profileFilter =
-    typeof router.query.filter === "string"
-      ? router.query.filter
-      : "";
+  const profileFilter =
+    typeof router.query.filter === "string" ? router.query.filter : "";
 
   function onSubmit() {
     reset();
@@ -124,9 +128,9 @@ export default function Profile() {
 
   function handleProfileCategories(categoryName: keyof Categories) {
     router.replace({
-        pathname: "/profile",
-        query: { filter: categoryName},
-      });
+      pathname: "/profile",
+      query: { filter: categoryName },
+    });
   }
 
   const userId = session.data?.user.id;
@@ -145,6 +149,97 @@ export default function Profile() {
       enabled: !!userId,
       staleTime: Infinity,
     });
+
+  const { mutate: updateUserBookOrder } = useMutation({
+    mutationFn: async ({ userBookList, listType }: UserBookReorderProps) => {
+      const payload = userBookList.map((book, index) => ({
+        id: book.id,
+        position: index,
+      }));
+
+      return await api.patch("/app/user-books/reorder", {
+        userBookList: payload,
+        listType,
+      });
+    },
+    //   const previousProfileData = queryClient.getQueryData(["profile", userId]);
+
+    //   queryClient.setQueryData<ProfileResponse>(
+    //     ["profile", userId],
+    //     (oldData) => {
+    //       if (!oldData) return oldData;
+
+    //       return {
+    //         ...oldData,
+    //         wantToReadBooks:
+    //           listType === "wantToRead"
+    //             ? userBookList
+    //             : oldData.wantToReadBooks,
+    //         favoriteBooks:
+    //           listType === "favorites" ? userBookList : oldData.favoriteBooks,
+    //       };
+    //     },
+    //   );
+
+    //   return { previousProfileData };
+    // },
+    // onError: (err, __, context) => {
+    //   queryClient.setQueryData(
+    //     ["profile", userId],
+    //     context?.previousProfileData,
+    //   );
+    // },
+  });
+
+  const renderStaticBook = useCallback((b: RatingProps | UserBookProps) => {
+    if ("rate" in b) {
+      return <ProfileBookCard key={b.id} rating={b} />;
+    }
+
+    return <ProfileBookCard 
+    key={b.id} 
+    userBook={b}
+    isAllUserBooks={profileFilter === 'allUserBooks'}
+    />;
+  }, [profileFilter])
+
+  const renderSortableBook = useCallback(
+    (book: UserBookProps, dragHandle?: DragHandleProps, dragging?: boolean) => {
+      return (
+        <ProfileBookCard
+          key={book.id}
+          userBook={book}
+          dragHandle={dragHandle}
+          dragging={dragging}
+          isFavoriteList={profileFilter === "favoriteBooks"}
+        />
+      );
+    },
+    [profileFilter],
+  );
+
+  function handleReorder(reorderedBooks: UserBookProps[]) {
+    const updated = reorderedBooks.map((book, index) => ({
+      ...book,
+
+      favoritePosition:
+        profileFilter === "favoriteBooks" ? index : book.favoritePosition,
+
+      wantToReadPosition:
+        profileFilter === "wantToReadBooks" ? index : book.wantToReadPosition,
+    }));
+
+    setOrderedBooks(updated)
+
+    const listType =
+      profileFilter === "favoriteBooks" ? "favoriteBooks" : "wantToReadBooks";
+
+    updateUserBookOrder({ userBookList: updated, listType: listType });
+  }
+
+  const isSortableList =
+    profileFilter.includes("favoriteBooks") ||
+    profileFilter.includes("wantToReadBooks");
 
   const userRatings = useMemo(() => {
     return profileData?.userRatings ?? [];
@@ -168,53 +263,60 @@ export default function Profile() {
     return profileData?.abandonedBooks ?? [];
   }, [profileData]);
 
-  const categories: Categories = {
-    allUserBooks: {
-      items: allUserBooks,
-      categoryName: "Sua estante",
-      iconColor: "ALL_USER_BOOKS",
-    },
-    userRatings: {
-      items: userRatings,
-      categoryName: "Avaliações",
-      iconColor: "USER_RATINGS",
-    },
-    currentlyReadingBooks: {
-      items: currentlyReadingBooks,
-      categoryName: "Lendo",
-      iconColor: "READING",
-    },
-    wantToReadBooks: {
-      items: wantToReadBooks,
-      categoryName: "Quero ler",
-      iconColor: "WANT_TO_READ",
-    },
-    finishedBooks: {
-      items: finishedBooks,
-      categoryName: "Lidos",
-      iconColor: "FINISHED",
-    },
-    favoriteBooks: {
-      items: favoriteBooks,
-      categoryName: "Favoritos",
-      iconColor: "FAVORITES",
-    },
-    abandonedBooks: {
-      items: abandonedBooks,
-      categoryName: "Abandonados",
-      iconColor: "ABANDONED",
-    },
-  };
+  const categories: Categories = useMemo(
+    () => ({
+      allUserBooks: {
+        items: allUserBooks,
+        categoryName: "Sua estante",
+        iconColor: "ALL_USER_BOOKS",
+      },
+      userRatings: {
+        items: userRatings,
+        categoryName: "Avaliações",
+        iconColor: "USER_RATINGS",
+      },
+      currentlyReadingBooks: {
+        items: currentlyReadingBooks,
+        categoryName: "Lendo",
+        iconColor: "READING",
+      },
+      wantToReadBooks: {
+        items: wantToReadBooks,
+        categoryName: "Quero ler",
+        iconColor: "WANT_TO_READ",
+      },
+      finishedBooks: {
+        items: finishedBooks,
+        categoryName: "Lidos",
+        iconColor: "FINISHED",
+      },
+      favoriteBooks: {
+        items: favoriteBooks,
+        categoryName: "Favoritos",
+        iconColor: "FAVORITES",
+      },
+      abandonedBooks: {
+        items: abandonedBooks,
+        categoryName: "Abandonados",
+        iconColor: "ABANDONED",
+      },
+    }),
+    [profileData],
+  );
 
-  const booksByInput =
-    categories[profileFilter as keyof Categories]?.items?.filter((userBook) =>
+  const searchValue = watch("searchBook");
+
+  const booksByInput = useMemo(() => {
+    const books = categories[profileFilter as keyof Categories]?.items ?? [];
+
+    if (!searchValue) return books;
+
+    return books.filter((userBook) =>
       userBook.book.title
         .toLowerCase()
-        .trim()
-        .includes(
-          watch("searchBook") ? watch("searchBook").trim().toLowerCase() : "",
-        ),
-    ) ?? [];
+        .includes(searchValue.toLowerCase().trim()),
+    );
+  }, [profileFilter, categories, searchValue]);
 
   const userTotalPages = useMemo(() => {
     return allUserBooks.reduce((acc, ub) => {
@@ -284,7 +386,7 @@ export default function Profile() {
   useEffect(() => {
     if (!router.isReady) return;
 
-    const hasFilter = typeof router.query.filter === "string"
+    const hasFilter = typeof router.query.filter === "string";
 
     if (!hasFilter) {
       router.replace({
@@ -293,6 +395,15 @@ export default function Profile() {
       });
     }
   }, [router.isReady, profileFilter]);
+
+  useEffect(() => {
+    if ( profileData && profileFilter && isSortableList ) {
+
+      const localStateBooks = categories[profileFilter as keyof Categories]?.items as UserBookProps[]
+
+      setOrderedBooks(localStateBooks)
+    }
+  }, [profileData, profileFilter])
 
   if (session.status === "unauthenticated") {
     handlePossibleRedirect();
@@ -346,7 +457,9 @@ export default function Profile() {
                     <h1>Perfil</h1>
                   </PageHeader>
                   <div>
-                    <ProfileForm onSubmit={handleSubmit(onSubmit)}>
+                    {
+                      !isSortableList && (
+                        <ProfileForm onSubmit={handleSubmit(onSubmit)}>
                       <label>
                         <ProfileInput
                           {...register("searchBook")}
@@ -357,28 +470,21 @@ export default function Profile() {
                         <MagnifyingGlass />
                       </ProfileButton>
                     </ProfileForm>
+                      )
+                    }
                   </div>
 
                   <ProfileBooksContainer>
                     {allUserBooks.length > 0 ? (
-                      booksByInput.map((b) => {
-                        if (typeof b === "object" && "rate" in b) {
-                          return <ProfileBookCard key={b.id} rating={b} />;
-                        } else {
-                          return (
-                            <ProfileBookCard
-                              isFavoriteList={
-                                profileFilter === "favoriteBooks"
-                              }
-                              isAllUserBooks={
-                                profileFilter === "allUserBooks"
-                              }
-                              key={b.id}
-                              userBook={b}
-                            />
-                          );
-                        }
-                      })
+                      isSortableList ? (
+                        <SortableBooksList
+                          books={ orderedBooks }
+                          renderBook={renderSortableBook}
+                          onReorder={handleReorder}
+                        />
+                      ) : (
+                        booksByInput.map((book) => renderStaticBook(book))
+                      )
                     ) : (
                       <ProfileBookFallback>
                         <p>Você ainda não adicionou livros a sua estante...</p>

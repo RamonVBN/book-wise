@@ -30,7 +30,7 @@ import { ReadingStatus } from "@/generated/prisma";
 import { ReadingStatusSelect } from "@/components/ReadingStatusSelect";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ReadingProgress } from "../ReadingProgressBar";
-import { BookmarkPlus } from "lucide-react";
+import { BookmarkPlus, GripVertical } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { AppTooltip } from "@/components/Tooltip";
@@ -38,12 +38,15 @@ import { toast } from "sonner";
 import { toastMessages } from "@/lib/toast-messages";
 import { compareDesc } from "date-fns";
 import { BookCover } from "@/components/BookCover";
+import { DragHandleProps } from "../SortableItem";
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
   rating?: RatingProps;
   isFavoriteList?: boolean;
   isAllUserBooks?: boolean;
+  dragHandle?: DragHandleProps;
+  dragging?: boolean;
 }
 
 export function ProfileBookCard({
@@ -51,6 +54,8 @@ export function ProfileBookCard({
   isFavoriteList,
   rating,
   isAllUserBooks,
+  dragHandle,
+  dragging,
 }: ProfileBookCardProps) {
   const queryClient = useQueryClient();
 
@@ -397,7 +402,7 @@ export function ProfileBookCard({
         currentPage?: number;
         customTotalPage?: number;
       }) => {
-        return await api.patch("/app/userBook", {
+        return await api.patch("/app/user-books", {
           readStatus: status,
           isFavorite,
           currentPage,
@@ -534,7 +539,7 @@ export function ProfileBookCard({
 
   const { mutate: deleteUserBookMutation } = useMutation({
     mutationFn: async () => {
-      return await api.delete(`/app/userBook/${userBook?.id}`);
+      return await api.delete(`/app/user-books/${userBook?.id}`);
     },
     mutationKey: ["deleteUserBook"],
     onMutate: async () => {
@@ -679,7 +684,7 @@ export function ProfileBookCard({
             )}
           </ProfileBookTime>
         )}
-        {userBook && (
+        {userBook && !dragHandle && !dragging && (
           <ProfileBookTime>
             {capitalize(
               formatDistanceToNow(userBook.updatedAt, {
@@ -689,38 +694,43 @@ export function ProfileBookCard({
             )}
           </ProfileBookTime>
         )}
-        <ProfileBook>
+        <ProfileBook dragging={dragging}>
           <div>
             <ProfileBookInfo>
-              {book && (
-                // <Image
-                // key={book.id}
-                // width={98}
-                // height={134}
-                // quality={100}
-                // sizes="98px"
-                // priority
-                // src={book?.coverUrl}
-                // alt="" />
-
-                <BookCover
-                  key={book.id}
-                  width={98}
-                  height={134}
-                  sizes="98px"
-                  src={book.coverUrl}
-                  priority
-                />
-              )}
               <div>
-                <span>
-                  <h2>{book?.title}</h2>
-                  <span>{book?.author}</span>
-                </span>
-
-                {rating && !isUserRatingFormOpen && (
-                  <StarRating param={rating.rate} />
+                {(dragHandle || dragging) && (
+                  <AppTooltip dragging={dragging} content="Mudar ordem dos itens">
+                    <ProfileBookButton
+                      {...dragHandle?.attributes}
+                      {...dragHandle?.listeners}
+                    >
+                      <GripVertical />
+                    </ProfileBookButton>
+                  </AppTooltip>
                 )}
+              </div>
+
+              <div>
+                {book && (
+                  <BookCover
+                    key={book.id}
+                    width={98}
+                    height={134}
+                    sizes="98px"
+                    src={book.coverUrl}
+                    priority
+                  />
+                )}
+                <div>
+                  <span>
+                    <h2>{book?.title}</h2>
+                    <span>{book?.author}</span>
+                  </span>
+
+                  {rating && !isUserRatingFormOpen && (
+                    <StarRating param={rating.rate} />
+                  )}
+                </div>
               </div>
             </ProfileBookInfo>
 

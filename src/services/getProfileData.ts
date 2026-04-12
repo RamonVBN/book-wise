@@ -74,9 +74,13 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         status: "WANT_TO_READ",
       },
       include: { book: true },
-      orderBy: {
-        updatedAt: "desc",
-      }
+      orderBy: [
+        { wantToReadPosition: {
+          sort: 'asc',
+          nulls: 'last'
+        } },
+        {updatedAt: 'desc'}
+      ]
     }),
 
     prisma.userBook.findMany({
@@ -85,9 +89,13 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         isFavorite: true,
       },
       include: { book: true },
-      orderBy: {
-        updatedAt: "desc",
-      }
+      orderBy: [
+        { favoritePosition: {
+          sort: 'asc',
+          nulls: 'last'
+        } },
+        {updatedAt: 'desc'}
+      ]
     }),
 
   ])

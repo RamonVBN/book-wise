@@ -20,7 +20,5 @@ export async function getProfileController(
     userId
   })
 
-  console.log(profileData.userRatings)
-
   return res.status(200).json(profileData)
 }

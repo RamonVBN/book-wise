@@ -23,6 +23,10 @@ export const Trigger = styled(Select.Trigger, {
 
   transition: "all 0.2s ease-out",
 
+  span: {
+    whiteSpace: "nowrap",
+  },
+
   "&:disabled": {
     cursor: "progress",
     opacity: 0.5,

@@ -18,7 +18,7 @@ export const FavoriteButton = forwardRef<
   ref,
 ) {
   return (
-   <AppTooltip content={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}>
+   <AppTooltip content={isFavorite ? "Remover favorito" : "Adicionar aos favoritos"}>
         <FavoriteButtonComponent
             {...props}
             ref={ref}

@@ -38,42 +38,64 @@ export const ProfileBook = styled("div", {
     justifyContent: "space-between",
     gap: "1.5rem",
   },
+
+  transition: "box-shadow 400ms ease, background-color 400ms ease",
+
+  variants: {
+    dragging: {
+      true: {
+        boxShadow: "0 20px 40px rgba(0,0,0,0.35)",
+      },
+    },
+  },
 });
 
 export const ProfileBookInfo = styled("div", {
-  display: "flex",
-  gap: "1.5rem",
 
-  img: {
-    width: "6.125rem",
-    height: "8.375rem",
-    objectFit: 'cover',
-    borderRadius: '6px',
-    flexShrink: 0,
+  display: 'flex',
+  flexWrap: 'nowrap',
+  gap: '0.75rem',
+
+  "& > div:first-child": {
+    display: 'flex',
+    alignItems: 'center',
   },
 
-  div: {
+  "& > div:last-child": {
     display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
+    gap: "1.5rem",
 
-    "span:first-child": {
+    img: {
+      width: "6.125rem",
+      height: "8.375rem",
+      objectFit: "cover",
+      borderRadius: "6px",
+      flexShrink: 0,
+    },
+
+    div: {
       display: "flex",
       flexDirection: "column",
-      gap: "0.25rem",
+      justifyContent: "space-between",
 
-      h2: {
-        fontWeight: "$bold",
-        fontSize: "1.125rem",
-        lineHeight: "$short",
-        color: "$gray100",
-      },
+      "span:first-child": {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.25rem",
 
-      span: {
-        fontWeight: "$regular",
-        fontSize: "0.875rem",
-        lineHeight: "$base",
-        color: "$gray400",
+        h2: {
+          fontWeight: "$bold",
+          fontSize: "1.125rem",
+          lineHeight: "$short",
+          color: "$gray100",
+        },
+
+        span: {
+          fontWeight: "$regular",
+          fontSize: "0.875rem",
+          lineHeight: "$base",
+          color: "$gray400",
+        },
       },
     },
   },

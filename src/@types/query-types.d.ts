@@ -45,7 +45,7 @@ export type BookProps = {
 export interface ExploreBooksProps extends BookProps {
   author: string[];
   categories: string[];
-  userBookInfo: UserBookInfo
+  userBookInfo: UserBookInfo;
 }
 
 export type UserBookProps = {
@@ -59,6 +59,8 @@ export type UserBookProps = {
   updatedAt: string;
   book: BookProps;
   user: RatingUserProps;
+  wantToReadPosition?: number;
+  favoritePosition?: number;
 };
 
 export type HomeDataResponse = {
@@ -76,8 +78,8 @@ export type BookStats = {
   avgRating: number;
   ratingsCount: number;
   ratingsSum: number;
-  ratings: RatingProps
-  userBookInfo: UserBookInfo
+  ratings: RatingProps;
+  userBookInfo: UserBookInfo;
 };
 
 type Category = {
@@ -104,7 +106,7 @@ type BooksQueryData = {
 
 type RatingQueryData = {
   ratings: RatingProps[];
-  userStatus: UserBookInfo
+  userStatus: UserBookInfo;
 };
 
 type UserBookInfo = {
@@ -112,3 +114,9 @@ type UserBookInfo = {
   isFavorite: boolean;
   rated: boolean;
 } | null;
+
+type UserBookReorderProps = {
+  userBookList: UserBookProps[]
+
+  listType: "favoriteBooks" | "wantToReadBooks";
+};

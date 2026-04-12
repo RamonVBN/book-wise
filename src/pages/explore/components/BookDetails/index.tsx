@@ -124,7 +124,7 @@ export function BookDetails({
     queryKey: ["traslatedBook", bookId],
     enabled: !!bookId && !!book,
     queryFn: async () => {
-      const response = await api.post("/app/translate-book", {
+      const response = await api.post("/app/translate-books", {
         categories: book?.categories,
         description: book?.description,
       });
@@ -284,7 +284,7 @@ export function BookDetails({
         status?: ReadingStatus;
         isFavorite?: boolean;
       }) => {
-        return await api.patch("/app/userBook", {
+        return await api.patch("/app/user-books", {
           readStatus: status,
           isFavorite: isFavorite,
           bookId: book?.id,
@@ -476,16 +476,6 @@ export function BookDetails({
             <BookInfo>
               <BookInfoBody>
                 {book?.coverUrl && (
-                  //     <Image
-                  //   key={bookId}
-                  //   quality={100}
-                  //   width={172}
-                  //   height={242}
-                  //   sizes="172px"
-                  //   priority
-                  //   src={book.coverUrl}
-                  //   alt=""
-                  // />
                   <BookCover
                     width={172}
                     height={242}
