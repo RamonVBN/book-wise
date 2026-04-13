@@ -56,6 +56,7 @@ import { toastMessages } from "@/lib/toast-messages";
 import { BookCover } from "../../../../components/BookCover";
 import Link from "next/link";
 import { slugifyUserName } from "@/utils/slugifyUserName";
+import { Avatar } from "@/components/Avatar";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -597,12 +598,14 @@ export function BookDetails({
                       >
                         <div>
                           <div>
-                            <Link href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}>
-                              <Image
+                            <Link
+                              href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}
+                            >
+                              <Avatar
                                 width={40}
                                 height={40}
+                                userName={rating.user.name}
                                 src={rating.user.avatarUrl}
-                                alt=""
                               />
                             </Link>
                             <span>

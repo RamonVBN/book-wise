@@ -43,6 +43,7 @@ import { DescripitionText } from "@/components/DescriptionText";
 import { BookCover } from "@/components/BookCover";
 import Link from "next/link";
 import { slugifyUserName } from "@/utils/slugifyUserName";
+import { Avatar } from "@/components/Avatar";
 
 export default function Home() {
   const session = useSession();
@@ -82,12 +83,18 @@ export default function Home() {
                     <LastActivityContainer>
                       <LastActivityHeader>
                         <span>Sua última atividade</span>
-                        <LinkButton prefetch href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}>
+                        <LinkButton
+                          prefetch
+                          href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}
+                        >
                           Ver todas
                           <CaretRight />
                         </LinkButton>
                       </LastActivityHeader>
-                      <LastActivityBody prefetch href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}>
+                      <LastActivityBody
+                        prefetch
+                        href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}
+                      >
                         <BookCover
                           key={homeData.lastUserActivity.book.id}
                           width={108}
@@ -151,13 +158,14 @@ export default function Home() {
                             <BookRatingUserContainer>
                               <BookRatingUser>
                                 <Link
-                                prefetch
-                                 href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}>
-                                  <Image
+                                  prefetch
+                                  href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}
+                                >
+                                  <Avatar
                                     width={40}
-                                    height={40} 
+                                    height={40}
+                                    userName={rating.user.name}
                                     src={rating.user.avatarUrl}
-                                    alt=""
                                   />
                                 </Link>
                                 <span>

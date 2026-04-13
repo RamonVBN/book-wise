@@ -3,6 +3,7 @@ import { CancelButton, ConfirmButton, FormError, UserRatingContainer } from "./s
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Avatar } from "../Avatar";
 
 const userRatingForm = z.object({
     review: z.string()
@@ -127,7 +128,7 @@ export function UserRatingForm(
                         
                         !profile && (
                             <>
-                                <img src={avatarUrl} alt="" />
+                                <Avatar width={40} height={40} userName={userName  ?? 'User'} src={avatarUrl}/>
                                 <h2>{userName}</h2>
                         </>
                         )  

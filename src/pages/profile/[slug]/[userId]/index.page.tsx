@@ -50,6 +50,7 @@ import Link from "next/link";
 import { DragHandleProps } from "../../components/SortableItem";
 import { SortableBooksList } from "../../components/SortableBooksList";
 import { slugifyUserName } from "@/utils/slugifyUserName";
+import { Avatar } from "@/components/Avatar";
 
 const profileFormSchema = z.object({
   searchBook: z.string().min(1),
@@ -485,7 +486,7 @@ export default function Profile() {
                 <UserContainer>
                   <UserProfile>
                     {avatarUrl && (
-                      <Image width={72} height={72} src={avatarUrl} alt="" />
+                      <Avatar width={72} height={72} userName={userName ?? 'User'} src={avatarUrl} borderWidth="md" />
                     )}
 
                     <span>

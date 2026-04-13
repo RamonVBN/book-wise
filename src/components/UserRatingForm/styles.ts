@@ -20,12 +20,6 @@ export const UserRatingContainer = styled("div", {
       gap: "1rem",
       alignItems: "center",
 
-      img: {
-        width: "2.5rem",
-        height: "2.5rem",
-        borderRadius: "999px",
-      },
-
       h2: {
         fontWeight: "$bold",
         fontSize: "1rem",

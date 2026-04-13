@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 
 import { AppTooltip } from "../Tooltip";
 import { slugifyUserName } from "@/utils/slugifyUserName";
+import { Avatar } from "../Avatar";
 
 
 type Navigation = {
@@ -86,7 +87,7 @@ export default function Layout({children}: {children: ReactNode}){
                             
                             <SignOutButtonContainer>
                                    <span>
-                                        <Image width={32} height={32} src={session.data.user.avatarUrl} alt=""/>
+                                        <Avatar width={32} height={32} src={session.data.user.avatarUrl} userName={session.data.user.name}/>
                                         <span>{session.data.user.name}</span>
                                    </span>
                                 <AppTooltip content="Sair do BookWise">
