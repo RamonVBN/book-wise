@@ -18,15 +18,17 @@ export const FavoriteButton = forwardRef<
   ref,
 ) {
   return (
-   <AppTooltip content={isFavorite ? "Remover favorito" : "Adicionar aos favoritos"}>
-        <FavoriteButtonComponent
-            {...props}
-            ref={ref}
+    <AppTooltip
+      content={isFavorite ? "Remover favorito" : "Adicionar aos favoritos"}
+    >
+      <FavoriteButtonComponent
+        {...props}
+        ref={ref}
         onClick={() => setIsFavorite(!isFavorite)}
         disabled={disabled}
-        >
+      >
         <Heart weight={isFavorite ? "fill" : "regular"} />
-        </FavoriteButtonComponent>
-    </AppTooltip> 
+      </FavoriteButtonComponent>
+    </AppTooltip>
   );
 });

@@ -14,6 +14,18 @@ export async function updateUserBookOrderController(
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  const querySchema = z.object({
+    userId: z.string()
+  })
+
+  const { userId } = querySchema.parse(req.query)
+
+  if (userId !== session.user.id) {
+    res.status(401).json({
+      message: 'You cannot change other user books order'
+    })
+  }
+
   const bodySchema = z.object({
     userBookList: z.array(
       z.object({

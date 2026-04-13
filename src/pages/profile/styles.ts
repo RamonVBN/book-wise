@@ -260,7 +260,7 @@ export const ProfileCategoriesContainer = styled("div", {
   marginTop: '7.1rem',
   display: "flex",
   flexDirection: "column",
-  gap: "2rem",
+  gap: "1.25rem",
 });
 
 export const ProfileCategory = styled("button", {

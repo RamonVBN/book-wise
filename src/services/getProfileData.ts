@@ -7,6 +7,7 @@ interface GetHomeDataProps {
 export async function getProfileData({ userId }: GetHomeDataProps) {
 
   const [
+    userInfo,
     userRatings,
     allUserBooks,
     currentlyReadingBooks,
@@ -15,6 +16,10 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
     wantToReadBooks,
     favoriteBooks,
   ] = await Promise.all([
+
+    prisma.user.findUnique({where: {
+      id: userId
+    }}),
 
     prisma.rating.findMany({
       where: { userId },
@@ -101,6 +106,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
   ])
 
   return {
+    userInfo,
     userRatings,
     allUserBooks,
     currentlyReadingBooks,

@@ -1,67 +1,91 @@
-import { authOptions } from "@/pages/api/auth/[...nextauth].api"
-import updateUserBook from "@/services/updateUserBook"
-import { NextApiRequest, NextApiResponse } from "next"
-import { getServerSession } from "next-auth"
-import { z } from 'zod'
+import { authOptions } from "@/pages/api/auth/[...nextauth].api";
+import updateUserBook from "@/services/updateUserBook";
+import { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
+import { z } from "zod";
 
-export async function updateUserBookController(req: NextApiRequest, res: NextApiResponse) {
-
-  const session = await getServerSession(req, res, authOptions)
+export async function updateUserBookController(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    return res.status(401).json({ message: "Unauthorized" })
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const bodySchema = z.object({
-    isFavorite: z.boolean().optional(),
-    currentPage: z.number().optional(),
-    customTotalPage: z.number().optional(),
-    readStatus: z.enum(["WANT_TO_READ", "READING", "FINISHED", "ABANDONED"]).optional(),
+  const querySchema = z.object({
+    id: z.string(),
+  });
 
-    bookId: z.string(),
-    title: z.string(),
-    author: z.string(),
-    coverUrl: z.string(),
-    pageCount: z.number(),
-    categories: z.string()
-  }).superRefine((data, ctx) => {
+  const { id } = querySchema.parse(req.query);
 
-    const filledFields = [
-      data.currentPage !== undefined,
-      data.readStatus !== undefined,
-      data.isFavorite !== undefined,
-    ].filter(Boolean).length
+  if (session.user.id !== id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 
-    if (filledFields === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Envie exatamente um desses campos para atualização [currentPage, readStatus, isFavorite]",
-        path: [],
-      })
-    }
+  const bodySchema = z
+    .object({
+      isFavorite: z.boolean().optional(),
+      currentPage: z.number().optional(),
+      customTotalPage: z.number().optional(),
+      readStatus: z
+        .enum(["WANT_TO_READ", "READING", "FINISHED", "ABANDONED"])
+        .optional(),
 
-    if (filledFields > 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Apenas um desses campos pode ser atualizado por vez [currentPage, readStatus, isFavorite]",
-        path: [],
-      })
-    }
-
-  })
-  
-  const 
-  { bookId, author, coverUrl, pageCount, title, categories, readStatus,  isFavorite, currentPage, customTotalPage } = 
-  bodySchema.parse(req.body)
-
-  if ((currentPage && customTotalPage) && (currentPage > customTotalPage)) {
-
-    return res.status(400).json({
-      message: 'Current page cannot be higher than total page.'
+      bookId: z.string(),
+      title: z.string(),
+      author: z.string(),
+      coverUrl: z.string(),
+      pageCount: z.number(),
+      categories: z.string(),
     })
+    .superRefine((data, ctx) => {
+      const filledFields = [
+        data.currentPage !== undefined,
+        data.readStatus !== undefined,
+        data.isFavorite !== undefined,
+      ].filter(Boolean).length;
+
+      if (filledFields === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "Envie exatamente um desses campos para atualização [currentPage, readStatus, isFavorite]",
+          path: [],
+        });
+      }
+
+      if (filledFields > 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "Apenas um desses campos pode ser atualizado por vez [currentPage, readStatus, isFavorite]",
+          path: [],
+        });
+      }
+    });
+
+  const {
+    bookId,
+    author,
+    coverUrl,
+    pageCount,
+    title,
+    categories,
+    readStatus,
+    isFavorite,
+    currentPage,
+    customTotalPage,
+  } = bodySchema.parse(req.body);
+
+  if (currentPage && customTotalPage && currentPage > customTotalPage) {
+    return res.status(400).json({
+      message: "Current page cannot be higher than total page.",
+    });
   }
-  
-   await updateUserBook({
+
+  await updateUserBook({
     userId: session.user.id,
     bookId,
     readStatus,
@@ -72,8 +96,8 @@ export async function updateUserBookController(req: NextApiRequest, res: NextApi
     pageCount,
     title,
     categories,
-    customTotalPage
-  })
+    customTotalPage,
+  });
 
-  return res.status(200).json({})
+  return res.status(200).json({});
 }

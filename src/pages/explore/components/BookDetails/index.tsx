@@ -54,6 +54,8 @@ import { DescripitionText } from "@/components/DescriptionText";
 import { toast } from "sonner";
 import { toastMessages } from "@/lib/toast-messages";
 import { BookCover } from "../../../../components/BookCover";
+import Link from "next/link";
+import { slugifyUserName } from "@/utils/slugifyUserName";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -284,7 +286,7 @@ export function BookDetails({
         status?: ReadingStatus;
         isFavorite?: boolean;
       }) => {
-        return await api.patch("/app/user-books", {
+        return await api.patch(`/app/user-books/${user?.id}`, {
           readStatus: status,
           isFavorite: isFavorite,
           bookId: book?.id,
@@ -595,12 +597,14 @@ export function BookDetails({
                       >
                         <div>
                           <div>
-                            <Image
-                              width={40}
-                              height={40}
-                              src={rating.user.avatarUrl}
-                              alt=""
-                            />
+                            <Link href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}>
+                              <Image
+                                width={40}
+                                height={40}
+                                src={rating.user.avatarUrl}
+                                alt=""
+                              />
+                            </Link>
                             <span>
                               <h3>{rating.user.name}</h3>
                               <span>

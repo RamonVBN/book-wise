@@ -14,6 +14,18 @@ export async function createRatingController(
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  const querySchema = z.object({
+    id: z.string(),
+  });
+
+  const { id } = querySchema.parse(req.query);
+
+  if (id !== session.user.id) {
+    res.status(401).json({
+      message: 'You cannot create rating to another user book'
+    })
+  }
+
   const bodySchema = z.object({
     bookId: z.string(),
     rate: z.number(),
@@ -36,17 +48,17 @@ export async function createRatingController(
     categories,
   } = bodySchema.parse(req.body);
 
-      await createRating({
-      userId: session.user.id,
-      bookId,
-      rate,
-      review,
-      author,
-      coverUrl,
-      pageCount,
-      title,
-      categories,
-    });
+  await createRating({
+    userId: session.user.id,
+    bookId,
+    rate,
+    review,
+    author,
+    coverUrl,
+    pageCount,
+    title,
+    categories,
+  });
 
-    return res.status(201).json({});
+  return res.status(201).json({});
 }

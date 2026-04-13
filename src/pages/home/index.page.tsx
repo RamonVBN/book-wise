@@ -41,6 +41,8 @@ import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { Flame } from "lucide-react";
 import { DescripitionText } from "@/components/DescriptionText";
 import { BookCover } from "@/components/BookCover";
+import Link from "next/link";
+import { slugifyUserName } from "@/utils/slugifyUserName";
 
 export default function Home() {
   const session = useSession();
@@ -57,6 +59,8 @@ export default function Home() {
     });
 
   const isSigned = session.status === "authenticated";
+
+  const userId = session.data?.user.id;
 
   return (
     <>
@@ -78,19 +82,20 @@ export default function Home() {
                     <LastActivityContainer>
                       <LastActivityHeader>
                         <span>Sua última atividade</span>
-                        <LinkButton prefetch href={"/profile"}>
+                        <LinkButton prefetch href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}>
                           Ver todas
                           <CaretRight />
                         </LinkButton>
                       </LastActivityHeader>
-                      <LastActivityBody prefetch href={"/profile"}>
-                          {/* <Image
-                            width={108}
-                            height={152}
-                            src={homeData.lastUserActivity.book.coverUrl}
-                            alt=""
-                          /> */}
-                          <BookCover key={homeData.lastUserActivity.book.id} width={108} height={152} sizes="108px" priority src={homeData.lastUserActivity.book.coverUrl}/>
+                      <LastActivityBody prefetch href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}>
+                        <BookCover
+                          key={homeData.lastUserActivity.book.id}
+                          width={108}
+                          height={152}
+                          sizes="108px"
+                          priority
+                          src={homeData.lastUserActivity.book.coverUrl}
+                        />
                         <LastActivityContent>
                           <div>
                             <div>
@@ -145,12 +150,16 @@ export default function Home() {
                           <BookRating key={rating.id}>
                             <BookRatingUserContainer>
                               <BookRatingUser>
-                                <Image
-                                  width={40}
-                                  height={40}
-                                  src={rating.user.avatarUrl}
-                                  alt=""
-                                />
+                                <Link
+                                prefetch
+                                 href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}>
+                                  <Image
+                                    width={40}
+                                    height={40} 
+                                    src={rating.user.avatarUrl}
+                                    alt=""
+                                  />
+                                </Link>
                                 <span>
                                   <span>{rating.user.name}</span>
                                   <span>
@@ -168,21 +177,20 @@ export default function Home() {
                               </Rating>
                             </BookRatingUserContainer>
                             <BookRatingBody>
-                                {/* <Image
-                                  width={108}
-                                  height={152}
-                                  src={rating.book.coverUrl}
-                                  alt=""
-                                /> */}
-                                <BookCover key={rating.id} width={108} height={152} sizes="108px" priority src={rating.book.coverUrl}/>
+                              <BookCover
+                                key={rating.id}
+                                width={108}
+                                height={152}
+                                sizes="108px"
+                                priority
+                                src={rating.book.coverUrl}
+                              />
                               <BookRatingDescription>
                                 <span>
                                   <h2>{rating.book.title}</h2>
                                   <span>{rating.book.author}</span>
                                 </span>
-                                <DescripitionText
-                                  description={rating.review}
-                                />
+                                <DescripitionText description={rating.review} />
                               </BookRatingDescription>
                             </BookRatingBody>
                           </BookRating>
@@ -208,13 +216,14 @@ export default function Home() {
                       homeData.popularBooks.map((book) => {
                         return (
                           <PopBook key={book.id}>
-                            {/* <Image
+                            <BookCover
+                              key={book.id}
                               width={64}
                               height={94}
                               src={book.coverUrl}
-                              alt=""
-                            /> */}
-                            <BookCover key={book.id} width={64} height={94} src={book.coverUrl} priority sizes="64px"/>
+                              priority
+                              sizes="64px"
+                            />
                             <PopBookDescription>
                               <span>
                                 <h2>{formatBookName(book.title)}</h2>

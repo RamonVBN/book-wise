@@ -11,7 +11,7 @@ import {
   ProfileBookOptions,
   ProfileBookTime,
 } from "./styles";
-import { formatDistanceToNow } from "date-fns";
+import { compareAsc, formatDistanceToNow } from "date-fns";
 import { capitalize } from "@/utils/capitalize";
 import Image from "next/image";
 import { StarRating } from "@/components/StarsRating";
@@ -30,7 +30,7 @@ import { ReadingStatus } from "@/generated/prisma";
 import { ReadingStatusSelect } from "@/components/ReadingStatusSelect";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ReadingProgress } from "../ReadingProgressBar";
-import { BookmarkPlus, GripVertical } from "lucide-react";
+import { BookmarkPlus, GripVertical, Heart } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { AppTooltip } from "@/components/Tooltip";
@@ -39,6 +39,7 @@ import { toastMessages } from "@/lib/toast-messages";
 import { compareDesc } from "date-fns";
 import { BookCover } from "@/components/BookCover";
 import { DragHandleProps } from "../SortableItem";
+import { FavoriteFlag } from "../FavoriteFlag";
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
@@ -47,6 +48,7 @@ interface ProfileBookCardProps {
   isAllUserBooks?: boolean;
   dragHandle?: DragHandleProps;
   dragging?: boolean;
+  isLoggedUserProfile: boolean;
 }
 
 export function ProfileBookCard({
@@ -56,6 +58,7 @@ export function ProfileBookCard({
   isAllUserBooks,
   dragHandle,
   dragging,
+  isLoggedUserProfile,
 }: ProfileBookCardProps) {
   const queryClient = useQueryClient();
 
@@ -272,6 +275,7 @@ export function ProfileBookCard({
             );
 
             return {
+              ...oldData,
               allUserBooks: updatedUserbooks,
               userRatings: newUserRatings,
               currentlyReadingBooks,
@@ -402,7 +406,7 @@ export function ProfileBookCard({
         currentPage?: number;
         customTotalPage?: number;
       }) => {
-        return await api.patch("/app/user-books", {
+        return await api.patch(`/app/user-books/${userId}`, {
           readStatus: status,
           isFavorite,
           currentPage,
@@ -473,9 +477,14 @@ export function ProfileBookCard({
               (ub) => ub.status === "READING",
             );
 
-            const wantToReadBooks = updatedProfileData.filter(
-              (ub) => ub.status === "WANT_TO_READ",
-            );
+            const wantToReadBooks = updatedProfileData
+              .filter((ub) => ub.status === "WANT_TO_READ")
+              .sort((ub1, ub2) =>
+                compareAsc(
+                  ub1.wantToReadPosition ?? Infinity,
+                  ub2.wantToReadPosition ?? Infinity,
+                ),
+              );
 
             const finishedBooks = updatedProfileData.filter(
               (ub) => ub.status === "FINISHED",
@@ -484,9 +493,14 @@ export function ProfileBookCard({
             const abandonedBooks = updatedProfileData.filter(
               (ub) => ub.status === "ABANDONED",
             );
-            const favoriteBooks = updatedProfileData.filter(
-              (ub) => ub.isFavorite,
-            );
+            const favoriteBooks = updatedProfileData
+              .filter((ub) => ub.isFavorite)
+              .sort((ub1, ub2) =>
+                compareAsc(
+                  ub1.favoritePosition ?? Infinity,
+                  ub2.favoritePosition ?? Infinity,
+                ),
+              );
 
             return {
               ...oldData,
@@ -698,8 +712,11 @@ export function ProfileBookCard({
           <div>
             <ProfileBookInfo>
               <div>
-                {(dragHandle || dragging) && (
-                  <AppTooltip dragging={dragging} content="Mudar ordem dos itens">
+                {(dragHandle || dragging) && isLoggedUserProfile && (
+                  <AppTooltip
+                    dragging={dragging}
+                    content="Mudar ordem dos itens"
+                  >
                     <ProfileBookButton
                       {...dragHandle?.attributes}
                       {...dragHandle?.listeners}
@@ -734,102 +751,114 @@ export function ProfileBookCard({
               </div>
             </ProfileBookInfo>
 
-            <ProfileBookOptions>
-              <div>
-                {!isAllUserBooks &&
-                  (rating ||
-                    (userBook?.status === "FINISHED" && !isFavoriteList)) && (
+            {isLoggedUserProfile && (
+              <ProfileBookOptions>
+                <div>
+                  {!isAllUserBooks &&
+                    (rating ||
+                      (userBook?.status === "FINISHED" && !isFavoriteList)) && (
+                      <AppTooltip
+                        content={
+                          rating
+                            ? "Editar avaliação"
+                            : userBook?.rated
+                              ? "Livro avaliado"
+                              : "Avaliar livro"
+                        }
+                      >
+                        <ProfileBookButton
+                          disabled={
+                            userBook?.rated ||
+                            isCreatingRating ||
+                            isUpdatingRating
+                          }
+                          onClick={() =>
+                            setisUserRatingFormOpen(!isUserRatingFormOpen)
+                          }
+                        >
+                          {rating && <Pencil />}
+
+                          {userBook?.status === "FINISHED" &&
+                            !isFavoriteList &&
+                            (userBook.rated || isCreatingRating ? (
+                              <Star weight="fill" />
+                            ) : (
+                              <Star />
+                            ))}
+                        </ProfileBookButton>
+                      </AppTooltip>
+                    )}
+
+                  {!isAllUserBooks &&
+                    userBook &&
+                    userBook.status === "READING" &&
+                    !isFavoriteList && (
+                      <AppTooltip content="Atualizar progresso de leitura">
+                        <ProfileBookButton
+                          disabled={isUpdatingUserBook}
+                          isLoading={isUpdatingUserBook}
+                          onClick={() =>
+                            setIsReadingProgressUpdaterOpen(
+                              !isReadingProgressUpdaterOpen,
+                            )
+                          }
+                        >
+                          <BookmarkPlus />
+                        </ProfileBookButton>
+                      </AppTooltip>
+                    )}
+
+                  {(rating || isAllUserBooks) && (
                     <AppTooltip
                       content={
                         rating
-                          ? "Editar avaliação"
-                          : userBook?.rated
-                            ? "Livro avaliado"
-                            : "Avaliar livro"
+                          ? "Excluir avaliação"
+                          : "Excluir livro da estante"
                       }
                     >
-                      <ProfileBookButton
-                        disabled={
-                          userBook?.rated ||
-                          isCreatingRating ||
-                          isUpdatingRating
-                        }
-                        onClick={() =>
-                          setisUserRatingFormOpen(!isUserRatingFormOpen)
-                        }
-                      >
-                        {rating && <Pencil />}
-
-                        {userBook?.status === "FINISHED" &&
-                          !isFavoriteList &&
-                          (userBook.rated || isCreatingRating ? (
-                            <Star weight="fill" />
-                          ) : (
-                            <Star />
-                          ))}
+                      <ProfileBookButton onClick={() => setIsModalOpen(true)}>
+                        <Trash size={24} />
                       </ProfileBookButton>
                     </AppTooltip>
                   )}
+                  {userBook && isAllUserBooks && (
+                    <BooksStatusFlag status={userBook.status} />
+                  )}
 
-                {!isAllUserBooks &&
-                  userBook &&
-                  userBook.status === "READING" &&
-                  !isFavoriteList && (
-                    <AppTooltip content="Atualizar progresso de leitura">
-                      <ProfileBookButton
+                  {!isAllUserBooks &&
+                    userBook &&
+                    (isFavoriteList || userBook.status === "FINISHED") && (
+                      <FavoriteButton
                         disabled={isUpdatingUserBook}
-                        isLoading={isUpdatingUserBook}
-                        onClick={() =>
-                          setIsReadingProgressUpdaterOpen(
-                            !isReadingProgressUpdaterOpen,
-                          )
+                        isFavorite={userBook.isFavorite}
+                        setIsFavorite={(isFavorite) =>
+                          updateUserBookMutation({
+                            isFavorite,
+                          })
                         }
-                      >
-                        <BookmarkPlus />
-                      </ProfileBookButton>
-                    </AppTooltip>
-                  )}
+                      />
+                    )}
 
-                {(rating || isAllUserBooks) && (
-                  <AppTooltip
-                    content={
-                      rating ? "Excluir avaliação" : "Excluir livro da estante"
-                    }
-                  >
-                    <ProfileBookButton onClick={() => setIsModalOpen(true)}>
-                      <Trash size={24} />
-                    </ProfileBookButton>
-                  </AppTooltip>
-                )}
-                {userBook && isAllUserBooks && (
-                  <BooksStatusFlag status={userBook.status} />
-                )}
-
-                {!isAllUserBooks &&
-                  userBook &&
-                  (isFavoriteList || userBook.status === "FINISHED") && (
-                    <FavoriteButton
+                  {!isAllUserBooks && userBook && !isFavoriteList && (
+                    <ReadingStatusSelect
                       disabled={isUpdatingUserBook}
-                      isFavorite={userBook.isFavorite}
-                      setIsFavorite={(isFavorite) =>
-                        updateUserBookMutation({
-                          isFavorite,
-                        })
-                      }
+                      onChange={onSelectChange}
+                      handleSelectOpenChange={handleSelectOpenChange}
+                      isSelectOpen={isSelectOpen}
+                      value={userBook.status}
                     />
                   )}
+                </div>
+              </ProfileBookOptions>
+            )}
 
-                {!isAllUserBooks && userBook && !isFavoriteList && (
-                  <ReadingStatusSelect
-                    disabled={isUpdatingUserBook}
-                    onChange={onSelectChange}
-                    handleSelectOpenChange={handleSelectOpenChange}
-                    isSelectOpen={isSelectOpen}
-                    value={userBook.status}
-                  />
-                )}
-              </div>
-            </ProfileBookOptions>
+            {!isFavoriteList && !isLoggedUserProfile && !rating && (
+              <BooksStatusFlag status={userBook!.status} />
+            )}
+
+            {!isLoggedUserProfile && !rating && isFavoriteList && (
+              <FavoriteFlag/>
+            )}
           </div>
 
           <div>

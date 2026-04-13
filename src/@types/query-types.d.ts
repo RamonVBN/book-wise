@@ -11,11 +11,12 @@ type RatingBookProps = {
   categories: string;
 };
 
-type RatingUserProps = {
+type UserProps = {
   id: string;
   name: string;
   avatarUrl: string;
   email: string;
+  createdAt: string
 };
 
 export type RatingProps = {
@@ -23,7 +24,7 @@ export type RatingProps = {
   rate: number;
   review: string;
   book: RatingBookProps;
-  user: RatingUserProps;
+  user: UserProps;
   createdAt: string;
   updatedAt: string;
 };
@@ -58,7 +59,7 @@ export type UserBookProps = {
   customTotalPage?: number;
   updatedAt: string;
   book: BookProps;
-  user: RatingUserProps;
+  user: UserProps;
   wantToReadPosition?: number;
   favoritePosition?: number;
 };
@@ -89,6 +90,7 @@ type Category = {
 };
 
 export type ProfileResponse = {
+  userInfo: UserProps
   userRatings: RatingProps[];
   allUserBooks: UserBookProps[];
   currentlyReadingBooks: UserBookProps[];

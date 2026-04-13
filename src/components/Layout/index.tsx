@@ -11,6 +11,7 @@ import { ReactNode, useState } from "react";
 import { useRouter } from "next/router";
 
 import { AppTooltip } from "../Tooltip";
+import { slugifyUserName } from "@/utils/slugifyUserName";
 
 
 type Navigation = {
@@ -36,6 +37,10 @@ export default function Layout({children}: {children: ReactNode}){
     const session = useSession()
 
     const isSigned = session.status === 'authenticated'
+
+    const userId = session.data?.user.id
+
+
 
     async function handleSignOut(){
         await signOut({redirect: true, callbackUrl: '/'}) 
@@ -65,7 +70,7 @@ export default function Layout({children}: {children: ReactNode}){
 
                         {
                             isSigned && (
-                        <NavButton prefetch isActive={router.pathname.includes(navigation[2].buttonName)} href={'/profile?filter=allUserBooks'}>
+                        <NavButton prefetch isActive={router.pathname.includes(navigation[2].buttonName)} href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}>
                             <span>
                                 <User size={24} />
                                 Perfil

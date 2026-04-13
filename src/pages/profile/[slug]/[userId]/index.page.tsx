@@ -17,7 +17,7 @@ import {
   ProfileBookFallback,
   ProfileCategoriesContainer,
   ProfileCategory,
-} from "./styles";
+} from "../../styles";
 import {
   BookmarkSimple,
   BookmarksSimple,
@@ -27,7 +27,7 @@ import {
   User,
   UserList,
 } from "phosphor-react";
-import { compareDesc, getYear } from "date-fns";
+import { getYear } from "date-fns";
 import { PageHeader } from "@/components/PageHeader";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
@@ -44,12 +44,12 @@ import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { Fallback } from "@/components/Fallback";
 import Image from "next/image";
-import { ProfileBookCard } from "./components/ProfileBookCard";
+import { ProfileBookCard } from "../../components/ProfileBookCard";
 import { BookAlert, Bookmark, Heart, StarIcon } from "lucide-react";
 import Link from "next/link";
-import { DragHandleProps } from "./components/SortableItem";
-import { SortableBooksList } from "./components/SortableBooksList";
-import { queryClient } from "@/lib/query";
+import { DragHandleProps } from "../../components/SortableItem";
+import { SortableBooksList } from "../../components/SortableBooksList";
+import { slugifyUserName } from "@/utils/slugifyUserName";
 
 const profileFormSchema = z.object({
   searchBook: z.string().min(1),
@@ -65,7 +65,7 @@ type MostReadCategory = {
 export type Categories = {
   allUserBooks: {
     items: UserBookProps[];
-    categoryName: "Sua estante";
+    categoryName: "Sua estante" | "Estante";
     iconColor: "ALL_USER_BOOKS";
   };
   userRatings: {
@@ -105,7 +105,7 @@ export default function Profile() {
 
   const router = useRouter();
 
-  const [orderedBooks, setOrderedBooks] = useState<UserBookProps[]>([])
+  const [orderedBooks, setOrderedBooks] = useState<UserBookProps[]>([]);
 
   const { register, handleSubmit, setFocus, reset, watch } =
     useForm<ProfileFormData>({
@@ -126,29 +126,25 @@ export default function Profile() {
     await router.push("/");
   }
 
-  function handleProfileCategories(categoryName: keyof Categories) {
-    router.replace({
-      pathname: "/profile",
-      query: { filter: categoryName },
-    });
-  }
-
-  const userId = session.data?.user.id;
-  const userName = session.data?.user.name;
-  const avatarUrl = session.data?.user.avatarUrl;
-  const createdAt = session.data?.user.createdAt;
+  const userId = router.query.userId;
 
   const { data: profileData, isLoading: isLoadingRatings } =
     useQuery<ProfileResponse>({
       queryKey: ["profile", userId],
       queryFn: async () => {
-        const response = await api.get(`/app/profile`);
+        const response = await api.get(`/app/profile/${userId}`);
 
         return response.data;
       },
       enabled: !!userId,
       staleTime: Infinity,
     });
+
+  const userName = profileData?.userInfo?.name;
+  const avatarUrl = profileData?.userInfo?.avatarUrl;
+  const createdAt = profileData?.userInfo?.createdAt;
+
+  const isLoggedUserProfile = session.data?.user.id === userId;
 
   const { mutate: updateUserBookOrder } = useMutation({
     mutationFn: async ({ userBookList, listType }: UserBookReorderProps) => {
@@ -157,56 +153,48 @@ export default function Profile() {
         position: index,
       }));
 
-      return await api.patch("/app/user-books/reorder", {
+      return await api.patch(`/app/user-books/reorder/${userId}`, {
         userBookList: payload,
         listType,
       });
     },
-    //   const previousProfileData = queryClient.getQueryData(["profile", userId]);
-
-    //   queryClient.setQueryData<ProfileResponse>(
-    //     ["profile", userId],
-    //     (oldData) => {
-    //       if (!oldData) return oldData;
-
-    //       return {
-    //         ...oldData,
-    //         wantToReadBooks:
-    //           listType === "wantToRead"
-    //             ? userBookList
-    //             : oldData.wantToReadBooks,
-    //         favoriteBooks:
-    //           listType === "favorites" ? userBookList : oldData.favoriteBooks,
-    //       };
-    //     },
-    //   );
-
-    //   return { previousProfileData };
-    // },
-    // onError: (err, __, context) => {
-    //   queryClient.setQueryData(
-    //     ["profile", userId],
-    //     context?.previousProfileData,
-    //   );
-    // },
   });
 
-  const renderStaticBook = useCallback((b: RatingProps | UserBookProps) => {
-    if ("rate" in b) {
-      return <ProfileBookCard key={b.id} rating={b} />;
-    }
+  function handleProfileCategories(categoryName: keyof Categories) {
+    router.replace({
+      pathname: `/profile/${slugifyUserName(userName!)}/${userId}`,
+      query: { filter: categoryName },
+    });
+  }
+  const renderStaticBook = useCallback(
+    (b: RatingProps | UserBookProps) => {
+      if ("rate" in b) {
+        return (
+          <ProfileBookCard
+            isLoggedUserProfile={isLoggedUserProfile}
+            key={b.id}
+            rating={b}
+          />
+        );
+      }
 
-    return <ProfileBookCard 
-    key={b.id} 
-    userBook={b}
-    isAllUserBooks={profileFilter === 'allUserBooks'}
-    />;
-  }, [profileFilter])
+      return (
+        <ProfileBookCard
+          isLoggedUserProfile={isLoggedUserProfile}
+          key={b.id}
+          userBook={b}
+          isAllUserBooks={profileFilter === "allUserBooks"}
+        />
+      );
+    },
+    [profileFilter, isLoggedUserProfile],
+  );
 
   const renderSortableBook = useCallback(
     (book: UserBookProps, dragHandle?: DragHandleProps, dragging?: boolean) => {
       return (
         <ProfileBookCard
+          isLoggedUserProfile={isLoggedUserProfile}
           key={book.id}
           userBook={book}
           dragHandle={dragHandle}
@@ -215,7 +203,7 @@ export default function Profile() {
         />
       );
     },
-    [profileFilter],
+    [profileFilter, isLoggedUserProfile],
   );
 
   function handleReorder(reorderedBooks: UserBookProps[]) {
@@ -229,7 +217,7 @@ export default function Profile() {
         profileFilter === "wantToReadBooks" ? index : book.wantToReadPosition,
     }));
 
-    setOrderedBooks(updated)
+    setOrderedBooks(updated);
 
     const listType =
       profileFilter === "favoriteBooks" ? "favoriteBooks" : "wantToReadBooks";
@@ -267,7 +255,7 @@ export default function Profile() {
     () => ({
       allUserBooks: {
         items: allUserBooks,
-        categoryName: "Sua estante",
+        categoryName: isLoggedUserProfile ? "Sua estante" : "Estante",
         iconColor: "ALL_USER_BOOKS",
       },
       userRatings: {
@@ -388,22 +376,22 @@ export default function Profile() {
 
     const hasFilter = typeof router.query.filter === "string";
 
-    if (!hasFilter) {
+    if (!hasFilter && userId && userName) {
       router.replace({
-        pathname: "/profile",
+        pathname: `/profile/${slugifyUserName(userName!)}/${userId}`,
         query: { filter: "allUserBooks" },
       });
     }
-  }, [router.isReady, profileFilter]);
+  }, [router.isReady, profileFilter, userId]);
 
   useEffect(() => {
-    if ( profileData && profileFilter && isSortableList ) {
+    if (profileData && profileFilter && isSortableList) {
+      const localStateBooks = categories[profileFilter as keyof Categories]
+        ?.items as UserBookProps[];
 
-      const localStateBooks = categories[profileFilter as keyof Categories]?.items as UserBookProps[]
-
-      setOrderedBooks(localStateBooks)
+      setOrderedBooks(localStateBooks);
     }
-  }, [profileData, profileFilter])
+  }, [profileData, profileFilter]);
 
   if (session.status === "unauthenticated") {
     handlePossibleRedirect();
@@ -457,28 +445,26 @@ export default function Profile() {
                     <h1>Perfil</h1>
                   </PageHeader>
                   <div>
-                    {
-                      !isSortableList && (
-                        <ProfileForm onSubmit={handleSubmit(onSubmit)}>
-                      <label>
-                        <ProfileInput
-                          {...register("searchBook")}
-                          placeholder="Buscar livro"
-                        />
-                      </label>
-                      <ProfileButton>
-                        <MagnifyingGlass />
-                      </ProfileButton>
-                    </ProfileForm>
-                      )
-                    }
+                    {!isSortableList && (
+                      <ProfileForm onSubmit={handleSubmit(onSubmit)}>
+                        <label>
+                          <ProfileInput
+                            {...register("searchBook")}
+                            placeholder="Buscar livro"
+                          />
+                        </label>
+                        <ProfileButton>
+                          <MagnifyingGlass />
+                        </ProfileButton>
+                      </ProfileForm>
+                    )}
                   </div>
 
                   <ProfileBooksContainer>
                     {allUserBooks.length > 0 ? (
                       isSortableList ? (
                         <SortableBooksList
-                          books={ orderedBooks }
+                          books={orderedBooks}
                           renderBook={renderSortableBook}
                           onReorder={handleReorder}
                         />
