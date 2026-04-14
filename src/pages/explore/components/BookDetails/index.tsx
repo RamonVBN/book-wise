@@ -57,6 +57,7 @@ import { BookCover } from "../../../../components/BookCover";
 import Link from "next/link";
 import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "@/components/Avatar";
+import { formatAuthors } from "@/utils/formatAuthors";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -292,7 +293,7 @@ export function BookDetails({
           isFavorite: isFavorite,
           bookId: book?.id,
           title: book?.title,
-          author: book?.author.join(","),
+          author: formatAuthors(book?.author ?? ['Autor desconhecido']),
           coverUrl: book?.coverUrl,
           pageCount: book?.pageCount,
           categories: book?.categories.join(","),
@@ -491,7 +492,9 @@ export function BookDetails({
                 <div>
                   <span>
                     <h2>{book?.title}</h2>
-                    <span>{book?.author}</span>
+                    <span>
+                      {book?.author ? formatAuthors(book.author) : 'Autor(es) desconhecido(s)'}
+                    </span>
                   </span>
                   <span>
                     <span>

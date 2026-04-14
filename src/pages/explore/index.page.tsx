@@ -82,7 +82,7 @@ export default function Explore() {
       },
     });
 
-  const debouncedSearch = useDebounce(watch("search"), 800);
+  const debouncedSearch = useDebounce(watch("search"), 1000);
 
   function handleUrlSearch({
     param,

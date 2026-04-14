@@ -75,7 +75,6 @@ export const BookRatingUserContainer = styled("div", {
   justifyContent: "space-between",
 });
 
-
 export const BookRatingUser = styled("div", {
   display: "flex",
   gap: "1rem",
@@ -264,6 +263,10 @@ export const PopBookDescription = styled("div", {
       fontSize: "0.875rem",
       lineHeight: "$base",
       color: "$gray400",
+      display: "-webkit-box",
+      WebkitLineClamp: 1,
+      WebkitBoxOrient: "vertical",
+      overflow: "hidden",
     },
   },
 
