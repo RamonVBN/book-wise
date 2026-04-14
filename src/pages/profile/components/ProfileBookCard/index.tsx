@@ -574,23 +574,34 @@ export function ProfileBookCard({
               oldData.finishedBooks,
               oldData.wantToReadBooks,
             )
-            .filter((ub) => ub.id !== userBook?.id);
+            .filter((ub) => ub.id !== userBook?.id)
+            .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
 
           const currentlyReadingBooks = updatedProfileData.filter(
             (ub) => ub.status === "READING",
           );
-          const wantToReadBooks = updatedProfileData.filter(
-            (ub) => ub.status === "WANT_TO_READ",
-          );
+          const wantToReadBooks = updatedProfileData
+            .filter((ub) => ub.status === "WANT_TO_READ")
+            .sort((ub1, ub2) =>
+              compareAsc(
+                ub1.wantToReadPosition ?? Infinity,
+                ub2.wantToReadPosition ?? Infinity,
+              ),
+            );
           const finishedBooks = updatedProfileData.filter(
             (ub) => ub.status === "FINISHED",
           );
           const abandonedBooks = updatedProfileData.filter(
             (ub) => ub.status === "ABANDONED",
           );
-          const favoriteBooks = updatedProfileData.filter(
-            (ub) => ub.isFavorite,
-          );
+          const favoriteBooks = updatedProfileData
+            .filter((ub) => ub.isFavorite)
+            .sort((ub1, ub2) =>
+              compareAsc(
+                ub1.favoritePosition ?? Infinity,
+                ub2.favoritePosition ?? Infinity,
+              ),
+            );
 
           return {
             ...oldData,
@@ -627,6 +638,7 @@ export function ProfileBookCard({
 
         queryClient.invalidateQueries({
           queryKey: ["books"],
+          refetchType: "all",
         });
 
         queryClient.invalidateQueries({
@@ -857,7 +869,7 @@ export function ProfileBookCard({
             )}
 
             {!isLoggedUserProfile && !rating && isFavoriteList && (
-              <FavoriteFlag/>
+              <FavoriteFlag />
             )}
           </div>
 
