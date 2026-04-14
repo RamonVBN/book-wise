@@ -1,4 +1,4 @@
-import { CaretRight, ChartLineUp, Star, StarHalf } from "phosphor-react";
+import { CaretRight, ChartLineUp } from "phosphor-react";
 import {
   BookRating,
   BookRatingBody,
@@ -36,7 +36,6 @@ import { StarRating } from "@/components/StarsRating";
 
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
-import Image from "next/image";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { Flame } from "lucide-react";
 import { DescripitionText } from "@/components/DescriptionText";
@@ -46,6 +45,7 @@ import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "@/components/Avatar";
 
 export default function Home() {
+
   const session = useSession();
 
   const { data: homeData, isLoading: isLoadingHomeData } =

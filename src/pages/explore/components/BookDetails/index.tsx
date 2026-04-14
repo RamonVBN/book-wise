@@ -58,6 +58,7 @@ import Link from "next/link";
 import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "@/components/Avatar";
 import { formatAuthors } from "@/utils/formatAuthors";
+import { useAuth } from "@/components/AuthContext";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -78,6 +79,8 @@ export function BookDetails({
 
   const session = useSession();
 
+  const { demoUser } = useAuth();
+
   const [isUserRatingOpen, setIsUserRatingOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,7 +91,7 @@ export function BookDetails({
   const loginModalRef = useRef<HTMLDivElement>(null);
 
   function handleUserRatingOpen() {
-    if (session.status !== "authenticated") {
+    if (session.status !== "authenticated" && !demoUser?.isDemo) {
       return setIsModalOpen(true);
     }
 
@@ -119,7 +122,7 @@ export function BookDetails({
 
   const book = findBookById(bookId);
 
-  const user = session.data?.user;
+  const user = session.data?.user ?? demoUser
 
   const { data: translatedBookData } = useQuery<{
     categories: string[];
@@ -168,6 +171,10 @@ export function BookDetails({
 
   const { mutate: createRatingMutation } = useMutation({
     mutationFn: async (data: UserRatingSubmitData) => {
+      if (demoUser?.isDemo) {
+        return;
+      }
+
       return await api.post(`/app/ratings/users/${user?.id}`, {
         rate: data.rate,
         review: data.review,
@@ -258,23 +265,25 @@ export function BookDetails({
       );
     },
     onSuccess: () => {
-      const isStillMutating =
-        queryClient.isMutating({
-          mutationKey: ["createRating"],
-        }) - 1;
+      if (!demoUser?.isDemo) {
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["createRating"],
+          }) - 1;
 
-      if (isStillMutating === 0) {
-        queryClient.invalidateQueries({
-          queryKey: ["books", searchTerm, categoriesFilters],
-        });
+        if (isStillMutating === 0) {
+          queryClient.invalidateQueries({
+            queryKey: ["books", searchTerm, categoriesFilters],
+          });
 
-        queryClient.invalidateQueries({
-          queryKey: ["profile", user?.id],
-        });
+          queryClient.invalidateQueries({
+            queryKey: ["profile", user?.id],
+          });
 
-        queryClient.invalidateQueries({
-          queryKey: ["home"],
-        });
+          queryClient.invalidateQueries({
+            queryKey: ["home"],
+          });
+        }
       }
     },
   });
@@ -288,12 +297,16 @@ export function BookDetails({
         status?: ReadingStatus;
         isFavorite?: boolean;
       }) => {
+        if (demoUser?.isDemo) {
+          return;
+        }
+
         return await api.patch(`/app/user-books/${user?.id}`, {
           readStatus: status,
           isFavorite: isFavorite,
           bookId: book?.id,
           title: book?.title,
-          author: formatAuthors(book?.author ?? ['Autor desconhecido']),
+          author: formatAuthors(book?.author ?? ["Autor desconhecido"]),
           coverUrl: book?.coverUrl,
           pageCount: book?.pageCount,
           categories: book?.categories.join(","),
@@ -384,23 +397,25 @@ export function BookDetails({
           toast.success(toastMessages.addBook.success);
         }
 
-        const isStillMutating =
-          queryClient.isMutating({
-            mutationKey: ["updateUserBook"],
-          }) - 1;
+        if (!demoUser?.isDemo) {
+          const isStillMutating =
+            queryClient.isMutating({
+              mutationKey: ["updateUserBook"],
+            }) - 1;
 
-        if (isStillMutating === 0) {
-          queryClient.invalidateQueries({
-            queryKey: ["books", searchTerm, categoriesFilters],
-          });
+          if (isStillMutating === 0) {
+            queryClient.invalidateQueries({
+              queryKey: ["books", searchTerm, categoriesFilters],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["profile", user?.id],
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["profile", user?.id],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["home"],
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["home"],
+            });
+          }
         }
       },
     });
@@ -415,7 +430,7 @@ export function BookDetails({
   }
 
   function onFavoriteButtonClick(isFavorite: boolean) {
-    if (session.status !== "authenticated") {
+    if (session.status !== "authenticated" && !demoUser?.isDemo) {
       return setIsModalOpen(true);
     }
 
@@ -493,7 +508,9 @@ export function BookDetails({
                   <span>
                     <h2>{book?.title}</h2>
                     <span>
-                      {book?.author ? formatAuthors(book.author) : 'Autor(es) desconhecido(s)'}
+                      {book?.author
+                        ? formatAuthors(book.author)
+                        : "Autor(es) desconhecido(s)"}
                     </span>
                   </span>
                   <span>
@@ -537,7 +554,9 @@ export function BookDetails({
                   <div>
                     <ReadingStatusSelect
                       openLoginModal={handleLoginModalOpen}
-                      isAuthenticated={session.status === "authenticated"}
+                      isAuthenticated={
+                        session.status === "authenticated" || demoUser?.isDemo
+                      }
                       disabled={isUpdatingReadingStatus}
                       handleSelectOpenChange={handleSelectOpenChange}
                       isSelectOpen={isSelectOpen}
@@ -584,8 +603,8 @@ export function BookDetails({
                   <UserRatingForm
                     handleCloseUserRatingForm={handleCloseUserRatingForm}
                     handleRatingSubmit={handleRatingSubmit}
-                    avatarUrl={session.data?.user.avatarUrl}
-                    userName={session.data?.user.name}
+                    avatarUrl={session.data?.user.avatarUrl ?? demoUser?.avatarUrl}
+                    userName={session.data?.user.name ?? demoUser?.name}
                   />
                 )}
 
@@ -595,7 +614,7 @@ export function BookDetails({
                     return (
                       <BookDetailsRating
                         isUserRating={
-                          rating.user.email === session.data?.user.email
+                          (rating.user.id === session.data?.user.email) || (rating.user.id === demoUser?.id)
                         }
                         key={rating.id}
                       >

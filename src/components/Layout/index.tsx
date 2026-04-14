@@ -1,8 +1,18 @@
 import Image from "next/image";
-import {AppContainer, MainContainer, MenuContainer, MenuNavigation, NavButton, SignInButton, SignInButtonContainer, SignOutButton, SignOutButtonContainer } from "./styles"
-import logo from '../../../assets/Logo.png'
+import {
+  AppContainer,
+  MainContainer,
+  MenuContainer,
+  MenuNavigation,
+  NavButton,
+  SignInButton,
+  SignInButtonContainer,
+  SignOutButton,
+  SignOutButtonContainer,
+} from "./styles";
+import logo from "../../../assets/Logo.png";
 
-import { Binoculars, ChartLineUp, SignIn, SignOut, User} from "phosphor-react"
+import { Binoculars, ChartLineUp, SignIn, SignOut, User } from "phosphor-react";
 
 import { signOut, useSession } from "next-auth/react";
 
@@ -13,109 +23,132 @@ import { useRouter } from "next/router";
 import { AppTooltip } from "../Tooltip";
 import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "../Avatar";
-
+import { useAuth } from "../AuthContext";
+import { DemoBanner } from "../DemoBanner";
 
 type Navigation = {
-    buttonName: string
-}
+  buttonName: string;
+};
 
-export default function Layout({children}: {children: ReactNode}){
+export default function Layout({ children }: { children: ReactNode }) {
+  const { demoUser, logout } = useAuth();
 
-    const [navigation] = useState<Navigation[]>([
-        {
-            buttonName: 'home',
-        },
-        {
-            buttonName: 'explore',
-        },
-        {
-            buttonName: 'profile',
-        }
-    ])
+  const [navigation] = useState<Navigation[]>([
+    {
+      buttonName: "home",
+    },
+    {
+      buttonName: "explore",
+    },
+    {
+      buttonName: "profile",
+    },
+  ]);
 
-    const router = useRouter()
+  const router = useRouter();
 
-    const session = useSession()
+  const session = useSession();
 
-    const isSigned = session.status === 'authenticated'
+  const isSigned = session.status === "authenticated";
 
-    const userId = session.data?.user.id
+  const userId = session.data?.user.id;
 
+  const isDemoUserSigned = demoUser?.isDemo;
 
+  const demoUserId = demoUser?.id;
 
-    async function handleSignOut(){
-        await signOut({redirect: true, callbackUrl: '/'}) 
+  async function handleSignOut() {
+    if (isSigned) {
+      await signOut({ redirect: true, callbackUrl: "/" });
+      return;
     }
 
-    return (
-    
-        <AppContainer>
-            <MenuContainer>
-                <Image priority quality={100} width={128} height={32} src={logo} alt=""/>
-                <MenuNavigation>
+    logout();
+    return;
+  }
 
-                    <div>
-                        <NavButton prefetch isActive={router.pathname.includes(navigation[0].buttonName)} href={'/home'} >
-                            <span>
-                                <ChartLineUp size={24} />
-                                Início
-                            </span>
-                            </NavButton>
-                        <NavButton prefetch isActive={router.pathname.includes(navigation[1].buttonName)} href={'/explore?category=Fiction'}>
-                            <span>
-                                <Binoculars size={24} />
-                                Explorar
-                            </span>
-                        </NavButton>
-                    
+  return (
+    <AppContainer>
+      <DemoBanner/>
+      <MenuContainer>
+        <Image
+          priority
+          quality={100}
+          width={128}
+          height={32}
+          src={logo}
+          alt=""
+        />
+        <MenuNavigation>
+          <div>
+            <NavButton
+              prefetch
+              isActive={router.pathname.includes(navigation[0].buttonName)}
+              href={"/home"}
+            >
+              <span>
+                <ChartLineUp size={24} />
+                Início
+              </span>
+            </NavButton>
+            <NavButton
+              prefetch
+              isActive={router.pathname.includes(navigation[1].buttonName)}
+              href={"/explore?category=Fiction"}
+            >
+              <span>
+                <Binoculars size={24} />
+                Explorar
+              </span>
+            </NavButton>
 
-                        {
-                            isSigned && (
-                        <NavButton prefetch isActive={router.pathname.includes(navigation[2].buttonName)} href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}>
-                            <span>
-                                <User size={24} />
-                                Perfil
-                            </span>
-                        </NavButton>
-                        )
-                        }
+            {(isSigned || isDemoUserSigned) && (
+              <NavButton
+                prefetch
+                isActive={router.pathname.includes(navigation[2].buttonName)}
+                href={`/profile/${slugifyUserName(session?.data?.user.name ?? demoUser?.name ?? 'User')}/${userId ?? demoUserId}?filter=allUserBooks`}
+              >
+                <span>
+                  <User size={24} />
+                  Perfil
+                </span>
+              </NavButton>
+            )}
+          </div>
 
-                    </div>
+          {isSigned || isDemoUserSigned ? (
+            <SignOutButtonContainer>
+              <span>
+                <Avatar
+                  width={32}
+                  height={32}
+                  src={session?.data?.user.avatarUrl ?? demoUser?.avatarUrl}
+                  userName={
+                    session?.data?.user.name ?? demoUser?.name ?? "User"
+                  }
+                />
+                <span>{session?.data?.user.name ?? demoUser?.name}</span>
+              </span>
+              <AppTooltip content="Sair do BookWise">
+                <SignOutButton onClick={handleSignOut}>
+                  <SignOut size={20} />
+                </SignOutButton>
+              </AppTooltip>
+            </SignOutButtonContainer>
+          ) : (
+            <SignInButtonContainer>
+              Fazer login
+              <AppTooltip content="Ir para página de login">
+                <SignInButton prefetch href={"/"}>
+                  <SignIn size={20} />
+                </SignInButton>
+              </AppTooltip>
+            </SignInButtonContainer>
+          )}
+        </MenuNavigation>
+      </MenuContainer>
 
-                    {
-                        isSigned ? (
-                            
-                            <SignOutButtonContainer>
-                                   <span>
-                                        <Avatar width={32} height={32} src={session.data.user.avatarUrl} userName={session.data.user.name}/>
-                                        <span>{session.data.user.name}</span>
-                                   </span>
-                                <AppTooltip content="Sair do BookWise">
-                                    <SignOutButton onClick={handleSignOut}>
-                                        <SignOut size={20}/>
-                                    </SignOutButton>
-                                </AppTooltip>
-                            </SignOutButtonContainer>
-                        ) :
-                        <SignInButtonContainer>
-                                Fazer login
-                            <AppTooltip content="Ir para página de login">
-                                <SignInButton prefetch href={'/'}>
-                                    <SignIn size={20} />
-                                </SignInButton>
-                            </AppTooltip>
-                        </SignInButtonContainer>
-                    }
-
-                </MenuNavigation>
-                
-
-            </MenuContainer> 
-        
-            <MainContainer>
-                {children}
-            </MainContainer>
-        </AppContainer>
-    )
+      <MainContainer>{children}</MainContainer>
+    </AppContainer>
+  );
 }
-

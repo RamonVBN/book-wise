@@ -244,3 +244,12 @@ export const SignOutButton = styled("button", {
     color: "$red100",
   },
 });
+
+export const DemoBanner = styled('div', {
+
+  position: 'fixed',
+  top: 0,
+  right: 0,
+  backgroundColor: '$blue100',
+  color: '$gray200'
+})

@@ -40,6 +40,7 @@ import { compareDesc } from "date-fns";
 import { BookCover } from "@/components/BookCover";
 import { DragHandleProps } from "../SortableItem";
 import { FavoriteFlag } from "../FavoriteFlag";
+import { useAuth } from "@/components/AuthContext";
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
@@ -60,6 +61,8 @@ export function ProfileBookCard({
   dragging,
   isLoggedUserProfile,
 }: ProfileBookCardProps) {
+  const { demoUser } = useAuth();
+
   const queryClient = useQueryClient();
 
   const [isUserRatingFormOpen, setisUserRatingFormOpen] = useState(false);
@@ -116,6 +119,10 @@ export function ProfileBookCard({
   const { mutate: updateRatingMutation, isPending: isUpdatingRating } =
     useMutation({
       mutationFn: async (data: UserRatingSubmitData) => {
+        if (demoUser?.isDemo) {
+          return;
+        }
+
         const newRate = data.rate;
         const newReview = data.review;
         return await api.put(`/app/ratings/users/${rating?.id}`, {
@@ -174,23 +181,25 @@ export function ProfileBookCard({
         );
       },
       onSuccess: () => {
-        const isStillMutating =
-          queryClient.isMutating({
-            mutationKey: ["updateRating"],
-          }) - 1;
+        if (!demoUser?.isDemo) {
+          const isStillMutating =
+            queryClient.isMutating({
+              mutationKey: ["updateRating"],
+            }) - 1;
 
-        if (isStillMutating === 0) {
-          queryClient.invalidateQueries({
-            queryKey: ["profile", userId],
-          });
+          if (isStillMutating === 0) {
+            queryClient.invalidateQueries({
+              queryKey: ["profile", userId],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["books"],
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["books"],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["home"],
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["home"],
+            });
+          }
         }
       },
     });
@@ -198,6 +207,10 @@ export function ProfileBookCard({
   const { mutate: createRatingMutation, isPending: isCreatingRating } =
     useMutation({
       mutationFn: async (data: UserRatingSubmitData) => {
+        if (demoUser?.isDemo) {
+          return;
+        }
+
         return await api.post(`/app/ratings/users/${userId}`, {
           rate: data.rate,
           review: data.review,
@@ -298,29 +311,35 @@ export function ProfileBookCard({
         );
       },
       onSuccess: () => {
-        const isStillMutating =
-          queryClient.isMutating({
-            mutationKey: ["createRating"],
-          }) - 1;
+        if (!demoUser?.isDemo) {
+          const isStillMutating =
+            queryClient.isMutating({
+              mutationKey: ["createRating"],
+            }) - 1;
 
-        if (isStillMutating === 0) {
-          queryClient.invalidateQueries({
-            queryKey: ["profile", userId],
-          });
+          if (isStillMutating === 0) {
+            queryClient.invalidateQueries({
+              queryKey: ["profile", userId],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["books"],
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["books"],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["home"],
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["home"],
+            });
+          }
         }
       },
     });
 
   const { mutate: deleteRatingMutation } = useMutation({
     mutationFn: async (ratingId: string) => {
+      if (demoUser?.isDemo) {
+        return;
+      }
+
       return await api.delete(`/app/ratings/users/${ratingId}`);
     },
     onMutate: async (ratingId) => {
@@ -372,23 +391,25 @@ export function ProfileBookCard({
       );
     },
     onSuccess: () => {
-      const isStillMutating =
-        queryClient.isMutating({
-          mutationKey: ["deleteRating"],
-        }) - 1;
+      if (!demoUser?.isDemo) {
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["deleteRating"],
+          }) - 1;
 
-      if (isStillMutating === 0) {
-        queryClient.invalidateQueries({
-          queryKey: ["profile", userId],
-        });
+        if (isStillMutating === 0) {
+          queryClient.invalidateQueries({
+            queryKey: ["profile", userId],
+          });
 
-        queryClient.invalidateQueries({
-          queryKey: ["books"],
-        });
+          queryClient.invalidateQueries({
+            queryKey: ["books"],
+          });
 
-        queryClient.invalidateQueries({
-          queryKey: ["home"],
-        });
+          queryClient.invalidateQueries({
+            queryKey: ["home"],
+          });
+        }
       }
     },
   });
@@ -406,6 +427,10 @@ export function ProfileBookCard({
         currentPage?: number;
         customTotalPage?: number;
       }) => {
+        if (demoUser?.isDemo) {
+          return;
+        }
+
         return await api.patch(`/app/user-books/${userId}`, {
           readStatus: status,
           isFavorite,
@@ -437,6 +462,8 @@ export function ProfileBookCard({
           "profile",
           userId,
         ]);
+
+        console.log(previousProfileData);
 
         queryClient.setQueryData<ProfileResponse>(
           ["profile", userId],
@@ -529,30 +556,36 @@ export function ProfileBookCard({
           toast.success(toastMessages.updateBook.success);
         }
 
-        const isStillMutating =
-          queryClient.isMutating({
-            mutationKey: ["updateUserBook"],
-          }) - 1;
+        if (!demoUser?.isDemo) {
+          const isStillMutating =
+            queryClient.isMutating({
+              mutationKey: ["updateUserBook"],
+            }) - 1;
 
-        if (isStillMutating === 0) {
-          queryClient.invalidateQueries({
-            queryKey: ["profile", userId],
-          });
+          if (isStillMutating === 0) {
+            queryClient.invalidateQueries({
+              queryKey: ["profile", userId],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["books"],
-            refetchType: "all",
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["books"],
+              refetchType: "all",
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["home"],
-          });
+            queryClient.invalidateQueries({
+              queryKey: ["home"],
+            });
+          }
         }
       },
     });
 
   const { mutate: deleteUserBookMutation } = useMutation({
     mutationFn: async () => {
+      if (demoUser?.isDemo) {
+        return;
+      }
+
       return await api.delete(`/app/user-books/${userBook?.id}`);
     },
     mutationKey: ["deleteUserBook"],
@@ -626,24 +659,26 @@ export function ProfileBookCard({
       );
     },
     onSuccess: () => {
-      const isStillMutating =
-        queryClient.isMutating({
-          mutationKey: ["deleteUserBook"],
-        }) - 1;
+      if (!demoUser?.isDemo) {
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["deleteUserBook"],
+          }) - 1;
 
-      if (isStillMutating === 0) {
-        queryClient.invalidateQueries({
-          queryKey: ["profile", userId],
-        });
+        if (isStillMutating === 0) {
+          queryClient.invalidateQueries({
+            queryKey: ["profile", userId],
+          });
 
-        queryClient.invalidateQueries({
-          queryKey: ["books"],
-          refetchType: "all",
-        });
+          queryClient.invalidateQueries({
+            queryKey: ["books"],
+            refetchType: "all",
+          });
 
-        queryClient.invalidateQueries({
-          queryKey: ["home"],
-        });
+          queryClient.invalidateQueries({
+            queryKey: ["home"],
+          });
+        }
       }
     },
   });

@@ -7,6 +7,7 @@ import { queryClient } from "@/lib/query";
 import { DefaultSeo } from "next-seo";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { AuthProvider } from "@/components/AuthContext";
 globalStyles();
 
 export default function App({
@@ -26,13 +27,15 @@ export default function App({
         />
         <Toaster
           position="top-right"
-          richColors          
+          richColors
           toastOptions={{
             duration: 3000,
           }}
         />
         <TooltipProvider delayDuration={250}>
-          <Component {...pageProps} />
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
         </TooltipProvider>
       </SessionProvider>
     </QueryClientProvider>

@@ -20,6 +20,12 @@ export const ProviderButton = styled("button", {
   lineHeight: "$base",
   transition: "all 0.2s ease-out",
 
+  svg: {
+    width: '2rem',
+    height: '2rem',
+    color: '$purple100',
+  },
+
   "&:hover": {
     backgroundColor: "$gray700",
   },

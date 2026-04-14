@@ -67,7 +67,10 @@ export default function Explore() {
     rootMargin: "300px",
   });
 
-  const searchTerm = typeof router.query.q === "string" ? router.query.q : "";
+  const searchTerm =
+    typeof router.query.q === "string"
+      ? router.query.q.replace(/\+/g, " ")
+      : "";
 
   const urlCategory =
     typeof router.query.category === "string"
@@ -82,44 +85,36 @@ export default function Explore() {
       },
     });
 
-  const debouncedSearch = useDebounce(watch("search"), 1000);
+  const debouncedSearch = useDebounce(watch("search"), 2000);
 
   function handleUrlSearch({
     param,
     value,
   }: {
     param: "q" | "category";
-    value?: string;
+    value: string;
   }) {
-    const params = new URLSearchParams(router.query as any);
-    console.log(param, params);
-    if (value) {
-      params.set(param, value);
-    } else {
-      params.delete(param);
-    }
 
-    router.replace(`/explore?${params.toString()}`);
+    const urlParams = [[param, value]] 
+    Object.fromEntries(urlParams)
+
+    router.replace({
+      pathname: "/explore",
+      query: {...Object.fromEntries(urlParams)},
+    });
     return;
   }
 
   function onSubmit({ search }: ExploreFormType) {
-
     if (search.trim().length > 0) {
-
-      router.replace({
-        pathname: "/explore",
-        query: search ? { q: search } : {},
-      });
-
-      return
+      handleUrlSearch({param: 'q', 'value': search})
+      return;
     }
 
-    return
+    return;
   }
 
   function handleCategoriesFilters(categoryName: string) {
-    handleUrlSearch({ param: "q" });
     reset();
 
     if (urlCategory.includes(categoryName)) {
@@ -129,18 +124,12 @@ export default function Explore() {
 
       const newFilters = urlCategory.toSpliced(indexToRemove, 1).join(" ");
 
-      router.replace({
-        pathname: "/explore",
-        query: newFilters ? { category: newFilters } : {},
-      });
+      handleUrlSearch({param: 'category', value: newFilters})
       return;
     }
 
     const newFilters = urlCategory.concat([categoryName]).join(" ");
-    router.replace({
-      pathname: "/explore",
-      query: newFilters ? { category: newFilters } : {},
-    });
+    handleUrlSearch({param: 'category', value: newFilters})
     return;
   }
 
@@ -163,9 +152,12 @@ export default function Explore() {
     queryKey: ["books", searchTerm, [...urlCategory].sort().join(",")],
     queryFn: async ({ pageParam = 0 }) => {
       const subjectString = urlCategory.map((c) => `subject:${c}`).join(" ");
+      
 
       const q =
         searchTerm.length > 0 ? `intitle:"${searchTerm}"` : subjectString;
+
+        console.log(q)
 
       const googleResponse = await axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
@@ -226,16 +218,13 @@ export default function Explore() {
 
   useEffect(() => {
     if (debouncedSearch.length > 0) {
-      router.replace({
-        pathname: "/explore",
-        query: debouncedSearch ? { q: debouncedSearch } : {},
-      });
+      handleUrlSearch({param: 'q', value: debouncedSearch})
     }
   }, [debouncedSearch]);
 
   useEffect(() => {
     if (!router.isReady) return;
-    setValue("search", searchTerm.replace("+", " "));
+    setValue("search", searchTerm);
   }, [searchTerm]);
 
   useEffect(() => {
@@ -246,17 +235,14 @@ export default function Explore() {
     if (!router.isReady) return;
 
     const hasSearch = typeof router.query.q === "string";
-    const hasCategory = typeof router.query.category === "string" &&
-    router.query.category.length > 0
+    const hasCategory =
+      typeof router.query.category === "string" &&
+      router.query.category.length > 0;
 
     if (!hasSearch && !hasCategory) {
-      router.replace({
-        pathname: "/explore",
-        query: { category: "Fiction" },
-      });
+      handleUrlSearch({param: 'category', value: 'Fiction'})
     }
   }, [router.isReady, searchTerm, urlCategory]);
-
 
   return (
     <>
@@ -265,15 +251,14 @@ export default function Explore() {
         description="Explore o mundo dos livros junto conosco!"
       />
       <Layout>
-        
-          <BookDetails
-            isOpen={isBookDetailsOpen && !!bookDetailsId}
-            searchTerm={searchTerm}
-            categoriesFilters={[...urlCategory].sort().join(",")}
-            bookId={bookDetailsId}
-            closeBookDetails={handleCloseBookDetails}
-          />
-      
+        <BookDetails
+          isOpen={isBookDetailsOpen && !!bookDetailsId}
+          searchTerm={searchTerm}
+          categoriesFilters={[...urlCategory].sort().join(",")}
+          bookId={bookDetailsId}
+          closeBookDetails={handleCloseBookDetails}
+        />
+
         <ExploreContainer onScroll={handleScroll} ref={exploreContainerRef}>
           <ExploreHeader>
             <PageHeader>

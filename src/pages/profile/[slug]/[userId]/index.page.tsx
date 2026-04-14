@@ -50,6 +50,8 @@ import { DragHandleProps } from "../../components/SortableItem";
 import { SortableBooksList } from "../../components/SortableBooksList";
 import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/components/AuthContext";
+import { demoProfileData } from "@/mocks/profile";
 
 const profileFormSchema = z.object({
   searchBook: z.string().min(1),
@@ -101,7 +103,11 @@ export type Categories = {
 };
 
 export default function Profile() {
+  const { demoUser } = useAuth();
+
   const session = useSession();
+
+  
 
   const router = useRouter();
 
@@ -132,20 +138,24 @@ export default function Profile() {
     useQuery<ProfileResponse>({
       queryKey: ["profile", userId],
       queryFn: async () => {
-        const response = await api.get(`/app/profile/${userId}`);
+        if (!demoUser?.isDemo || userId !== demoUser.id) {
+          const response = await api.get(`/app/profile/${userId}`);
 
-        return response.data;
+          return response.data;
+        }
+
+        return demoProfileData
       },
       enabled: !!userId,
       staleTime: Infinity,
     });
 
-  const userName = profileData?.userInfo?.name;
-  const slugedUserName = slugifyUserName(userName ?? '')
-  const avatarUrl = profileData?.userInfo?.avatarUrl;
-  const createdAt = profileData?.userInfo?.createdAt;
+  const userName = profileData?.userInfo?.name ?? demoUser?.name;
+  const slugedUserName = slugifyUserName(userName ?? demoUser?.name ?? "");
+  const avatarUrl = profileData?.userInfo?.avatarUrl ?? demoUser?.avatarUrl;
+  const createdAt = profileData?.userInfo?.createdAt ?? new Date().toString();
 
-  const isLoggedUserProfile = session.data?.user.id === userId;
+  const isLoggedUserProfile = (session.data?.user.id === userId) || (demoUser?.id === userId)
 
   const { mutate: updateUserBookOrder } = useMutation({
     mutationFn: async ({ userBookList, listType }: UserBookReorderProps) => {
@@ -375,7 +385,8 @@ export default function Profile() {
   useEffect(() => {
     if (!router.isReady) return;
 
-    const hasFilter = typeof router.query.filter === "string" && router.query.filter.length > 0;
+    const hasFilter =
+      typeof router.query.filter === "string" && router.query.filter.length > 0;
 
     if (!hasFilter && slugedUserName) {
       router.replace({
@@ -394,7 +405,7 @@ export default function Profile() {
     }
   }, [profileData, profileFilter]);
 
-  if (session.status === "unauthenticated") {
+  if (session.status === 'unauthenticated' && !demoUser?.isDemo) {
     handlePossibleRedirect();
   }
 
@@ -486,7 +497,13 @@ export default function Profile() {
                 <UserContainer>
                   <UserProfile>
                     {avatarUrl && (
-                      <Avatar width={72} height={72} userName={userName ?? 'User'} src={avatarUrl} borderWidth="md" />
+                      <Avatar
+                        width={72}
+                        height={72}
+                        userName={userName ?? "User"}
+                        src={avatarUrl}
+                        borderWidth="md"
+                      />
                     )}
 
                     <span>
