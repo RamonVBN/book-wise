@@ -29,6 +29,24 @@ export default async function deleteUserBook(
         }
     })
 
+    const rating = await prisma.rating.findUnique({
+        where: {
+            userId_bookId: {
+                userId,
+                bookId
+            }
+        }
+    })
+
+    if (rating) {
+
+        await prisma.rating.delete({
+            where: {
+                id: rating.id
+            }
+        })
+    }
+
     if (book!.userBooks.length < 1){
 
         await prisma.book.delete({
