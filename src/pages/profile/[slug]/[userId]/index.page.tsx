@@ -43,7 +43,6 @@ import { formatCategories } from "@/utils/formatCategories";
 import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 import { Fallback } from "@/components/Fallback";
-import Image from "next/image";
 import { ProfileBookCard } from "../../components/ProfileBookCard";
 import { BookAlert, Bookmark, Heart, StarIcon } from "lucide-react";
 import Link from "next/link";
@@ -142,6 +141,7 @@ export default function Profile() {
     });
 
   const userName = profileData?.userInfo?.name;
+  const slugedUserName = slugifyUserName(userName ?? '')
   const avatarUrl = profileData?.userInfo?.avatarUrl;
   const createdAt = profileData?.userInfo?.createdAt;
 
@@ -163,7 +163,7 @@ export default function Profile() {
 
   function handleProfileCategories(categoryName: keyof Categories) {
     router.replace({
-      pathname: `/profile/${slugifyUserName(userName!)}/${userId}`,
+      pathname: `/profile/${slugedUserName}/${userId}`,
       query: { filter: categoryName },
     });
   }
@@ -375,15 +375,15 @@ export default function Profile() {
   useEffect(() => {
     if (!router.isReady) return;
 
-    const hasFilter = typeof router.query.filter === "string";
+    const hasFilter = typeof router.query.filter === "string" && router.query.filter.length > 0;
 
-    if (!hasFilter && userId && userName) {
+    if (!hasFilter && slugedUserName) {
       router.replace({
-        pathname: `/profile/${slugifyUserName(userName!)}/${userId}`,
+        pathname: `/profile/${slugedUserName}/${userId}`,
         query: { filter: "allUserBooks" },
       });
     }
-  }, [router.isReady, profileFilter, userId]);
+  }, [router.isReady, profileFilter, userId, userName]);
 
   useEffect(() => {
     if (profileData && profileFilter && isSortableList) {
