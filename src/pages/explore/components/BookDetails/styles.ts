@@ -197,12 +197,6 @@ export const BookInfoFooter = styled("div", {
       alignItems: "center",
       gap: "1rem",
 
-      svg: {
-        width: "1.5rem",
-        height: "1.5rem",
-        color: "$green100",
-      },
-
       span: {
         display: "flex",
         flexDirection: "column",
@@ -221,6 +215,22 @@ export const BookInfoFooter = styled("div", {
           lineHeight: "$short",
           color: "$gray200",
         },
+      },
+    },
+
+    '& > div:nth-child(1)': {
+      svg: {
+        width: "1.5rem",
+        height: "1.5rem",
+        color: "$green100",
+      },
+    },
+
+    '& > div:nth-child(2)': {
+      svg: {
+        width: "1.5rem",
+        height: "1.5rem",
+        color: "$green100",
       },
     },
 
