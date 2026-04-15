@@ -236,8 +236,13 @@ export const SignOutButton = styled("button", {
   padding: "$2",
   borderRadius: "$full",
 
-  "&:hover": {
+  "&:not(:disabled):hover": {
     backgroundColor: "$gray500",
+  },
+
+  '&:disabled': {
+    cursor: 'progress',
+    opacity: 0.8
   },
 
   svg: {

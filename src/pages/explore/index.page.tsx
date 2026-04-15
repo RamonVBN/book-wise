@@ -157,8 +157,6 @@ export default function Explore() {
       const q =
         searchTerm.length > 0 ? `intitle:"${searchTerm}"` : subjectString;
 
-        console.log(q)
-
       const googleResponse = await axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
       );

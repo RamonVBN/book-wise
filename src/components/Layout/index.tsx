@@ -33,6 +33,8 @@ type Navigation = {
 export default function Layout({ children }: { children: ReactNode }) {
   const { demoUser, logout } = useAuth();
 
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const [navigation] = useState<Navigation[]>([
     {
       buttonName: "home",
@@ -58,18 +60,20 @@ export default function Layout({ children }: { children: ReactNode }) {
   const demoUserId = demoUser?.id;
 
   async function handleSignOut() {
+    setIsLoggingOut(true);
+
     if (isSigned) {
       await signOut({ redirect: true, callbackUrl: "/" });
-      return;
+    } else {
+      logout();
     }
-
-    logout();
+    
     return;
   }
 
   return (
     <AppContainer>
-      <DemoBanner/>
+      <DemoBanner />
       <MenuContainer>
         <Image
           priority
@@ -106,7 +110,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               <NavButton
                 prefetch
                 isActive={router.pathname.includes(navigation[2].buttonName)}
-                href={`/profile/${slugifyUserName(session?.data?.user.name ?? demoUser?.name ?? 'User')}/${userId ?? demoUserId}?filter=allUserBooks`}
+                href={`/profile/${slugifyUserName(session?.data?.user.name ?? demoUser?.name ?? "User")}/${userId ?? demoUserId}?filter=allUserBooks`}
               >
                 <span>
                   <User size={24} />
@@ -130,7 +134,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <span>{session?.data?.user.name ?? demoUser?.name}</span>
               </span>
               <AppTooltip content="Sair do BookWise">
-                <SignOutButton onClick={handleSignOut}>
+                <SignOutButton disabled={isLoggingOut} onClick={handleSignOut}>
                   <SignOut size={20} />
                 </SignOutButton>
               </AppTooltip>
