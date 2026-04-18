@@ -12,6 +12,7 @@ export const AvatarContainer = styled("div", {
 
   borderRadius: "100%",
   display: "inline-block",
+  cursor: 'pointer',
 
   border: "$$borderWidth solid transparent",
 

@@ -12,7 +12,7 @@ type ReadingStatusSelectProps = {
   handleSelectOpenChange: (isOpen: boolean) => void;
   disabled: boolean;
   isAuthenticated?: boolean;
-  openLoginModal?: () => void;
+  openLoginModal?: (message: string) => void;
 };
 
 export function ReadingStatusSelect({
@@ -27,7 +27,7 @@ export function ReadingStatusSelect({
 }: ReadingStatusSelectProps) {
   function handleValueChange(value: ReadingStatus) {
     if (!isAuthenticated && openLoginModal) {
-      openLoginModal();
+      openLoginModal('Faça login para adicionar ou atualizar livros');
       return;
     }
 

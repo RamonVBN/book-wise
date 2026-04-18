@@ -6,11 +6,13 @@ type AvatarProps = {
   src?: string;
   userName: string
   borderWidth?: 'sm' | 'md'
+  onClick?: () => void
 };
 
-export function Avatar({ height, width, src, userName, borderWidth = 'sm' }: AvatarProps) {
+export function Avatar({ height, width, src, userName, borderWidth = 'sm', onClick }: AvatarProps) {
   return (
     <AvatarContainer
+    onClick={onClick}
       css={{
         $$width: `${width}px`,
         $$height: `${height}px`,

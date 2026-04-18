@@ -307,7 +307,7 @@ export const BookDetailsRating = styled("div", {
   gap: "1.25rem",
 
   div: {
-    width: "100%",
+    
     display: "flex",
     justifyContent: "space-between",
 
@@ -316,11 +316,6 @@ export const BookDetailsRating = styled("div", {
       justifyContent: "flex-start",
       gap: "1rem",
 
-      img: {
-        width: "2.5rem",
-        height: "2.5rem",
-        borderRadius: "999px",
-      },
 
       span: {
         display: "flex",

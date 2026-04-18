@@ -59,6 +59,7 @@ import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "@/components/Avatar";
 import { formatAuthors } from "@/utils/formatAuthors";
 import { useAuth } from "@/components/AuthContext";
+import { AuthModal } from "@/components/AuthModal";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -84,6 +85,8 @@ export function BookDetails({
   const [isUserRatingOpen, setIsUserRatingOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [modalMessage, setModalMessage] = useState('')
 
   const [isSelectOpen, setIsSelectOpen] = useState(false);
 
@@ -438,7 +441,8 @@ export function BookDetails({
     return;
   }
 
-  function handleLoginModalOpen() {
+  function handleLoginModalOpen(message: string) {
+    setModalMessage(message)
     setIsModalOpen(true);
   }
 
@@ -461,20 +465,7 @@ export function BookDetails({
           <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
             <X />
           </CloseButton>
-          <BookDetailsModalBody>
-            <h3>Faça login para adicionar livros a sua estante</h3>
-            <div>
-              <ProviderButton onClick={async () => signIn("google")}>
-                <Image src={googleLogo} alt="" />
-                Entrar com Google
-              </ProviderButton>
-
-              <ProviderButton onClick={async () => signIn("github")}>
-                <Image src={githubLogo} alt="" />
-                Entrar com Github
-              </ProviderButton>
-            </div>
-          </BookDetailsModalBody>
+          <AuthModal description={modalMessage}/>
         </Modal>
       )}
 
@@ -620,7 +611,8 @@ export function BookDetails({
                       >
                         <div>
                           <div>
-                            <Link
+                           {
+                            user ? ( <Link
                               href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}
                             >
                               <Avatar
@@ -629,7 +621,18 @@ export function BookDetails({
                                 userName={rating.user.name}
                                 src={rating.user.avatarUrl}
                               />
-                            </Link>
+                            </Link>) : 
+                            
+                            (<Avatar
+                                width={40}
+                                height={40}
+                                userName={rating.user.name}
+                                src={rating.user.avatarUrl}
+                                onClick={() => handleLoginModalOpen('Faça login pra ver perfis de outros usuários')}
+                              />)
+                           }
+
+                            
                             <span>
                               <h3>{rating.user.name}</h3>
                               <span>

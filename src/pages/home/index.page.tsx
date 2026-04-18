@@ -37,14 +37,24 @@ import { StarRating } from "@/components/StarsRating";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
-import { Flame } from "lucide-react";
+import { Flame, X } from "lucide-react";
 import { DescripitionText } from "@/components/DescriptionText";
 import { BookCover } from "@/components/BookCover";
 import Link from "next/link";
 import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/components/AuthContext";
+import { Modal } from "@/components/Modal";
+import { CloseButton } from "../explore/components/BookDetails/styles";
+import { AuthModal } from "@/components/AuthModal";
+import { useRef, useState } from "react";
 
 export default function Home() {
+  const { demoUser } = useAuth();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const loginModalRef = useRef<HTMLDivElement>(null);
 
   const session = useSession();
 
@@ -63,6 +73,18 @@ export default function Home() {
 
   const userId = session.data?.user.id;
 
+  function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement;
+
+    if (
+      isModalOpen &&
+      loginModalRef.current &&
+      !loginModalRef.current.contains(target)
+    ) {
+      return setIsModalOpen(false);
+    }
+  }
+
   return (
     <>
       <NextSeo
@@ -70,6 +92,18 @@ export default function Home() {
         description="Veja as avaliações e os livros mais populares!"
       />
       <Layout>
+        {isModalOpen && (
+          <Modal
+            ref={loginModalRef}
+            onPointerDown={(e) => handleClickOutside(e)}
+          >
+            <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
+              <X />
+            </CloseButton>
+            <AuthModal description="Faça login para ver perfis de outros usuários" />
+          </Modal>
+        )}
+
         <Container>
           {!isLoadingHomeData ? (
             <>
@@ -157,17 +191,26 @@ export default function Home() {
                           <BookRating key={rating.id}>
                             <BookRatingUserContainer>
                               <BookRatingUser>
-                                <Link
-                                  prefetch
-                                  href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}
-                                >
+                                {isSigned || demoUser?.isDemo ? (
+                                  <Link
+                                    href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}
+                                  >
+                                    <Avatar
+                                      width={40}
+                                      height={40}
+                                      userName={rating.user.name}
+                                      src={rating.user.avatarUrl}
+                                    />
+                                  </Link>
+                                ) : (
                                   <Avatar
                                     width={40}
                                     height={40}
                                     userName={rating.user.name}
                                     src={rating.user.avatarUrl}
+                                    onClick={() => setIsModalOpen(true)}
                                   />
-                                </Link>
+                                )}
                                 <span>
                                   <span>{rating.user.name}</span>
                                   <span>

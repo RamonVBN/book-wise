@@ -161,8 +161,6 @@ export default function Explore() {
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&langRestrict=pt&printType=books&orderBy=relevance&startIndex=${pageParam}&maxResults=20&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}`,
       );
 
-      console.log(googleResponse)
-
       const exploreBooksResponse = await api.post(`/app/books`, {
         googleData: googleResponse.data.items,
       });
@@ -189,6 +187,8 @@ export default function Explore() {
 
       return nextIndex;
     },
+    retry: true,
+    retryOnMount: true
   });
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
