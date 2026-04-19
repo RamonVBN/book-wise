@@ -17,7 +17,7 @@ import {
 } from "./styles";
 
 import { capitalize } from "@/utils/capitalize";
-import { formatDistanceToNow } from "date-fns";
+import { compareAsc, compareDesc, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { formatCategories } from "@/utils/formatCategories";
 import { useEffect, useRef, useState } from "react";
@@ -38,7 +38,9 @@ import {
 import {
   BooksQueryData,
   BooksResponse,
+  ProfileResponse,
   RatingProps,
+  UserBookProps,
 } from "@/@types/query-types";
 import { StarRating } from "@/components/StarsRating";
 import {
@@ -86,7 +88,7 @@ export function BookDetails({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [modalMessage, setModalMessage] = useState('')
+  const [modalMessage, setModalMessage] = useState("");
 
   const [isSelectOpen, setIsSelectOpen] = useState(false);
 
@@ -125,7 +127,7 @@ export function BookDetails({
 
   const book = findBookById(bookId);
 
-  const user = session.data?.user ?? demoUser
+  const user = session.data?.user ?? demoUser;
 
   const { data: translatedBookData } = useQuery<{
     categories: string[];
@@ -202,6 +204,8 @@ export function BookDetails({
         categoriesFilters,
       ]);
 
+      const newCacheRatingId = crypto.randomUUID();
+
       queryClient.setQueryData<BooksQueryData>(
         ["books", searchTerm, categoriesFilters],
         (oldData) => {
@@ -217,8 +221,6 @@ export function BookDetails({
                 const newRatingsCount = book.ratingsCount + 1;
                 const newRatingsSum = book.ratingsSum + data.rate!;
                 const newAvg = newRatingsSum / newRatingsCount;
-
-                const newCacheRatingId = crypto.randomUUID();
 
                 const newRating: RatingProps = {
                   id: newCacheRatingId,
@@ -252,6 +254,76 @@ export function BookDetails({
                 };
               }),
             })),
+          };
+        },
+      );
+
+      queryClient.setQueryData<ProfileResponse>(
+        ["profile", user?.id],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          const newRating: RatingProps = {
+            id: newCacheRatingId,
+            rate: data.rate,
+            review: data.review,
+            book: {
+              id: book!.id,
+              title: book!.title,
+              author: book!.author.join(","),
+              categories: book!.categories.join(","),
+              pageCount: book!.pageCount,
+              coverUrl: book!.coverUrl,
+            },
+            user: user!,
+            createdAt: new Date().toString(),
+            updatedAt: new Date().toString(),
+          };
+
+          const newUserRatings = [newRating].concat(oldData.userRatings);
+
+          const updatedUserbooks = oldData.abandonedBooks
+            .concat(
+              oldData.currentlyReadingBooks,
+              oldData.finishedBooks,
+              oldData.wantToReadBooks,
+            )
+            .map((ub) => {
+              if (ub.id === book?.userBookInfo?.userBookId) {
+                const newUpdatedAt = new Date();
+                return {
+                  ...ub,
+                  rated: true,
+                  updatedAt: newUpdatedAt.toString(),
+                };
+              }
+              return ub;
+            })
+            .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
+
+          const currentlyReadingBooks = updatedUserbooks.filter(
+            (ub) => ub.status === "READING",
+          );
+          const wantToReadBooks = updatedUserbooks.filter(
+            (ub) => ub.status === "WANT_TO_READ",
+          );
+          const finishedBooks = updatedUserbooks.filter(
+            (ub) => ub.status === "FINISHED",
+          );
+          const abandonedBooks = updatedUserbooks.filter(
+            (ub) => ub.status === "ABANDONED",
+          );
+          const favoriteBooks = updatedUserbooks.filter((ub) => ub.isFavorite);
+
+          return {
+            ...oldData,
+            allUserBooks: updatedUserbooks,
+            userRatings: newUserRatings,
+            currentlyReadingBooks,
+            wantToReadBooks,
+            finishedBooks,
+            favoriteBooks,
+            abandonedBooks,
           };
         },
       );
@@ -327,6 +399,176 @@ export function BookDetails({
           categoriesFilters,
         ]);
 
+        const userBookCacheId = crypto.randomUUID();
+
+        let userBookExists = false;
+
+        queryClient.setQueryData<ProfileResponse>(
+          ["profile", user?.id],
+          (oldData) => {
+
+            const newUserBook: UserBookProps = {
+              id: userBookCacheId,
+              book: {
+                ...book!,
+                id: book!.id,
+                title: book!.title,
+                author: book!.author.join(","),
+                categories: book!.categories.join(","),
+                pageCount: book!.pageCount,
+                coverUrl: book!.coverUrl,
+              },
+              isFavorite: false,
+              rated: false,
+              status: status!,
+              currentPage: status === "FINISHED" ? book?.pageCount : undefined,
+              updatedAt: new Date().toString(),
+              user: user!,
+              userId: user!.id,
+            };
+
+            if (!oldData) { 
+              return {
+              allUserBooks: [newUserBook],
+              userRatings: [],
+              currentlyReadingBooks: newUserBook.status === 'READING' ? [newUserBook] : [] ,
+              wantToReadBooks:  newUserBook.status === 'WANT_TO_READ' ? [newUserBook] : [],
+              finishedBooks:  newUserBook.status === 'FINISHED' ? [newUserBook] : [],
+              abandonedBooks:  newUserBook.status === 'ABANDONED' ? [newUserBook] : [],
+              favoriteBooks:  newUserBook.isFavorite ? [newUserBook] : [],
+              userInfo: demoUser!
+            };
+            }
+
+            userBookExists = oldData.abandonedBooks
+              .concat(
+                oldData.currentlyReadingBooks,
+                oldData.finishedBooks,
+                oldData.wantToReadBooks,
+              )
+              .some((ub) => ub.id === book?.userBookInfo?.userBookId);
+
+            if (userBookExists) {
+              const updatedProfileData = oldData.abandonedBooks
+                .concat(
+                  oldData.currentlyReadingBooks,
+                  oldData.finishedBooks,
+                  oldData.wantToReadBooks,
+                )
+                .map((ub) => {
+                  if (ub.id === book?.userBookInfo?.userBookId) {
+                    const newUpdatedAt = new Date();
+                    const totalPages = ub.customTotalPage ?? ub.book.pageCount;
+
+                    return {
+                      ...ub,
+                      status: status ?? ub.status,
+                      isFavorite: isFavorite ?? ub.isFavorite,
+                      currentPage:
+                        status === "FINISHED" ? totalPages : ub.currentPage,
+                      updatedAt: newUpdatedAt.toString(),
+                    };
+                  }
+                  return ub;
+                })
+                .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
+
+              const currentlyReadingBooks = updatedProfileData.filter(
+                (ub) => ub.status === "READING",
+              );
+
+              const wantToReadBooks = updatedProfileData
+                .filter((ub) => ub.status === "WANT_TO_READ")
+                .sort((ub1, ub2) =>
+                  compareAsc(
+                    ub1.wantToReadPosition ?? Infinity,
+                    ub2.wantToReadPosition ?? Infinity,
+                  ),
+                );
+
+              const finishedBooks = updatedProfileData.filter(
+                (ub) => ub.status === "FINISHED",
+              );
+
+              const abandonedBooks = updatedProfileData.filter(
+                (ub) => ub.status === "ABANDONED",
+              );
+              const favoriteBooks = updatedProfileData
+                .filter((ub) => ub.isFavorite)
+                .sort((ub1, ub2) =>
+                  compareAsc(
+                    ub1.favoritePosition ?? Infinity,
+                    ub2.favoritePosition ?? Infinity,
+                  ),
+                );
+
+              return {
+                ...oldData,
+                allUserBooks: updatedProfileData,
+                currentlyReadingBooks,
+                wantToReadBooks,
+                finishedBooks,
+                abandonedBooks,
+                favoriteBooks,
+              };
+            }
+
+            const updatedProfileData = [newUserBook]
+              .concat(
+                oldData.abandonedBooks.concat(
+                  oldData.currentlyReadingBooks,
+                  oldData.finishedBooks,
+                  oldData.wantToReadBooks,
+                ),
+              )
+              .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
+
+            const currentlyReadingBooks = updatedProfileData.filter(
+              (ub) => ub.status === "READING",
+            );
+
+            const wantToReadBooks = updatedProfileData
+              .filter((ub) => ub.status === "WANT_TO_READ")
+              .sort((ub1, ub2) =>
+                compareAsc(
+                  ub1.wantToReadPosition ?? Infinity,
+                  ub2.wantToReadPosition ?? Infinity,
+                ),
+              );
+
+            const finishedBooks = updatedProfileData.filter(
+              (ub) => ub.status === "FINISHED",
+            );
+
+            const abandonedBooks = updatedProfileData.filter(
+              (ub) => ub.status === "ABANDONED",
+            );
+            const favoriteBooks = updatedProfileData
+              .filter((ub) => ub.isFavorite)
+              .sort((ub1, ub2) =>
+                compareAsc(
+                  ub1.favoritePosition ?? Infinity,
+                  ub2.favoritePosition ?? Infinity,
+                ),
+              );
+
+            return {
+              ...oldData,
+              allUserBooks: updatedProfileData,
+              currentlyReadingBooks,
+              wantToReadBooks,
+              finishedBooks,
+              abandonedBooks,
+              favoriteBooks,
+            };
+          },
+        );
+
+        const cachedProfile = queryClient.getQueryData<ProfileResponse>([
+          "profile",
+          user?.id,
+        ]);
+
         queryClient.setQueryData<BooksQueryData>(
           ["books", searchTerm, categoriesFilters],
           (oldData) => {
@@ -343,6 +585,9 @@ export function BookDetails({
                     ...book,
                     userBookInfo: {
                       ...book.userBookInfo!,
+                      userBookId: userBookExists
+                        ? book.userBookInfo!.userBookId
+                        : userBookCacheId,
                       status: status ?? book.userBookInfo!.status,
                       isFavorite:
                         isFavorite ?? book.userBookInfo?.isFavorite ?? false,
@@ -442,7 +687,7 @@ export function BookDetails({
   }
 
   function handleLoginModalOpen(message: string) {
-    setModalMessage(message)
+    setModalMessage(message);
     setIsModalOpen(true);
   }
 
@@ -465,7 +710,7 @@ export function BookDetails({
           <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
             <X />
           </CloseButton>
-          <AuthModal description={modalMessage}/>
+          <AuthModal description={modalMessage} />
         </Modal>
       )}
 
@@ -594,7 +839,9 @@ export function BookDetails({
                   <UserRatingForm
                     handleCloseUserRatingForm={handleCloseUserRatingForm}
                     handleRatingSubmit={handleRatingSubmit}
-                    avatarUrl={session.data?.user.avatarUrl ?? demoUser?.avatarUrl}
+                    avatarUrl={
+                      session.data?.user.avatarUrl ?? demoUser?.avatarUrl
+                    }
                     userName={session.data?.user.name ?? demoUser?.name}
                   />
                 )}
@@ -605,34 +852,37 @@ export function BookDetails({
                     return (
                       <BookDetailsRating
                         isUserRating={
-                          (rating.user.id === session.data?.user.email) || (rating.user.id === demoUser?.id)
+                          rating.user.id === user?.id
                         }
                         key={rating.id}
                       >
                         <div>
                           <div>
-                           {
-                            user ? ( <Link
-                              href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}
-                            >
+                            {user ? (
+                              <Link
+                                href={`/profile/${slugifyUserName(rating.user.name)}/${rating.user.id}?filter=allUserBooks`}
+                              >
+                                <Avatar
+                                  width={40}
+                                  height={40}
+                                  userName={rating.user.name}
+                                  src={rating.user.avatarUrl}
+                                />
+                              </Link>
+                            ) : (
                               <Avatar
                                 width={40}
                                 height={40}
                                 userName={rating.user.name}
                                 src={rating.user.avatarUrl}
+                                onClick={() =>
+                                  handleLoginModalOpen(
+                                    "Faça login pra ver perfis de outros usuários",
+                                  )
+                                }
                               />
-                            </Link>) : 
-                            
-                            (<Avatar
-                                width={40}
-                                height={40}
-                                userName={rating.user.name}
-                                src={rating.user.avatarUrl}
-                                onClick={() => handleLoginModalOpen('Faça login pra ver perfis de outros usuários')}
-                              />)
-                           }
+                            )}
 
-                            
                             <span>
                               <h3>{rating.user.name}</h3>
                               <span>

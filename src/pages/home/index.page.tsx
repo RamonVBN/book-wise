@@ -73,6 +73,10 @@ export default function Home() {
 
   const userId = session.data?.user.id;
 
+  function handleCloseModal(){
+    setIsModalOpen(false)
+  }
+
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
 
@@ -100,7 +104,7 @@ export default function Home() {
             <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
               <X />
             </CloseButton>
-            <AuthModal description="Faça login para ver perfis de outros usuários" />
+            <AuthModal handleCloseModal={handleCloseModal} description="Faça login para ver perfis de outros usuários" />
           </Modal>
         )}
 

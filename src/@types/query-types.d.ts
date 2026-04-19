@@ -112,6 +112,7 @@ type RatingQueryData = {
 };
 
 type UserBookInfo = {
+  userBookId: string
   status: ReadingStatus;
   isFavorite: boolean;
   rated: boolean;

@@ -22,7 +22,7 @@ export function Avatar({ height, width, src, userName, borderWidth = 'sm', onCli
       <AvatarInner>
         {
             src ? (
-                <AvatarImage quality={100} priority width={width} height={height} src={src} alt="" />
+                <AvatarImage unoptimized quality={100} priority width={width} height={height} src={src} alt="" />
             ) : (
                 <AvatarFallback>
                     {userName[0]}

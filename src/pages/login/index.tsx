@@ -60,7 +60,7 @@ export default function Login() {
       <Container>
         <ImageContainer>
           <LogoFilter>
-            <Image priority quality={100} src={logo} alt="" />
+            <Image unoptimized priority quality={100} src={logo} alt="" />
           </LogoFilter>
         </ImageContainer>
 
@@ -73,15 +73,15 @@ export default function Login() {
 
             <ProviderContainer>
               <ProviderButton login onClick={handleGoogleSignIn}>
-                <Image src={googleLogo} alt="" />
+                <Image unoptimized src={googleLogo} alt="" />
                 Entrar com Google
               </ProviderButton>
               <ProviderButton login onClick={handleGithubSignIn}>
-                <Image src={githubLogo} alt="" />
+                <Image unoptimized src={githubLogo} alt="" />
                 Entrar com Github
               </ProviderButton>
               <ProviderButton login onClick={handleRedirect}>
-                <Image src={visitLogo} alt="" />
+                <Image unoptimized src={visitLogo} alt="" />
                 Acessar como visitante
               </ProviderButton>
               <ProviderButton login onClick={loginAsDemo}>

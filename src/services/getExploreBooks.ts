@@ -76,6 +76,7 @@ export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
       ratingsSum: dbBook.ratingsSum,
       ratings: dbBook.ratings,
       userBookInfo: {
+        userBookId: userBook?.id,
         status: userBook?.status,
         isFavorite: userBook?.isFavorite,
         rated: userBook?.rated,

@@ -25,12 +25,16 @@ import { slugifyUserName } from "@/utils/slugifyUserName";
 import { Avatar } from "../Avatar";
 import { useAuth } from "../AuthContext";
 import { DemoBanner } from "../DemoBanner";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Navigation = {
   buttonName: string;
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
+
+  const queryClient = useQueryClient()
+
   const { demoUser, logout } = useAuth();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -67,7 +71,8 @@ export default function Layout({ children }: { children: ReactNode }) {
     } else {
       logout();
     }
-    
+
+    queryClient.clear()
     return;
   }
 

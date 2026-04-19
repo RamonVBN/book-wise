@@ -158,11 +158,6 @@ const wantToReadBooks = allUserBooks.filter(
   (b) => b.status === "WANT_TO_READ",
 );
 
-// const favoriteBooks = allUserBooks.filter(
-//   (b) => b.status === "READING",
-// );
-
-
 
 export const demoProfileData: ProfileResponse = {
   userInfo: demoUserInfo,

@@ -1,4 +1,6 @@
 import {
+  BooksQueryData,
+  ExploreBooksProps,
   ProfileResponse,
   RatingProps,
   UserBookProps,
@@ -170,6 +172,50 @@ export function ProfileBookCard({
           },
         );
 
+        queryClient.setQueriesData<BooksQueryData>(
+          { queryKey: ["books"] },
+          (oldData) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((book) => {
+                  if (book.id !== rating?.book.id) return book;
+
+                  const newRatingsSum = book.ratingsSum - rating.rate + data.rate;
+                  const newAvg = newRatingsSum / book.ratingsCount;
+
+                  const updatedBookRatings = book.ratings.map((r) => {
+                    if (r.id === ratingId) {
+                      return {
+                        ...r,
+                        review: data.review,
+                        rate: data.rate,
+                        updatedAt: new Date().toString(),
+                      };
+                    }
+
+                    return r;
+                  });
+
+                  const updatedBook: ExploreBooksProps = {
+                    ...book,
+                    ratingsSum: newRatingsSum,
+                    avgRating: newAvg,
+                    ratings: updatedBookRatings,
+                  };
+
+                  return {
+                    ...updatedBook,
+                  };
+                }),
+              })),
+            };
+          },
+        );
+
         return { previousProfileData };
       },
       onError: (err, __, context) => {
@@ -233,15 +279,15 @@ export function ProfileBookCard({
           userId,
         ]);
 
+        const newCacheRatingId = crypto.randomUUID();
+
         queryClient.setQueryData<ProfileResponse>(
           ["profile", userId],
           (oldData) => {
             if (!oldData) return oldData;
 
-            const newCacheId = crypto.randomUUID();
-
             const newRating: RatingProps = {
-              id: newCacheId,
+              id: newCacheRatingId,
               rate: data.rate,
               review: data.review,
               book: book!,
@@ -296,6 +342,58 @@ export function ProfileBookCard({
               finishedBooks,
               favoriteBooks,
               abandonedBooks,
+            };
+          },
+        );
+
+        queryClient.setQueriesData<BooksQueryData>(
+          { queryKey: ["books"] },
+          (oldData) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((book) => {
+                  if (book.id !== userBook?.book.id) return book;
+
+                  const newRatingsCount = book.ratingsCount + 1;
+                  const newRatingsSum = book.ratingsSum + data.rate!;
+                  const newAvg = newRatingsSum / newRatingsCount;
+
+                  const newRating: RatingProps = {
+                    id: newCacheRatingId,
+                    rate: data.rate,
+                    review: data.review,
+                    book: {
+                      id: book!.id,
+                      title: book!.title,
+                      author: book!.author.join(","),
+                      categories: book!.categories.join(","),
+                      pageCount: book!.pageCount,
+                      coverUrl: book!.coverUrl,
+                    },
+                    user: user!,
+                    createdAt: new Date().toString(),
+                    updatedAt: new Date().toString(),
+                  };
+
+                  const newBookRatings = [newRating].concat(book.ratings);
+
+                  return {
+                    ...book,
+                    avgRating: newAvg,
+                    ratingsSum: newRatingsSum,
+                    ratingsCount: newRatingsCount,
+                    userBookInfo: {
+                      ...book.userBookInfo!,
+                      rated: true,
+                    },
+                    ratings: newBookRatings,
+                  };
+                }),
+              })),
             };
           },
         );
@@ -375,6 +473,43 @@ export function ProfileBookCard({
             ...oldData,
             finishedBooks: updatedFinishedBooks,
             userRatings: oldData.userRatings.filter((r) => r.id !== ratingId),
+          };
+        },
+      );
+
+      queryClient.setQueriesData<BooksQueryData>(
+        { queryKey: ["books"] },
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              items: page.items.map((book) => {
+                if (book.id !== rating?.book.id) return book;
+
+                const newBookRatings = book.ratings.filter(
+                  (rating) => rating.user.id !== userId,
+                );
+
+                const newRatingsCount = book.ratingsCount - 1;
+                const newRatingsSum = book.ratingsSum - rating.rate;
+                const newAvg = newRatingsSum > 0 ? (newRatingsSum / newRatingsCount) : 0
+
+                return {
+                  ...book,
+                  ratingsCount: newRatingsCount,
+                  ratingsSum: newRatingsSum,
+                  avgRating: newAvg,
+                  ratings: newBookRatings,
+                  userBookInfo: {
+                    ...book.userBookInfo!,
+                    rated: false
+                  }
+                };
+              }),
+            })),
           };
         },
       );
@@ -463,8 +598,6 @@ export function ProfileBookCard({
           userId,
         ]);
 
-        console.log(previousProfileData);
-
         queryClient.setQueryData<ProfileResponse>(
           ["profile", userId],
           (oldData) => {
@@ -537,6 +670,33 @@ export function ProfileBookCard({
               finishedBooks,
               abandonedBooks,
               favoriteBooks,
+            };
+          },
+        );
+
+        queryClient.setQueriesData<BooksQueryData>(
+          { queryKey: ["books"] },
+          (oldData) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.map((book) => {
+                  if (book.id !== userBook?.book.id) return book;
+
+                  return {
+                    ...book,
+                    userBookInfo: {
+                      ...book.userBookInfo!,
+                      status: status ?? book.userBookInfo!.status,
+                      isFavorite:
+                        isFavorite ?? book.userBookInfo?.isFavorite ?? false,
+                    },
+                  };
+                }),
+              })),
             };
           },
         );
@@ -636,14 +796,55 @@ export function ProfileBookCard({
               ),
             );
 
+          const newUserRatings = oldData.userRatings.filter(
+            (rating) => rating.book.id !== userBook?.book.id,
+          );
+
           return {
             ...oldData,
             allUserBooks: updatedProfileData,
+            userRatings: newUserRatings,
             currentlyReadingBooks,
             wantToReadBooks,
             finishedBooks,
             abandonedBooks,
             favoriteBooks,
+          };
+        },
+      );
+
+      queryClient.setQueriesData<BooksQueryData>(
+        { queryKey: ["books"] },
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              items: page.items.map((book) => {
+                if (book.id !== userBook?.book.id) return book;
+
+                const newBookRatings = book.ratings.filter(
+                  (rating) => rating.user.id !== userId,
+                );
+
+                const userBookRating = book.ratings.find((r) => r.user.id === userId)
+
+                const newRatingsCount = userBookRating ? book.ratingsCount - 1 : book.ratingsCount;
+                const newRatingsSum = userBookRating ? book.ratingsSum - userBookRating.rate : book.ratingsSum;
+                const newAvg = newRatingsSum > 0 ? (newRatingsSum / newRatingsCount) : 0
+
+                return {
+                  ...book,
+                  ratings: newBookRatings,
+                  ratingsCount: newRatingsCount,
+                  ratingsSum: newRatingsSum,
+                  avgRating: newAvg,
+                  userBookInfo: null,
+                };
+              }),
+            })),
           };
         },
       );

@@ -29,7 +29,7 @@ import {
 } from "phosphor-react";
 import { getYear } from "date-fns";
 import { PageHeader } from "@/components/PageHeader";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import Layout from "@/components/Layout";
@@ -103,11 +103,12 @@ export type Categories = {
 };
 
 export default function Profile() {
+
+  const queryClient = useQueryClient()
+  
   const { demoUser } = useAuth();
 
   const session = useSession();
-
-  
 
   const router = useRouter();
 
@@ -137,15 +138,23 @@ export default function Profile() {
   const { data: profileData, isLoading: isLoadingRatings } =
     useQuery<ProfileResponse>({
       queryKey: ["profile", userId],
-      queryFn: async () => {
-        if (!demoUser?.isDemo || userId !== demoUser.id) {
-          const response = await api.get(`/app/profile/${userId}`);
+       queryFn: async () => {
+      if (!demoUser?.isDemo || userId !== demoUser.id) {
+        const response = await api.get(`/app/profile/${userId}`);
+        return response.data;
+      }
 
-          return response.data;
-        }
+      const cachedProfile = queryClient.getQueryData<ProfileResponse>([
+        "profile",
+        userId,
+      ]);
 
-        return demoProfileData
-      },
+      if (cachedProfile) {
+        return cachedProfile;
+      }
+
+      return demoProfileData;
+    },
       enabled: !!userId,
       staleTime: Infinity,
     });
@@ -155,7 +164,8 @@ export default function Profile() {
   const avatarUrl = profileData?.userInfo?.avatarUrl ?? demoUser?.avatarUrl;
   const createdAt = profileData?.userInfo?.createdAt ?? new Date().toString();
 
-  const isLoggedUserProfile = (session.data?.user.id === userId) || (demoUser?.id === userId)
+  const isLoggedUserProfile =
+    session.data?.user.id === userId || demoUser?.id === userId;
 
   const { mutate: updateUserBookOrder } = useMutation({
     mutationFn: async ({ userBookList, listType }: UserBookReorderProps) => {
@@ -164,10 +174,14 @@ export default function Profile() {
         position: index,
       }));
 
-      return await api.patch(`/app/user-books/reorder/${userId}`, {
-        userBookList: payload,
-        listType,
-      });
+      if (!demoUser?.isDemo) {
+        return await api.patch(`/app/user-books/reorder/${userId}`, {
+          userBookList: payload,
+          listType,
+        });
+      }
+
+      return
     },
   });
 
@@ -405,7 +419,7 @@ export default function Profile() {
     }
   }, [profileData, profileFilter]);
 
-  if (session.status === 'unauthenticated' && !demoUser?.isDemo) {
+  if (session.status === "unauthenticated" && !demoUser?.isDemo) {
     handlePossibleRedirect();
   }
 
