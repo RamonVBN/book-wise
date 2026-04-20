@@ -38,6 +38,7 @@ import {
 import {
   BooksQueryData,
   BooksResponse,
+  HomeDataResponse,
   ProfileResponse,
   RatingProps,
   UserBookProps,
@@ -328,6 +329,23 @@ export function BookDetails({
         },
       );
 
+      queryClient.setQueryData<HomeDataResponse>(["home"], (oldData) => {
+          if (!oldData) return oldData;
+
+          const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
+            "profile",
+            user?.id,
+          ]);
+
+          const newRating = updatedProfileData?.userRatings[0]
+
+          return {
+            ...oldData,
+            lastUserActivity: newRating ?? oldData.lastUserActivity,
+            recentRatings: newRating ? [newRating].concat(oldData.recentRatings) : oldData.recentRatings
+          };
+        });
+
       return { previousBooks };
     },
     mutationKey: ["createRating"],
@@ -406,7 +424,6 @@ export function BookDetails({
         queryClient.setQueryData<ProfileResponse>(
           ["profile", user?.id],
           (oldData) => {
-
             const newUserBook: UserBookProps = {
               id: userBookCacheId,
               book: {
@@ -427,17 +444,21 @@ export function BookDetails({
               userId: user!.id,
             };
 
-            if (!oldData) { 
+            if (!oldData) {
               return {
-              allUserBooks: [newUserBook],
-              userRatings: [],
-              currentlyReadingBooks: newUserBook.status === 'READING' ? [newUserBook] : [] ,
-              wantToReadBooks:  newUserBook.status === 'WANT_TO_READ' ? [newUserBook] : [],
-              finishedBooks:  newUserBook.status === 'FINISHED' ? [newUserBook] : [],
-              abandonedBooks:  newUserBook.status === 'ABANDONED' ? [newUserBook] : [],
-              favoriteBooks:  newUserBook.isFavorite ? [newUserBook] : [],
-              userInfo: demoUser!
-            };
+                allUserBooks: [newUserBook],
+                userRatings: [],
+                currentlyReadingBooks:
+                  newUserBook.status === "READING" ? [newUserBook] : [],
+                wantToReadBooks:
+                  newUserBook.status === "WANT_TO_READ" ? [newUserBook] : [],
+                finishedBooks:
+                  newUserBook.status === "FINISHED" ? [newUserBook] : [],
+                abandonedBooks:
+                  newUserBook.status === "ABANDONED" ? [newUserBook] : [],
+                favoriteBooks: newUserBook.isFavorite ? [newUserBook] : [],
+                userInfo: demoUser!,
+              };
             }
 
             userBookExists = oldData.abandonedBooks
@@ -564,11 +585,6 @@ export function BookDetails({
           },
         );
 
-        const cachedProfile = queryClient.getQueryData<ProfileResponse>([
-          "profile",
-          user?.id,
-        ]);
-
         queryClient.setQueryData<BooksQueryData>(
           ["books", searchTerm, categoriesFilters],
           (oldData) => {
@@ -598,6 +614,22 @@ export function BookDetails({
             };
           },
         );
+
+        queryClient.setQueryData<HomeDataResponse>(["home"], (oldData) => {
+          if (!oldData) return oldData;
+
+          const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
+            "profile",
+            user?.id,
+          ]);
+
+          const updatedUb = updatedProfileData?.allUserBooks[0]
+
+          return {
+            ...oldData,
+            lastUserActivity: updatedUb ?? oldData.lastUserActivity,
+          };
+        });
 
         return { previousBooks };
       },
@@ -851,9 +883,7 @@ export function BookDetails({
                   ratings.map((rating) => {
                     return (
                       <BookDetailsRating
-                        isUserRating={
-                          rating.user.id === user?.id
-                        }
+                        isUserRating={rating.user.id === user?.id}
                         key={rating.id}
                       >
                         <div>

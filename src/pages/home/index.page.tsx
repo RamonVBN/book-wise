@@ -26,10 +26,10 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { capitalize } from "@/utils/capitalize";
 import { PageHeader } from "@/components/PageHeader";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useSession } from "next-auth/react";
-import { HomeDataResponse } from "@/@types/query-types";
+import { HomeDataResponse, ProfileResponse } from "@/@types/query-types";
 import Layout from "@/components/Layout";
 import { formatBookName } from "@/utils/formatBookName";
 import { StarRating } from "@/components/StarsRating";
@@ -48,8 +48,11 @@ import { Modal } from "@/components/Modal";
 import { CloseButton } from "../explore/components/BookDetails/styles";
 import { AuthModal } from "@/components/AuthModal";
 import { useRef, useState } from "react";
+import { demoProfileData } from "@/mocks/profile";
 
 export default function Home() {
+  const queryClient = useQueryClient();
+
   const { demoUser } = useAuth();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,15 +69,17 @@ export default function Home() {
 
         return response.data;
       },
-      staleTime: 2 * 60 * 1000, // 2 minutos
+
+      staleTime: demoUser?.isDemo ? Infinity : 2 * 60 * 1000, // 2 minutos
     });
 
   const isSigned = session.status === "authenticated";
 
-  const userId = session.data?.user.id;
+  const userId = session.data?.user.id ?? demoUser?.id;
+  const userName = session.data?.user.name ?? demoUser?.name;
 
-  function handleCloseModal(){
-    setIsModalOpen(false)
+  function handleCloseModal() {
+    setIsModalOpen(false);
   }
 
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
@@ -88,6 +93,11 @@ export default function Home() {
       return setIsModalOpen(false);
     }
   }
+
+  const demoUserProfileCache =
+    queryClient.getQueryData<ProfileResponse>(["profile", userId]) 
+
+  const lastUserActivity = demoUser?.isDemo && !demoUserProfileCache ? demoProfileData.allUserBooks[0] : (demoUser?.isDemo && demoUserProfileCache && !homeData?.lastUserActivity ? demoProfileData.allUserBooks[0] : homeData?.lastUserActivity)
 
   return (
     <>
@@ -104,7 +114,10 @@ export default function Home() {
             <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
               <X />
             </CloseButton>
-            <AuthModal handleCloseModal={handleCloseModal} description="Faça login para ver perfis de outros usuários" />
+            <AuthModal
+              handleCloseModal={handleCloseModal}
+              description="Faça login para ver perfis de outros usuários"
+            />
           </Modal>
         )}
 
@@ -117,13 +130,13 @@ export default function Home() {
               </PageHeader>
               <HomeContainer>
                 <ContentContainer>
-                  {isSigned && homeData?.lastUserActivity && (
+                  {(isSigned || demoUser?.isDemo) && lastUserActivity && (
                     <LastActivityContainer>
                       <LastActivityHeader>
                         <span>Sua última atividade</span>
                         <LinkButton
                           prefetch
-                          href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}
+                          href={`/profile/${slugifyUserName(userName!)}/${userId}?filter=allUserBooks`}
                         >
                           Ver todas
                           <CaretRight />
@@ -131,15 +144,15 @@ export default function Home() {
                       </LastActivityHeader>
                       <LastActivityBody
                         prefetch
-                        href={`/profile/${slugifyUserName(session.data.user.name)}/${userId}?filter=allUserBooks`}
+                        href={`/profile/${slugifyUserName(userName!)}/${userId}?filter=allUserBooks`}
                       >
                         <BookCover
-                          key={homeData.lastUserActivity.book.id}
+                          key={lastUserActivity.book.id}
                           width={108}
                           height={152}
                           sizes="108px"
                           priority
-                          src={homeData.lastUserActivity.book.coverUrl}
+                          src={lastUserActivity.book.coverUrl}
                         />
                         <LastActivityContent>
                           <div>
@@ -147,35 +160,31 @@ export default function Home() {
                               <span>
                                 {capitalize(
                                   formatDistanceToNow(
-                                    homeData.lastUserActivity.updatedAt,
+                                    lastUserActivity.updatedAt,
                                     { locale: ptBR, addSuffix: true },
                                   ),
                                 )}
                               </span>
                               <span>
-                                {typeof homeData.lastUserActivity == "object" &&
-                                "rate" in homeData.lastUserActivity ? (
-                                  <StarRating
-                                    param={homeData.lastUserActivity.rate}
-                                  />
+                                {typeof lastUserActivity == "object" &&
+                                "rate" in lastUserActivity ? (
+                                  <StarRating param={lastUserActivity.rate} />
                                 ) : (
                                   <BooksStatusFlag
-                                    status={homeData.lastUserActivity.status}
+                                    status={lastUserActivity.status}
                                   />
                                 )}
                               </span>
                             </div>
                             <div>
-                              <h2>{homeData.lastUserActivity.book.title}</h2>
-                              <span>
-                                {homeData.lastUserActivity.book.author}
-                              </span>
+                              <h2>{lastUserActivity.book.title}</h2>
+                              <span>{lastUserActivity.book.author}</span>
                             </div>
                           </div>
-                          {typeof homeData.lastUserActivity == "object" &&
-                          "review" in homeData.lastUserActivity ? (
+                          {typeof lastUserActivity == "object" &&
+                          "review" in lastUserActivity ? (
                             <DescripitionText
-                              description={homeData.lastUserActivity.review}
+                              description={lastUserActivity.review}
                             />
                           ) : null}
                         </LastActivityContent>

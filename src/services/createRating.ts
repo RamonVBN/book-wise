@@ -1,28 +1,34 @@
 import { prisma } from "@/lib/prisma";
 
 type CreateRatingProps = {
-    userId: string
-    bookId: string
-    rate: number
-    review: string
-    title: string
-    coverUrl: string
-    author: string
-    pageCount: number
-    categories: string
-}
+  userId: string;
+  bookId: string;
+  rate: number;
+  review: string;
+  title: string;
+  coverUrl: string;
+  author: string;
+  pageCount: number;
+  categories: string;
+};
 
-export default async function createRatings(
-    {userId, bookId, rate, review, author, coverUrl, pageCount, title, categories
-}: CreateRatingProps){
-
-    return prisma.$transaction(async (tx) => {
-
+export default async function createRatings({
+  userId,
+  bookId,
+  rate,
+  review,
+  author,
+  coverUrl,
+  pageCount,
+  title,
+  categories,
+}: CreateRatingProps) {
+  return prisma.$transaction(async (tx) => {
     let book = await tx.book.findUnique({
       where: {
-        id: bookId
-      }
-    })
+        id: bookId,
+      },
+    });
 
     if (!book) {
       book = await tx.book.create({
@@ -35,25 +41,24 @@ export default async function createRatings(
           ratingsSum: rate,
           author,
           pageCount,
-          categories  
-        }
-      })
+          categories,
+        },
+      });
     } else {
-
-      const newRatingsCount = book.ratingsCount + 1
-      const newRatingsSum = book.ratingsSum + rate
-      const newAvg = newRatingsSum / newRatingsCount
+      const newRatingsCount = book.ratingsCount + 1;
+      const newRatingsSum = book.ratingsSum + rate;
+      const newAvg = newRatingsSum / newRatingsCount;
 
       book = await tx.book.update({
         where: {
-          id: book.id
+          id: book.id,
         },
         data: {
           ratingsCount: newRatingsCount,
           ratingsSum: newRatingsSum,
-          avgRating: newAvg
-        }
-      })
+          avgRating: newAvg,
+        },
+      });
     }
 
     await tx.rating.create({
@@ -62,21 +67,21 @@ export default async function createRatings(
         bookId: book.id,
         rate,
         review,
-      }
-    })
-
-    await tx.userBook.update({
-      where: {
-        userId_bookId: {
-          userId,
-          bookId: book.id
-        }
       },
-      data: {
-        rated: true
-      }
-    })
+    });
 
-    return 
-  })
+    await tx.$executeRawUnsafe(
+      `
+      UPDATE "user_books"
+      SET "rated" = $1
+      WHERE "user_id" = $2
+      AND "book_id" = $3
+      `,
+      true,
+      userId,
+      book.id,
+    );
+
+    return;
+  });
 }

@@ -79,7 +79,7 @@ export type BookStats = {
   avgRating: number;
   ratingsCount: number;
   ratingsSum: number;
-  ratings: RatingProps;
+  ratings: RatingProps[];
   userBookInfo: UserBookInfo;
 };
 
