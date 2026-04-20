@@ -103,12 +103,15 @@ export type Categories = {
 };
 
 export default function Profile() {
+  const queryClient = useQueryClient();
 
-  const queryClient = useQueryClient()
-  
   const { demoUser } = useAuth();
 
   const session = useSession();
+
+  const isSigned = session.status === "authenticated";
+
+  const isDemoMode = demoUser?.isDemo ?? false;
 
   const router = useRouter();
 
@@ -138,24 +141,24 @@ export default function Profile() {
   const { data: profileData, isLoading: isLoadingRatings } =
     useQuery<ProfileResponse>({
       queryKey: ["profile", userId],
-       queryFn: async () => {
-      if (!demoUser?.isDemo || userId !== demoUser.id) {
-        const response = await api.get(`/app/profile/${userId}`);
-        return response.data;
-      }
+      queryFn: async () => {
+        if (!demoUser?.isDemo || userId !== demoUser?.id) {
+          const response = await api.get(`/app/profile/${userId}`);
+          return response.data;
+        }
 
-      const cachedProfile = queryClient.getQueryData<ProfileResponse>([
-        "profile",
-        userId,
-      ]);
+        const cachedProfile = queryClient.getQueryData<ProfileResponse>([
+          "profile",
+          userId,
+        ]);
 
-      if (cachedProfile) {
-        return cachedProfile;
-      }
+        if (cachedProfile) {
+          return cachedProfile;
+        }
 
-      return demoProfileData;
-    },
-      enabled: !!userId,
+        return demoProfileData;
+      },
+      enabled: !!userId && (isSigned || isDemoMode),
       staleTime: Infinity,
     });
 
@@ -181,7 +184,42 @@ export default function Profile() {
         });
       }
 
-      return
+      return;
+    },
+    onMutate: ({ userBookList, listType }) => {
+      queryClient.setQueryData<ProfileResponse>(
+        ["profile", userId],
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            wantToReadBooks:
+              listType === "wantToReadBooks"
+                ? userBookList
+                : oldData.wantToReadBooks,
+            favoriteBooks:
+              listType === "favoriteBooks"
+                ? userBookList
+                : oldData.favoriteBooks,
+          };
+        },
+      );
+    },
+    mutationKey: ["updateUserBookOrder"],
+    onSuccess: () => {
+      if (!demoUser?.isDemo) {
+        const isStillMutating =
+          queryClient.isMutating({
+            mutationKey: ["updateUserBookOrder"],
+          }) - 1;
+
+        if (isStillMutating === 0) {
+          queryClient.invalidateQueries({
+            queryKey: ["profile", userId],
+          });
+        }
+      }
     },
   });
 
