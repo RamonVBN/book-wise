@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ShowMoreButton } from "./styles"
+import { DescripitionTextContainer, ShowMoreButton } from "./styles"
 
 
 type DescripitionTextProps = {
@@ -11,7 +11,7 @@ export function DescripitionText({description}: DescripitionTextProps){
     const [showMore, setShowMore] = useState(false)
 
     return (
-        <p>
+        <DescripitionTextContainer>
             {
                 showMore && (
                     description
@@ -32,6 +32,6 @@ export function DescripitionText({description}: DescripitionTextProps){
                     <ShowMoreButton onClick={() => setShowMore((prevState) => !prevState)}>Ver {showMore? 'menos' : 'mais'}</ShowMoreButton>
                 )
             }
-        </p>
+        </DescripitionTextContainer>
     )
 }

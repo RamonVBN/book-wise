@@ -66,6 +66,11 @@ export const UserRatingContainer = styled("div", {
       boxSizing: "border-box",
       borderRadius: "4px",
 
+      resize: "vertical",
+      whiteSpace: "pre-wrap",
+      wordWrap: "break-word",
+      overflowX: "hidden",
+
       color: "$gray200",
       fontSize: "0.875rem",
       fontWeight: "$regular",

@@ -1,25 +1,35 @@
 import { styled } from "@/pages/globalStyles";
 
-export const ShowMoreButton = styled('button', {
+export const DescripitionTextContainer = styled("p", {
+  maxWidth: '100%',
+  whiteSpace: "pre-wrap",
+  overflowWrap: 'break-word',   
+  wordWrap: "break-word",
+  wordBreak: 'break-word',
+  overflowX: "hidden",
 
-  
-    all: 'unset',
-    cursor: 'pointer',
+  WebkitLineClamp: 1,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+});
 
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.25rem',
+export const ShowMoreButton = styled("button", {
+  all: "unset",
+  cursor: "pointer",
 
-    padding: '0.25rem 0.5rem',
-    borderRadius: '4px',
+  display: "flex",
+  alignItems: "center",
+  gap: "0.25rem",
 
-    color: '$purple100',
-    fontSize: '0.875rem',
-    lineHeigth: '$base',
-    fontWeight: '$bold',
-    
+  padding: "0.25rem 0.5rem",
+  borderRadius: "4px",
 
-    '&:hover': {
-        backgroundColor: 'rgba(130, 129, 217, 0.06)'
-    }
-})
+  color: "$purple100",
+  fontSize: "0.875rem",
+  lineHeigth: "$base",
+  fontWeight: "$bold",
+
+  "&:hover": {
+    backgroundColor: "rgba(130, 129, 217, 0.06)",
+  },
+});

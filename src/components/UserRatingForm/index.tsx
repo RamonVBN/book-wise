@@ -152,7 +152,7 @@ export function UserRatingForm(
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-                <textarea {...register('review')} placeholder="Escreva sua avaliação" />
+                <textarea maxLength={400} wrap="hard" {...register('review')} placeholder="Escreva sua avaliação" />
                 <span>
                     <CancelButton type="button" onClick={() => handleCloseUserRatingForm()}>
                         <X />
