@@ -33,7 +33,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
       where: {
         userId,
       },
-      include: { book: true },
+      include: { book: true, user: true },
       orderBy: {
         updatedAt: "desc",
       },
@@ -44,7 +44,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         status: "READING",
       },
-      include: { book: true },
+      include: { book: true, user: true },
       orderBy: {
         updatedAt: "desc",
       }
@@ -55,7 +55,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         status: "FINISHED",
       },
-      include: { book: true },
+      include: { book: true, user: true },
       orderBy: {
         updatedAt: "desc",
       },
@@ -67,7 +67,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         status: "ABANDONED",
       },
-      include: { book: true },
+      include: { book: true, user: true },
       orderBy: {
         updatedAt: "desc",
       }
@@ -78,7 +78,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         status: "WANT_TO_READ",
       },
-      include: { book: true },
+      include: { book: true, user: true },
       orderBy: [
         { wantToReadPosition: {
           sort: 'asc',
@@ -93,7 +93,7 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         isFavorite: true,
       },
-      include: { book: true },
+      include: { book: true, user: true },
       orderBy: [
         { favoritePosition: {
           sort: 'asc',
