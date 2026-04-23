@@ -37,7 +37,7 @@ import { StarRating } from "@/components/StarsRating";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
-import { Flame, X } from "lucide-react";
+import { Flame, PlusCircle, X } from "lucide-react";
 import { DescripitionText } from "@/components/DescriptionText";
 import { BookCover } from "@/components/BookCover";
 import Link from "next/link";
@@ -47,8 +47,9 @@ import { useAuth } from "@/components/AuthContext";
 import { Modal } from "@/components/Modal";
 import { CloseButton } from "../explore/components/BookDetails/styles";
 import { AuthModal } from "@/components/AuthModal";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { demoProfileData } from "@/mocks/profile";
+import { HomeBook } from "./components/HomeBook";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -82,6 +83,10 @@ export default function Home() {
     setIsModalOpen(false);
   }
 
+  function handleOpenModal() {
+    setIsModalOpen(true);
+  }
+
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
 
@@ -94,10 +99,28 @@ export default function Home() {
     }
   }
 
-  const demoUserProfileCache =
-    queryClient.getQueryData<ProfileResponse>(["profile", userId]) 
+  function handleEsc(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape" && isModalOpen) {
+      return setIsModalOpen(false);
+    }
+  }
 
-  const lastUserActivity = demoUser?.isDemo && !demoUserProfileCache ? demoProfileData.allUserBooks[0] : (demoUser?.isDemo && demoUserProfileCache && !homeData?.lastUserActivity ? demoProfileData.allUserBooks[0] : homeData?.lastUserActivity)
+  const hasDemoUserInteracted = queryClient.getQueryData([
+    "demo-user-interacted",
+  ]);
+
+  const demofallbackActivity = demoProfileData.allUserBooks[0];
+
+  const lastUserActivity =
+    demoUser?.isDemo && !hasDemoUserInteracted
+      ? demofallbackActivity
+      : homeData?.lastUserActivity;
+
+  useEffect(() => {
+    if (isModalOpen) {
+      loginModalRef.current?.focus();
+    }
+  }, [isModalOpen]);
 
   return (
     <>
@@ -110,6 +133,7 @@ export default function Home() {
           <Modal
             ref={loginModalRef}
             onPointerDown={(e) => handleClickOutside(e)}
+            onKeyDown={handleEsc}
           >
             <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
               <X />
@@ -241,14 +265,19 @@ export default function Home() {
                               </Rating>
                             </BookRatingUserContainer>
                             <BookRatingBody>
-                              <BookCover
-                                key={rating.id}
-                                width={108}
-                                height={152}
-                                sizes="108px"
-                                priority
-                                src={rating.book.coverUrl}
-                              />
+                              <HomeBook
+                                handleOpenModal={handleOpenModal}
+                                homeBook={rating.book}
+                              >
+                                <BookCover
+                                  key={rating.id}
+                                  width={108}
+                                  height={152}
+                                  sizes="108px"
+                                  priority
+                                  src={rating.book.coverUrl}
+                                />
+                              </HomeBook>
                               <BookRatingDescription>
                                 <span>
                                   <h2>{rating.book.title}</h2>
@@ -269,7 +298,7 @@ export default function Home() {
                       Livros em alta
                       <Flame />
                     </span>
-                    <LinkButton prefetch href={"/explore"}>
+                    <LinkButton prefetch href={"/explore?category=Fiction"}>
                       Ver todos
                       <CaretRight weight="bold" />
                     </LinkButton>
@@ -280,14 +309,16 @@ export default function Home() {
                       homeData.popularBooks.map((book) => {
                         return (
                           <PopBook key={book.id}>
-                            <BookCover
-                              key={book.id}
-                              width={64}
-                              height={94}
-                              src={book.coverUrl}
-                              priority
-                              sizes="64px"
-                            />
+                            <HomeBook handleOpenModal={handleOpenModal} homeBook={book}>
+                              <BookCover
+                                key={book.id}
+                                width={64}
+                                height={94}
+                                src={book.coverUrl}
+                                priority
+                                sizes="64px"
+                              />
+                            </HomeBook>
                             <PopBookDescription>
                               <span>
                                 <h2>{formatBookName(book.title)}</h2>

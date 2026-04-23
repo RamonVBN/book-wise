@@ -24,7 +24,7 @@ export function DemoBanner() {
     <BannerContainer variant="demo">
       <BannerContent>
         <Badge>DEMO MODE</Badge>
-        <span>Dados não são persistidos — ações são simuladas</span>
+        <span>Dados não são persistidos — ações são limitadas</span>
       </BannerContent>
 
       <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>

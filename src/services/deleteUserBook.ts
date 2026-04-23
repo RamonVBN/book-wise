@@ -45,6 +45,21 @@ export default async function deleteUserBook(
                 id: rating.id
             }
         })
+
+        const newRatingsCount = book!.ratingsCount - 1
+        const newRatingsSum =  book!.ratingsSum - rating.rate
+        const newAvg = newRatingsCount > 0 ? (newRatingsSum/newRatingsCount) : 0
+
+        await prisma.book.update({
+        where: {
+            id: bookId
+        },
+        data: {
+            ratingsCount: newRatingsCount,
+            ratingsSum: newRatingsSum,
+            avgRating: newAvg 
+        }
+    })
     }
 
     if (book!.userBooks.length < 1){
@@ -55,6 +70,6 @@ export default async function deleteUserBook(
             }
         })
     } 
-
+    
     return 
 }

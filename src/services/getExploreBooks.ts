@@ -61,9 +61,6 @@ export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
           },
         },
         ratings: {
-          where: {
-            userId,
-          },
           include: {
             user: true,
           },
@@ -121,10 +118,10 @@ export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
   demoUserBooks.forEach((ub) => {
   
     booksMap[ub.book.id] = {
-      avgRating: ub.book.avgRating,
-      ratingsCount: ub.book.ratingsCount,
-      ratingsSum: ub.book.ratingsSum,
-      ratings: ub.book.ratings,
+      avgRating: 0,
+      ratingsCount: 0,
+      ratingsSum: 0,
+      ratings: [],
       userBookInfo: {
         userBookId: ub.id,
         status: ub.status,

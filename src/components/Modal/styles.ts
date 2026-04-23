@@ -9,7 +9,7 @@ export const ModalOverlay = styled("div", {
   width: "100vw",
   height: "100vh",
 
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+  backgroundColor: "rgba(0, 0, 0, 0.3)",
 
   display: "flex",
   justifyContent: "center",

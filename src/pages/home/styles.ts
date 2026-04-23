@@ -1,5 +1,4 @@
 import { styled } from "@/pages/globalStyles";
-import Image from "next/image";
 import Link from "next/link";
 
 export const Container = styled("div", {
@@ -378,3 +377,4 @@ export const LastActivityContent = styled("div", {
     lineHeight: "$base",
   },
 });
+

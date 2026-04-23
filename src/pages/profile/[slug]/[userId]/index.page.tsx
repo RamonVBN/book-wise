@@ -163,7 +163,7 @@ export default function Profile() {
     });
 
   const userName = profileData?.userInfo?.name ?? demoUser?.name;
-  const slugedUserName = slugifyUserName(userName ?? demoUser?.name ?? "");
+  const slugedUserName = slugifyUserName(userName ?? demoUser?.name ?? "user");
   const avatarUrl = profileData?.userInfo?.avatarUrl ?? demoUser?.avatarUrl;
   const createdAt = profileData?.userInfo?.createdAt ?? new Date().toString();
 

@@ -2,6 +2,7 @@ import {
   BooksQueryData,
   ExploreBooksProps,
   HomeDataResponse,
+  HomeRatingProps,
   ProfileResponse,
   RatingProps,
   UserBookProps,
@@ -96,6 +97,10 @@ export function ProfileBookCard({
     }
 
     setisUserRatingFormOpen(false);
+
+    if (demoUser?.isDemo) {
+      queryClient.setQueryData(["demo-user-interacted"], true);
+    }
   }
 
   function handleDelete() {
@@ -106,6 +111,10 @@ export function ProfileBookCard({
     }
 
     setIsModalOpen(false);
+
+    if (demoUser?.isDemo) {
+      queryClient.setQueryData(["demo-user-interacted"], true);
+    }
   }
 
   function handleSelectOpenChange(isOpen: boolean) {
@@ -149,7 +158,7 @@ export function ProfileBookCard({
           (oldData) => {
             if (!oldData) return oldData;
 
-            const newUpdatedAt = new Date();
+            const newUpdatedAt = new Date().toString();
 
             const newUserRatings = oldData.userRatings
               .map((r) => {
@@ -158,7 +167,7 @@ export function ProfileBookCard({
                     ...r,
                     review: data.review,
                     rate: data.rate,
-                    updatedAt: newUpdatedAt.toString(),
+                    updatedAt: newUpdatedAt,
                   };
                 }
 
@@ -226,13 +235,36 @@ export function ProfileBookCard({
             userId,
           ]);
 
-          const newRating = updatedProfileData?.userRatings.find(
-            (r) => r.id === rating?.id,
+          const oldHomeRating = oldData.recentRatings.find(
+            (r) => r.id === updatedProfileData?.userRatings[0].id,
           );
+
+          const isUpdatedRatingARecentRating = !!oldHomeRating;
+
+          const updatedRating: HomeRatingProps = {
+            ...updatedProfileData!.userRatings[0],
+            book: {
+              ...updatedProfileData!.userRatings[0].book,
+              userBookInfo: {
+                userBookId: oldHomeRating?.book.userBookInfo.userBookId,
+                loggedUserCurrentBookStatus:
+                  oldHomeRating?.book.userBookInfo.loggedUserCurrentBookStatus,
+              },
+            },
+          };
 
           return {
             ...oldData,
-            lastUserActivity: newRating ?? oldData.lastUserActivity,
+            lastUserActivity: updatedRating ?? oldData.lastUserActivity,
+            recentRatings: isUpdatedRatingARecentRating
+              ? oldData.recentRatings.map((r) => {
+                  if (r.id !== updatedRating?.id) {
+                    return r;
+                  }
+
+                  return updatedRating;
+                })
+              : oldData.recentRatings,
           };
         });
 
@@ -326,7 +358,6 @@ export function ProfileBookCard({
               )
               .map((ub) => {
                 if (ub.id === userBook?.id) {
-                  
                   return {
                     ...ub,
                     rated: true,
@@ -425,12 +456,26 @@ export function ProfileBookCard({
             userId,
           ]);
 
-          const newRating = updatedProfileData?.userRatings[0]
+          const userBook = updatedProfileData?.allUserBooks.find(
+            (ub) => ub.book.id === book?.id && ub.userId === user?.id,
+          );
 
+          const newRating: HomeRatingProps = {
+            ...updatedProfileData!.userRatings[0],
+            book: {
+              ...updatedProfileData!.userRatings[0].book,
+              userBookInfo: {
+                userBookId: userBook?.id,
+                loggedUserCurrentBookStatus: "FINISHED",
+              },
+            },
+          };
           return {
             ...oldData,
             lastUserActivity: newRating ?? oldData.lastUserActivity,
-            recentRatings: newRating ? [newRating].concat(oldData.recentRatings) : oldData.recentRatings
+            recentRatings: newRating
+              ? [newRating].concat(oldData.recentRatings)
+              : oldData.recentRatings,
           };
         });
 
@@ -559,23 +604,33 @@ export function ProfileBookCard({
           userId,
         ]);
 
-        const lastUpdatedRating = updatedProfileData?.userRatings[0]
+        const lastUpdatedRating = updatedProfileData?.userRatings[0];
 
-        const lastUpdatedUserBook = updatedProfileData?.allUserBooks[0]
+        const lastUpdatedUserBook = updatedProfileData?.allUserBooks[0];
 
-        if (!lastUpdatedRating && !lastUpdatedUserBook) return oldData
+        if (!lastUpdatedRating && !lastUpdatedUserBook) return oldData;
 
-        const lastUserActivityDate = max([lastUpdatedRating? new Date(lastUpdatedRating.updatedAt) : new Date(0),
-          lastUpdatedUserBook ? new Date(lastUpdatedUserBook.updatedAt) : new Date(0)
-        ])
+        const lastUserActivityDate = max([
+          lastUpdatedRating
+            ? new Date(lastUpdatedRating.updatedAt)
+            : new Date(0),
+          lastUpdatedUserBook
+            ? new Date(lastUpdatedUserBook.updatedAt)
+            : new Date(0),
+        ]);
 
-        const newRecentRatings = oldData.recentRatings.filter((r) => r.id !==  ratingId)
+        const newRecentRatings = oldData.recentRatings.filter(
+          (r) => r.id !== ratingId,
+        );
 
         return {
-            ...oldData,
-            lastUserActivity: lastUserActivityDate.toString() === lastUpdatedRating?.updatedAt ? lastUpdatedRating : lastUpdatedUserBook ?? oldData.lastUserActivity,
-            recentRatings: newRecentRatings
-          }
+          ...oldData,
+          lastUserActivity:
+            lastUserActivityDate.toString() === lastUpdatedRating?.updatedAt
+              ? lastUpdatedRating
+              : (lastUpdatedUserBook ?? oldData.lastUserActivity),
+          recentRatings: newRecentRatings,
+        };
       });
 
       return { previousProfileData };
@@ -773,10 +828,52 @@ export function ProfileBookCard({
             userId,
           ]);
 
-          const updatedUb = updatedProfileData?.allUserBooks[0]
+          const updatedUb = updatedProfileData?.allUserBooks[0];
+
+          const isThisBookARecentRatedBook = oldData.recentRatings.find(
+            (r) => r.book.id === updatedUb?.book.id,
+          );
+
+          const isThisBookAPopBook = oldData.popularBooks.find(
+            (b) => b.id === updatedUb?.book.id,
+          );
+
           return {
             ...oldData,
             lastUserActivity: updatedUb ?? oldData.lastUserActivity,
+            recentRatings: isThisBookARecentRatedBook
+              ? oldData.recentRatings.map((r) => {
+                  if (r.book.id !== updatedUb?.book.id) {
+                    return r;
+                  }
+
+                  return {
+                    ...r,
+                    book: {
+                      ...r.book,
+                      userBookInfo: {
+                        ...r.book.userBookInfo,
+                        loggedUserCurrentBookStatus: updatedUb.status,
+                      },
+                    },
+                  };
+                })
+              : oldData.recentRatings,
+            popularBooks: isThisBookAPopBook
+              ? oldData.popularBooks.map((b) => {
+                  if (b.id !== updatedUb?.book.id) {
+                    return b;
+                  }
+
+                  return {
+                    ...b,
+                    userBookInfo: {
+                      ...b.userBookInfo,
+                      loggedUserCurrentBookStatus: updatedUb.status,
+                    },
+                  };
+                })
+              : oldData.popularBooks,
           };
         });
 
@@ -815,6 +912,8 @@ export function ProfileBookCard({
               queryKey: ["home"],
             });
           }
+        } else {
+          queryClient.setQueryData(["demo-user-interacted"], true);
         }
       },
     });
@@ -943,24 +1042,108 @@ export function ProfileBookCard({
           userId,
         ]);
 
-        const lastUpdatedRating = updatedProfileData?.userRatings[0]
+        const deletedUserBook = userBook;
 
-        const lastUpdatedUserBook = updatedProfileData?.allUserBooks[0]
+        const isThisBookARecentRatedBook = oldData.recentRatings.find(
+          (r) => r.book.id === deletedUserBook?.book.id,
+        );
 
-        if (!lastUpdatedRating && !lastUpdatedUserBook) return {
-          ...oldData,
-          lastUserActivity: null
-        }
+        const isThisBookAPopBook = oldData.popularBooks.find(
+          (b) => b.id === deletedUserBook?.book.id,
+        );
 
-        const lastUserActivityDate = max([lastUpdatedRating? new Date(lastUpdatedRating.updatedAt) : new Date(0),
-          lastUpdatedUserBook ? new Date(lastUpdatedUserBook.updatedAt) : new Date(0)
-        ])
+        const lastUpdatedRating = updatedProfileData?.userRatings[0];
 
+        const lastUpdatedUserBook = updatedProfileData?.allUserBooks[0];
+
+        if (!lastUpdatedRating && !lastUpdatedUserBook)
+          return {
+            ...oldData,
+            lastUserActivity: null,
+            recentRatings: isThisBookARecentRatedBook
+              ? oldData.recentRatings.map((r) => {
+                  if (r.book.id !== deletedUserBook?.book.id) {
+                    return r;
+                  }
+
+                  return {
+                    ...r,
+                    book: {
+                      ...r.book,
+                      userBookInfo: {
+                        userBookId: undefined,
+                        loggedUserCurrentBookStatus: undefined,
+                      },
+                    },
+                  };
+                })
+              : oldData.recentRatings,
+            popularBooks: isThisBookAPopBook
+              ? oldData.popularBooks.map((b) => {
+                  if (b.id !== deletedUserBook?.book.id) {
+                    return b;
+                  }
+
+                  return {
+                    ...b,
+                    userBookInfo: {
+                      userBookId: undefined,
+                      loggedUserCurrentBookStatus: undefined,
+                    },
+                  };
+                })
+              : oldData.popularBooks,
+          };
+
+        const lastUserActivityDate = max([
+          lastUpdatedRating
+            ? new Date(lastUpdatedRating.updatedAt)
+            : new Date(0),
+          lastUpdatedUserBook
+            ? new Date(lastUpdatedUserBook.updatedAt)
+            : new Date(0),
+        ]);
 
         return {
-            ...oldData,
-            lastUserActivity: lastUserActivityDate.toString() === lastUpdatedRating?.updatedAt ? lastUpdatedRating : lastUpdatedUserBook ?? oldData.lastUserActivity
-          }
+          ...oldData,
+          lastUserActivity:
+            lastUserActivityDate.toString() === lastUpdatedRating?.updatedAt
+              ? lastUpdatedRating
+              : (lastUpdatedUserBook ?? oldData.lastUserActivity),
+          recentRatings: isThisBookARecentRatedBook
+            ? oldData.recentRatings.map((r) => {
+                if (r.book.id !== deletedUserBook?.book.id) {
+                  return r;
+                }
+
+                return {
+                  ...r,
+                  book: {
+                    ...r.book,
+                    userBookInfo: {
+                      userBookId: undefined,
+                      loggedUserCurrentBookStatus: undefined,
+                    },
+                  },
+                };
+              })
+            : oldData.recentRatings,
+          popularBooks: isThisBookAPopBook
+            ? oldData.popularBooks.map((b) => {
+                if (b.id !== deletedUserBook?.book.id) {
+                  return b;
+                }
+
+                return {
+                  ...b,
+                  userBookInfo: {
+                    userBookId: undefined,
+                    loggedUserCurrentBookStatus: undefined,
+                  },
+                };
+              })
+            : oldData.popularBooks,
+        };
       });
 
       return { previousProfileData };

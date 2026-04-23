@@ -15,8 +15,8 @@ export const CoverContainer = styled("div", {
   position: "relative",
   width: "$$width",
   height: "$$height",
-  borderRadius: "8px",
-  backgroundColor: "$gray700"
+  borderRadius: "6px",
+  backgroundColor: "$gray700",
 })
 
 export const Skeleton = styled("div", {

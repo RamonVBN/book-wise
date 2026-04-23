@@ -11,6 +11,18 @@ type RatingBookProps = {
   categories: string;
 };
 
+interface HomeRatingBookProps extends RatingBookProps {
+  userBookInfo: {
+    userBookId?: string
+    loggedUserCurrentBookStatus?: ReadingStatus 
+  }
+};
+
+export interface HomePopBookProps extends HomeRatingBookProps {
+  avgRating: number
+}
+
+
 type UserProps = {
   id: string;
   name: string;
@@ -28,6 +40,10 @@ export type RatingProps = {
   createdAt: string;
   updatedAt: string;
 };
+
+export interface HomeRatingProps extends RatingProps {
+  book: HomeRatingBookProps;
+}
 
 export type BookProps = {
   id: string;
@@ -58,15 +74,15 @@ export type UserBookProps = {
   currentPage?: number;
   customTotalPage?: number;
   updatedAt: string;
-  book: BookProps;
+  book: RatingBookProps;
   user: UserProps;
   wantToReadPosition?: number;
   favoritePosition?: number;
 };
 
 export type HomeDataResponse = {
-  recentRatings: RatingProps[];
-  popularBooks: BookProps[];
+  recentRatings: HomeRatingProps[];
+  popularBooks: HomePopBookProps[];
   lastUserActivity: RatingProps | UserBookProps | null;
 };
 

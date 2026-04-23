@@ -1,11 +1,10 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma";
 
 interface GetHomeDataProps {
-  userId: string
+  userId: string;
 }
 
 export async function getProfileData({ userId }: GetHomeDataProps) {
-
   const [
     userInfo,
     userRatings,
@@ -16,24 +15,37 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
     wantToReadBooks,
     favoriteBooks,
   ] = await Promise.all([
-
-    prisma.user.findUnique({where: {
-      id: userId
-    }}),
+    prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    }),
 
     prisma.rating.findMany({
       where: { userId },
       include: { book: true, user: true },
       orderBy: {
         updatedAt: "desc",
-      }
+      },
     }),
 
     prisma.userBook.findMany({
       where: {
         userId,
       },
-      include: { book: true, user: true },
+      include: {
+        book: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            categories: true,
+            coverUrl: true,
+            pageCount: true,
+          },
+        },
+        user: true,
+      },
       orderBy: {
         updatedAt: "desc",
       },
@@ -44,22 +56,45 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         status: "READING",
       },
-      include: { book: true, user: true },
+      include: {
+        book: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            categories: true,
+            coverUrl: true,
+            pageCount: true,
+          },
+        },
+        user: true,
+      },
       orderBy: {
         updatedAt: "desc",
-      }
+      },
     }),
-    
+
     prisma.userBook.findMany({
       where: {
         userId,
         status: "FINISHED",
       },
-      include: { book: true, user: true },
+      include: {
+        book: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            categories: true,
+            coverUrl: true,
+            pageCount: true,
+          },
+        },
+        user: true,
+      },
       orderBy: {
         updatedAt: "desc",
       },
-      
     }),
 
     prisma.userBook.findMany({
@@ -67,10 +102,22 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         status: "ABANDONED",
       },
-      include: { book: true, user: true },
+      include: {
+        book: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            categories: true,
+            coverUrl: true,
+            pageCount: true,
+          },
+        },
+        user: true,
+      },
       orderBy: {
         updatedAt: "desc",
-      }
+      },
     }),
 
     prisma.userBook.findMany({
@@ -78,14 +125,28 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         status: "WANT_TO_READ",
       },
-      include: { book: true, user: true },
+      include: {
+        book: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            categories: true,
+            coverUrl: true,
+            pageCount: true,
+          },
+        },
+        user: true,
+      },
       orderBy: [
-        { wantToReadPosition: {
-          sort: 'asc',
-          nulls: 'last'
-        } },
-        {updatedAt: 'desc'}
-      ]
+        {
+          wantToReadPosition: {
+            sort: "asc",
+            nulls: "last",
+          },
+        },
+        { updatedAt: "desc" },
+      ],
     }),
 
     prisma.userBook.findMany({
@@ -93,17 +154,30 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
         userId,
         isFavorite: true,
       },
-      include: { book: true, user: true },
+      include: {
+        book: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            categories: true,
+            coverUrl: true,
+            pageCount: true,
+          },
+        },
+        user: true,
+      },
       orderBy: [
-        { favoritePosition: {
-          sort: 'asc',
-          nulls: 'last'
-        } },
-        {updatedAt: 'desc'}
-      ]
+        {
+          favoritePosition: {
+            sort: "asc",
+            nulls: "last",
+          },
+        },
+        { updatedAt: "desc" },
+      ],
     }),
-
-  ])
+  ]);
 
   return {
     userInfo,
@@ -114,5 +188,5 @@ export async function getProfileData({ userId }: GetHomeDataProps) {
     abandonedBooks,
     wantToReadBooks,
     favoriteBooks,
-  }
+  };
 }

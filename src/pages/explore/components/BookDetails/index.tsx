@@ -39,6 +39,8 @@ import {
   BooksQueryData,
   BooksResponse,
   HomeDataResponse,
+  HomeRatingBookProps,
+  HomeRatingProps,
   ProfileResponse,
   RatingProps,
   UserBookProps,
@@ -52,7 +54,6 @@ import { Modal } from "@/components/Modal";
 import { ReadingStatusSelect } from "../../../../components/ReadingStatusSelect";
 import { ReadingStatus } from "@/generated/prisma";
 import { FavoriteButton } from "../../../../components/FavoriteButton";
-import { ProviderButton } from "@/components/ProviderButton/styles";
 import { DescripitionText } from "@/components/DescriptionText";
 import { toast } from "sonner";
 import { toastMessages } from "@/lib/toast-messages";
@@ -111,6 +112,10 @@ export function BookDetails({
   function handleRatingSubmit(data: UserRatingSubmitData) {
     createRatingMutation(data);
     setIsUserRatingOpen(false);
+
+    if (demoUser?.isDemo) {
+      queryClient.setQueryData(["demo-user-interacted"], true);
+    }
   }
 
   function findBookById(bookId: string) {
@@ -330,21 +335,35 @@ export function BookDetails({
       );
 
       queryClient.setQueryData<HomeDataResponse>(["home"], (oldData) => {
-          if (!oldData) return oldData;
+        if (!oldData) return oldData;
 
-          const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
-            "profile",
-            user?.id,
-          ]);
+        const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
+          "profile",
+          user?.id,
+        ]);
 
-          const newRating = updatedProfileData?.userRatings[0]
+        const userBook = updatedProfileData?.allUserBooks.find(
+          (ub) => ub.book.id === book?.id && ub.userId === user?.id,
+        );
 
-          return {
-            ...oldData,
-            lastUserActivity: newRating ?? oldData.lastUserActivity,
-            recentRatings: newRating ? [newRating].concat(oldData.recentRatings) : oldData.recentRatings
-          };
-        });
+        const newRating: HomeRatingProps = {
+          ...updatedProfileData!.userRatings[0],
+          book: {
+            ...updatedProfileData!.userRatings[0].book,
+            userBookInfo: {
+              userBookId: userBook?.id,
+              loggedUserCurrentBookStatus: "FINISHED",
+            },
+          },
+        };
+        return {
+          ...oldData,
+          lastUserActivity: newRating ?? oldData.lastUserActivity,
+          recentRatings: newRating
+            ? [newRating].concat(oldData.recentRatings)
+            : oldData.recentRatings,
+        };
+      });
 
       return { previousBooks };
     },
@@ -623,11 +642,52 @@ export function BookDetails({
             user?.id,
           ]);
 
-          const updatedUb = updatedProfileData?.allUserBooks[0]
+          const updatedUb = updatedProfileData?.allUserBooks[0];
+
+          const isThisBookARecentRatedBook = oldData.recentRatings.find(
+            (r) => r.book.id === updatedUb?.book.id,
+          );
+
+          const isThisBookAPopBook = oldData.popularBooks.find(
+            (b) => b.id === updatedUb?.book.id,
+          );
 
           return {
             ...oldData,
             lastUserActivity: updatedUb ?? oldData.lastUserActivity,
+            recentRatings: isThisBookARecentRatedBook
+              ? oldData.recentRatings.map((r) => {
+                  if (r.book.id !== updatedUb?.book.id) {
+                    return r;
+                  }
+
+                  return {
+                    ...r,
+                    book: {
+                      ...r.book,
+                      userBookInfo: {
+                        ...r.book.userBookInfo,
+                        loggedUserCurrentBookStatus: updatedUb.status,
+                      },
+                    },
+                  };
+                })
+              : oldData.recentRatings,
+            popularBooks: isThisBookAPopBook
+              ? oldData.popularBooks.map((b) => {
+                  if (b.id !== updatedUb?.book.id) {
+                    return b;
+                  }
+
+                  return {
+                    ...b,
+                    userBookInfo: {
+                      ...b.userBookInfo,
+                      loggedUserCurrentBookStatus: updatedUb.status,
+                    },
+                  };
+                })
+              : oldData.popularBooks,
           };
         });
 
@@ -706,6 +766,9 @@ export function BookDetails({
 
   function onSelectChange(status: ReadingStatus) {
     updateUserBookMutation({ status });
+    if (demoUser?.isDemo) {
+      queryClient.setQueryData(["demo-user-interacted"], true);
+    }
     return;
   }
 
@@ -715,6 +778,9 @@ export function BookDetails({
     }
 
     updateUserBookMutation({ isFavorite });
+    if (demoUser?.isDemo) {
+      queryClient.setQueryData(["demo-user-interacted"], true);
+    }
     return;
   }
 
@@ -879,7 +945,6 @@ export function BookDetails({
                 )}
 
                 {ratings &&
-                  ratings &&
                   ratings.map((rating) => {
                     return (
                       <BookDetailsRating

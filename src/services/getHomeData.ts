@@ -5,13 +5,45 @@ interface GetHomeDataProps {
 }
 
 export async function getHomeData({ userId }: GetHomeDataProps) {
-  const recentRatingsPromise = prisma.rating.findMany({
+  const recentRatingsPromise = await prisma.rating.findMany({
     take: 10,
     orderBy: { createdAt: "desc" },
     include: {
       user: true,
-      book: true,
+      book: {
+        include: {
+          userBooks: {
+            where: {
+              userId: userId,
+            },
+            select: {
+              id: true,
+              status: true,
+            },
+          },
+        },
+      },
     },
+  });
+
+  const recentRatings = recentRatingsPromise.map((r) => {
+    return {
+      ...r,
+      book: {
+        id: r.book.id,
+        title: r.book.title,
+        author: r.book.author,
+        coverUrl: r.book.coverUrl,
+        pageCount: r.book.pageCount,
+        categories: r.book.categories,
+        userBookInfo: {
+          userBookId: userId ? r.book.userBooks[0]?.id : null,
+          loggedUserCurrentBookStatus: userId
+            ? r.book.userBooks[0]?.status
+            : null,
+        },
+      },
+    };
   });
 
   const ranking = await prisma.$queryRaw<{ book_id: string }[]>`
@@ -22,17 +54,37 @@ export async function getHomeData({ userId }: GetHomeDataProps) {
     ORDER BY COUNT(*) DESC
     LIMIT 4
     `;
+
   const books = await prisma.book.findMany({
     where: {
       id: {
         in: ranking.map((r) => r.book_id),
       },
     },
+    include: {
+      userBooks: {
+        where: {
+          userId: userId,
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+    },
   });
 
   const popularBooks = ranking.map((rank) =>
     books.find((book) => book.id === rank.book_id),
-  );
+  ).map((book) => {
+    return {
+      ...book,
+      userBookInfo: {
+        userBookId: userId ? book?.userBooks[0].id : null,
+        loggedUserCurrentBookStatus: userId ? book?.userBooks[0].status: null
+      }
+    }
+  })
 
   const lastUserRatingUpdate = userId
     ? prisma.rating.findFirst({
@@ -71,10 +123,7 @@ export async function getHomeData({ userId }: GetHomeDataProps) {
     return lastRating || lastUserBook;
   });
 
-  const [recentRatings, lastUserActivity] = await Promise.all([
-    recentRatingsPromise,
-    lastUserActivtyPromise,
-  ]);
+  const [lastUserActivity] = await Promise.all([lastUserActivtyPromise]);
 
   return {
     recentRatings,
