@@ -26,6 +26,7 @@ export function ReadingProgressUpdater({
   onUpdate,
   handleCloseReadingProgressUpdater,
 }: ReadingProgressUpdaterProps) {
+  
   const [page, setPage] = useState<number>(currentPage);
   const [totalPagesState, setTotalPagesState] = useState<number>(totalPages)
 
@@ -35,7 +36,7 @@ export function ReadingProgressUpdater({
   };
 
   const clampTotalPagesValue = (value: number) => {
-    return Math.max(Math.min(Math.max(0, value), 50560), page)
+    return Math.min(Math.max(0, value), 50560)
   };
 
   const handleNewPageManualChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +62,11 @@ export function ReadingProgressUpdater({
   };
 
   const handleSubmit = () => {
+
+    if ( page > totalPagesState) {
+      return
+    }
+
     onUpdate(clampNewPageValue(page), totalPagesState);
     handleCloseReadingProgressUpdater();
   };
