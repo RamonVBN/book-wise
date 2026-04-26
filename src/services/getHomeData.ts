@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { demoProfileData } from "@/mocks/profile";
 
 interface GetHomeDataProps {
   userId?: string;
@@ -27,6 +28,28 @@ export async function getHomeData({ userId }: GetHomeDataProps) {
   });
 
   const recentRatings = recentRatingsPromise.map((r) => {
+    if (userId) {
+      return {
+        ...r,
+        book: {
+          id: r.book.id,
+          title: r.book.title,
+          author: r.book.author,
+          coverUrl: r.book.coverUrl,
+          pageCount: r.book.pageCount,
+          categories: r.book.categories,
+          userBookInfo: {
+            userBookId: r.book.userBooks[0]?.id ?? null,
+            loggedUserCurrentBookStatus: r.book.userBooks[0]?.status ?? null,
+          },
+        },
+      };
+    }
+
+    const demoUb = demoProfileData.allUserBooks.find(
+      (ub) => ub.book.id === r.book.id,
+    );
+
     return {
       ...r,
       book: {
@@ -37,10 +60,8 @@ export async function getHomeData({ userId }: GetHomeDataProps) {
         pageCount: r.book.pageCount,
         categories: r.book.categories,
         userBookInfo: {
-          userBookId: userId ? r.book.userBooks[0]?.id : null,
-          loggedUserCurrentBookStatus: userId
-            ? r.book.userBooks[0]?.status
-            : null,
+          userBookId: demoUb?.id ?? null,
+          loggedUserCurrentBookStatus: demoUb?.status ?? null,
         },
       },
     };
@@ -74,17 +95,30 @@ export async function getHomeData({ userId }: GetHomeDataProps) {
     },
   });
 
-  const popularBooks = ranking.map((rank) =>
-    books.find((book) => book.id === rank.book_id),
-  ).map((book) => {
-    return {
-      ...book,
-      userBookInfo: {
-        userBookId: userId ? book?.userBooks[0].id : null,
-        loggedUserCurrentBookStatus: userId ? book?.userBooks[0].status: null
+  const popularBooks = ranking
+    .map((rank) => books.find((book) => book.id === rank.book_id))
+    .map((book) => {
+
+      if (userId) {
+        return {
+          ...book,
+          userBookInfo: {
+            userBookId: book?.userBooks[0]?.id ?? null,
+            loggedUserCurrentBookStatus: book?.userBooks[0]?.status ?? null,
+          },
+        };
       }
-    }
-  })
+
+      const demoUb = demoProfileData.allUserBooks.find((ub) => ub.book.id === book?.id)
+
+      return {
+        ...book,
+        userBookInfo: {
+          userBookId: demoUb?.id ?? null,
+          loggedUserCurrentBookStatus: demoUb?.status ??  null,
+        },
+      };
+    });
 
   const lastUserRatingUpdate = userId
     ? prisma.rating.findFirst({
