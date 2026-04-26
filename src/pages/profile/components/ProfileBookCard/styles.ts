@@ -73,12 +73,12 @@ export const ProfileBookInfo = styled("div", {
       flexShrink: 0,
     },
 
-    div: {
+    '& > div': {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
 
-      "span:first-child": {
+      "& > span:first-child": {
         display: "flex",
         flexDirection: "column",
         gap: "0.25rem",
@@ -214,3 +214,14 @@ export const ModalBody = styled("div", {
     },
   },
 });
+
+
+export const AddedBookFlag = styled('span', {
+  display: 'flex',
+  gap: '0.5rem',
+  alignItems: 'center',
+  svg: {
+    color: '$green100',
+  },
+
+})

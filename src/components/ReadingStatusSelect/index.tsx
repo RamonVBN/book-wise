@@ -1,7 +1,8 @@
 import * as Select from "@radix-ui/react-select";
 import { Content, Item, Trigger } from "./styles";
-import { BookmarkCheck, CheckIcon, ChevronDownIcon } from "lucide-react";
+import { BookmarkCheck } from "lucide-react";
 import { ReadingStatus } from "@/generated/prisma";
+import { CaretDown } from 'phosphor-react'
 import React from "react";
 
 type ReadingStatusSelectProps = {
@@ -25,6 +26,8 @@ export function ReadingStatusSelect({
   isAuthenticated,
   openLoginModal,
 }: ReadingStatusSelectProps) {
+
+  
   function handleValueChange(value: ReadingStatus) {
     if (!isAuthenticated && openLoginModal) {
       openLoginModal('Faça login para adicionar ou atualizar livros');
@@ -44,8 +47,8 @@ export function ReadingStatusSelect({
     >
       <Trigger status={value} disabled={disabled}>
         <Select.Value placeholder="Adicionar" />
-        <Select.Icon>
-          <ChevronDownIcon />
+        <Select.Icon asChild>
+          <CaretDown weight="bold" size={18} />
         </Select.Icon>
       </Trigger>
 

@@ -16,7 +16,7 @@ import { Binoculars, ChartLineUp, SignIn, SignOut, User } from "phosphor-react";
 
 import { signOut, useSession } from "next-auth/react";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import { useRouter } from "next/router";
 
@@ -26,14 +26,14 @@ import { Avatar } from "../Avatar";
 import { useAuth } from "../AuthContext";
 import { DemoBanner } from "../DemoBanner";
 import { useQueryClient } from "@tanstack/react-query";
+import { demoProfileData } from "@/mocks/profile";
 
 type Navigation = {
   buttonName: string;
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
-
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const { demoUser, logout } = useAuth();
 
@@ -72,9 +72,23 @@ export default function Layout({ children }: { children: ReactNode }) {
       logout();
     }
 
-    queryClient.clear()
+    queryClient.clear();
     return;
   }
+
+  useEffect(() => {
+    const isDemoUserCacheModified = queryClient.getQueryData([
+      "demo-user-interacted",
+    ]);
+
+    if (demoUser?.isDemo && !isDemoUserCacheModified) {
+
+      queryClient.setQueryData(['profile', demoUserId], () => {
+
+        return demoProfileData
+      })
+    }
+  }, []);
 
   return (
     <AppContainer>

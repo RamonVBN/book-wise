@@ -30,7 +30,7 @@ import { AppTooltip } from "@/components/Tooltip";
 type HomeBookProps = {
   children: ReactNode;
   homeBook: HomeRatingBookProps;
-  handleOpenModal: () => void;
+  handleOpenModal: (description: string) => void;
 };
 
 const status: ReadingStatus[] = [
@@ -55,14 +55,16 @@ export function HomeBook({
 
   const optionsRef = useRef<HTMLDivElement>(null);
 
-  const user = session.data?.user ?? demoUser;
+  const loggedUser = session.data?.user || demoUser;
 
-  const isSigned = session.status === "authenticated";
+  const loggedUserId = loggedUser?.id
+
+  const isRealUserSigned = session.status === "authenticated";
 
   const isDemoUserSigned = demoUser?.isDemo;
 
-  const loggedUserCurrentBookStatus =
-    homeBook.userBookInfo?.loggedUserCurrentBookStatus;
+  const loggedUserCurrentBookStatus = (isRealUserSigned || isDemoUserSigned) ? homeBook.userBookInfo?.loggedUserCurrentBookStatus : undefined
+    
 
   const { mutate: updateUserBookMutation } = useMutation({
     mutationFn: async ({ status }: { status?: ReadingStatus }) => {
@@ -70,7 +72,7 @@ export function HomeBook({
         return;
       }
 
-      return await api.patch(`/app/user-books/${user?.id}`, {
+      return await api.patch(`/app/user-books/${loggedUserId}`, {
         readStatus: status,
         bookId: homeBook?.id,
         title: homeBook?.title,
@@ -82,13 +84,13 @@ export function HomeBook({
     },
     mutationKey: ["updateUserBook"],
     onMutate: async ({ status }) => {
-      await queryClient.cancelQueries({ queryKey: ["profile", user?.id] });
+      await queryClient.cancelQueries({ queryKey: ["profile", loggedUserId] });
 
       toast.success(toastMessages.updateBook.success);
 
       const previousProfileData = queryClient.getQueryData([
         "profile",
-        user?.id,
+       loggedUserId,
       ]);
 
       const userBookCacheId = crypto.randomUUID();
@@ -96,7 +98,7 @@ export function HomeBook({
       let userBookExists = false;
 
       queryClient.setQueryData<ProfileResponse>(
-        ["profile", user?.id],
+        ["profile", loggedUserId],
         (oldData) => {
           const newUserBook: UserBookProps = {
             id: userBookCacheId,
@@ -115,8 +117,8 @@ export function HomeBook({
             currentPage:
               status === "FINISHED" ? homeBook?.pageCount : undefined,
             updatedAt: new Date().toString(),
-            user: user!,
-            userId: user!.id,
+            user: loggedUser!,
+            userId: loggedUserId!,
           };
 
           if (!oldData) {
@@ -286,7 +288,7 @@ export function HomeBook({
 
         const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
           "profile",
-          user?.id,
+         loggedUserId,
         ]);
 
         const updatedUb = updatedProfileData?.allUserBooks[0];
@@ -341,7 +343,7 @@ export function HomeBook({
       toast.error(toastMessages.updateBook.error);
       console.log(err);
       queryClient.setQueryData(
-        ["profile", user?.id],
+        ["profile", loggedUserId],
         context?.previousProfileData,
       );
     },
@@ -354,7 +356,7 @@ export function HomeBook({
 
         if (isStillMutating === 0) {
           queryClient.invalidateQueries({
-            queryKey: ["profile", user?.id],
+            queryKey: ["profile", loggedUserId],
           });
 
           queryClient.invalidateQueries({
@@ -397,8 +399,8 @@ export function HomeBook({
   }
 
   function handleOpenOptions() {
-    if (!isSigned && !isDemoUserSigned) {
-      handleOpenModal();
+    if (!isRealUserSigned && !isDemoUserSigned) {
+      handleOpenModal('Faça login para começar a adicionar livros');
       return;
     }
 

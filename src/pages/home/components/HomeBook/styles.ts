@@ -3,6 +3,7 @@ import { styled } from "@/pages/globalStyles";
 export const AddBookOverlayContainer = styled("div", {
   position: "relative",
   height: "min-content",
+  
 });
 
 export const AddBookOverlay = styled("div", {
@@ -28,7 +29,6 @@ export const AddBookOverlay = styled("div", {
   },
 
   "&:hover": {
-    // backgroundColor: "rgba(0, 0, 0, 0.8)",
     backgroundColor: '#0e1116d5',
     svg: {
       opacity: 100,
@@ -48,7 +48,6 @@ export const AddBookButton = styled("button", {
   height: "2.25rem",
   boxSizing: "border-box",
 
-  padding: "0.5rem",
   borderRadius: "$full",
 
   transition: "all 0.2s ease-out",

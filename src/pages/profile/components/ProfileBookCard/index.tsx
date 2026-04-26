@@ -8,6 +8,7 @@ import {
   UserBookProps,
 } from "@/@types/query-types";
 import {
+  AddedBookFlag,
   ModalBody,
   ProfileBook,
   ProfileBookButton,
@@ -25,7 +26,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { Pencil, Star, Trash, X } from "phosphor-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { Modal } from "@/components/Modal";
 import { CloseButton } from "@/pages/explore/components/BookDetails/styles";
@@ -33,7 +34,12 @@ import { ReadingStatus } from "@/generated/prisma";
 import { ReadingStatusSelect } from "@/components/ReadingStatusSelect";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { ReadingProgress } from "../ReadingProgressBar";
-import { BookmarkPlus, GripVertical } from "lucide-react";
+import {
+  BookCheck,
+  BookmarkPlus,
+  GripVertical,
+  SquareLibrary,
+} from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
 import { AppTooltip } from "@/components/Tooltip";
@@ -45,6 +51,8 @@ import { DragHandleProps } from "../SortableItem";
 import { FavoriteFlag } from "../FavoriteFlag";
 import { useAuth } from "@/components/AuthContext";
 import { DescripitionText } from "@/components/DescriptionText";
+import { useSession } from "next-auth/react";
+import { demoProfileData } from "@/mocks/profile";
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
@@ -65,7 +73,11 @@ export function ProfileBookCard({
   dragging,
   isLoggedUserProfile,
 }: ProfileBookCardProps) {
+  const session = useSession();
+
   const { demoUser } = useAuth();
+
+  const loggedUserId = session.data?.user.id || demoUser?.id;
 
   const queryClient = useQueryClient();
 
@@ -137,7 +149,7 @@ export function ProfileBookCard({
 
         const newRate = data.rate;
         const newReview = data.review;
-        return await api.put(`/app/ratings/users/${rating?.id}`, {
+        return await api.put(`/app/ratings/${rating?.id}`, {
           newReview,
           newRate,
         });
@@ -309,7 +321,7 @@ export function ProfileBookCard({
           return;
         }
 
-        return await api.post(`/app/ratings/users/${userId}`, {
+        return await api.post(`/app/ratings/${userId}`, {
           rate: data.rate,
           review: data.review,
           bookId: book?.id,
@@ -519,7 +531,7 @@ export function ProfileBookCard({
         return;
       }
 
-      return await api.delete(`/app/ratings/users/${ratingId}`);
+      return await api.delete(`/app/ratings/${ratingId}`);
     },
     onMutate: async (ratingId) => {
       toast.success(toastMessages.deleteRating.success);
@@ -685,7 +697,7 @@ export function ProfileBookCard({
           return;
         }
 
-        return await api.patch(`/app/user-books/${userId}`, {
+        return await api.patch(`/app/user-books/${loggedUserId}`, {
           readStatus: status,
           isFavorite,
           currentPage,
@@ -706,21 +718,104 @@ export function ProfileBookCard({
         currentPage,
         customTotalPage,
       }) => {
-        await queryClient.cancelQueries({ queryKey: ["profile", userId] });
+        await queryClient.cancelQueries({
+          queryKey: ["profile", loggedUserId],
+        });
 
-        if (status || (isFavorite !== undefined && !isFavorite)) {
+        if (
+          isLoggedUserProfile &&
+          (status || (isFavorite !== undefined && !isFavorite))
+        ) {
           toast.success(toastMessages.updateBook.success);
+        }
+
+        if (!isLoggedUserProfile) {
+          toast.success(toastMessages.addBook.success);
         }
 
         const previousProfileData = queryClient.getQueryData([
           "profile",
-          userId,
+          loggedUserId,
         ]);
 
         queryClient.setQueryData<ProfileResponse>(
-          ["profile", userId],
+          ["profile", loggedUserId],
           (oldData) => {
             if (!oldData) return oldData;
+
+            if (!isLoggedUserProfile) {
+              const userBookCacheId = crypto.randomUUID();
+
+              const newUserBook: UserBookProps = {
+                id: userBookCacheId,
+                book: {
+                  ...book!,
+                  id: book!.id,
+                  title: book!.title,
+                  author: book!.author,
+                  categories: book!.categories,
+                  pageCount: book!.pageCount,
+                  coverUrl: book!.coverUrl,
+                },
+                isFavorite: false,
+                rated: false,
+                status: status!,
+                currentPage:
+                  status === "FINISHED" ? book?.pageCount : undefined,
+                updatedAt: new Date().toString(),
+                user: user!,
+                userId: user!.id,
+              };
+
+              const updatedProfileData = [newUserBook]
+                .concat(
+                  oldData.abandonedBooks.concat(
+                    oldData.currentlyReadingBooks,
+                    oldData.finishedBooks,
+                    oldData.wantToReadBooks,
+                  ),
+                )
+                .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
+
+              const currentlyReadingBooks = updatedProfileData.filter(
+                (ub) => ub.status === "READING",
+              );
+
+              const wantToReadBooks = updatedProfileData
+                .filter((ub) => ub.status === "WANT_TO_READ")
+                .sort((ub1, ub2) =>
+                  compareAsc(
+                    ub1.wantToReadPosition ?? Infinity,
+                    ub2.wantToReadPosition ?? Infinity,
+                  ),
+                );
+
+              const finishedBooks = updatedProfileData.filter(
+                (ub) => ub.status === "FINISHED",
+              );
+
+              const abandonedBooks = updatedProfileData.filter(
+                (ub) => ub.status === "ABANDONED",
+              );
+              const favoriteBooks = updatedProfileData
+                .filter((ub) => ub.isFavorite)
+                .sort((ub1, ub2) =>
+                  compareAsc(
+                    ub1.favoritePosition ?? Infinity,
+                    ub2.favoritePosition ?? Infinity,
+                  ),
+                );
+
+              return {
+                ...oldData,
+                allUserBooks: updatedProfileData,
+                currentlyReadingBooks,
+                wantToReadBooks,
+                finishedBooks,
+                abandonedBooks,
+                favoriteBooks,
+              };
+            }
 
             const updatedProfileData = oldData.abandonedBooks
               .concat(
@@ -825,7 +920,7 @@ export function ProfileBookCard({
 
           const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
             "profile",
-            userId,
+            loggedUserId,
           ]);
 
           const updatedUb = updatedProfileData?.allUserBooks[0];
@@ -883,12 +978,12 @@ export function ProfileBookCard({
         toast.error(toastMessages.updateBook.error);
         console.log(err);
         queryClient.setQueryData(
-          ["profile", userId],
+          ["profile", loggedUserId],
           context?.previousProfileData,
         );
       },
       onSuccess: (_, { status, isFavorite, currentPage }) => {
-        if ((!status && isFavorite) || currentPage) {
+        if (((!status && isFavorite) || currentPage) && isLoggedUserProfile) {
           toast.success(toastMessages.updateBook.success);
         }
 
@@ -900,7 +995,7 @@ export function ProfileBookCard({
 
           if (isStillMutating === 0) {
             queryClient.invalidateQueries({
-              queryKey: ["profile", userId],
+              queryKey: ["profile", loggedUserId],
             });
 
             queryClient.invalidateQueries({
@@ -930,12 +1025,12 @@ export function ProfileBookCard({
     onMutate: async () => {
       toast.success(toastMessages.deleteBook.success);
 
-      await queryClient.cancelQueries({ queryKey: ["profile", userId] });
+      await queryClient.cancelQueries({ queryKey: ["profile", loggedUserId] });
 
-      const previousProfileData = queryClient.getQueryData(["profile", userId]);
+      const previousProfileData = queryClient.getQueryData(["profile", loggedUserId]);
 
       queryClient.setQueryData<ProfileResponse>(
-        ["profile", userId],
+        ["profile", loggedUserId],
         (oldData) => {
           if (!oldData) return oldData;
 
@@ -1039,7 +1134,7 @@ export function ProfileBookCard({
 
         const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
           "profile",
-          userId,
+          loggedUserId,
         ]);
 
         const deletedUserBook = userBook;
@@ -1201,6 +1296,39 @@ export function ProfileBookCard({
     updateUserBookMutation({ status });
   }
 
+  const { data: loggedUserProfileData } = useQuery<ProfileResponse>({
+    queryKey: ["profile", loggedUserId],
+    queryFn: async () => {
+      if (!demoUser?.isDemo || userId !== demoUser?.id) {
+        const response = await api.get(`/app/profile/${loggedUserId}`);
+        return response.data;
+      }
+
+      const cachedProfile = queryClient.getQueryData<ProfileResponse>([
+        "profile",
+        loggedUserId,
+      ]);
+
+      if (cachedProfile) {
+        return cachedProfile;
+      }
+
+      return demoProfileData;
+    },
+    enabled: !!loggedUserId && !isLoggedUserProfile,
+    staleTime: Infinity,
+  });
+
+  function getLoggedUserBook(bookId?: string) {
+    const loggedUserBook = loggedUserProfileData?.allUserBooks.find(
+      (ub) => ub.book.id === bookId,
+    );
+
+    return loggedUserBook;
+  }
+
+  const loggedUserBook = getLoggedUserBook(userBook?.book.id);
+
   useEffect(() => {
     modalRef.current?.focus();
   }, [isModalOpen]);
@@ -1290,14 +1418,14 @@ export function ProfileBookCard({
                   </span>
 
                   {rating && !isUserRatingFormOpen && (
-                    <StarRating param={rating.rate} />
+                    <StarRating showRate param={rating.rate} />
                   )}
                 </div>
               </div>
             </ProfileBookInfo>
 
-            {isLoggedUserProfile && (
-              <ProfileBookOptions>
+            <ProfileBookOptions>
+              {isLoggedUserProfile ? (
                 <div>
                   {!isAllUserBooks &&
                     (rating ||
@@ -1394,16 +1522,36 @@ export function ProfileBookCard({
                     />
                   )}
                 </div>
-              </ProfileBookOptions>
-            )}
+              ) : (
+                // Opções em perfis de outros usuários
+                <div>
+                  {userBook && !loggedUserBook && !isFavoriteList && (
+                    <ReadingStatusSelect
+                      disabled={isUpdatingUserBook}
+                      onChange={onSelectChange}
+                      handleSelectOpenChange={handleSelectOpenChange}
+                      isSelectOpen={isSelectOpen}
+                    />
+                  )}
 
-            {!isFavoriteList && !isLoggedUserProfile && !rating && (
-              <BooksStatusFlag status={userBook!.status} />
-            )}
+                  {!isFavoriteList && loggedUserBook && (
+                    <AppTooltip content="Livro adicionado a sua estante">
+                      <AddedBookFlag>
+                        <BookCheck />
+                      </AddedBookFlag>
+                    </AppTooltip>
+                  )}
 
-            {!isLoggedUserProfile && !rating && isFavoriteList && (
-              <FavoriteFlag />
-            )}
+                  {!isFavoriteList && !isLoggedUserProfile && !rating && (
+                    <BooksStatusFlag status={userBook!.status} />
+                  )}
+
+                  {!isLoggedUserProfile && !rating && isFavoriteList && (
+                    <FavoriteFlag />
+                  )}
+                </div>
+              )}
+            </ProfileBookOptions>
           </div>
 
           <div>

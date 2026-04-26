@@ -6,8 +6,7 @@ export const Trigger = styled(Select.Trigger, {
 
   display: "flex",
   alignItems: "center",
-  justifyContent: "space-between",
-
+  gap: '0.25rem',
   padding: "8px 12px",
 
   borderRadius: "$full",

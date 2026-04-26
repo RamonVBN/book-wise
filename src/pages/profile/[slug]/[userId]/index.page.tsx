@@ -138,7 +138,7 @@ export default function Profile() {
 
   const userId = router.query.userId;
 
-  const { data: profileData, isLoading: isLoadingRatings } =
+  const { data: profileData, isLoading: isLoadingProfile } =
     useQuery<ProfileResponse>({
       queryKey: ["profile", userId],
       queryFn: async () => {
@@ -469,7 +469,7 @@ export default function Profile() {
       />
       <Layout>
         <Container>
-          {isLoadingRatings ? (
+          {isLoadingProfile ? (
             <Fallback />
           ) : (
             <>
