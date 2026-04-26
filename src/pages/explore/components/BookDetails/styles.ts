@@ -120,12 +120,12 @@ export const BookInfoBody = styled("div", {
     flexShrink: 0,
   },
 
-  div: {
+  '& > div': {
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
 
-    "span:first-child": {
+    "& > span:first-child": {
       display: "flex",
       flexDirection: "column",
       gap: "0.25rem",
@@ -135,13 +135,9 @@ export const BookInfoBody = styled("div", {
         fontSize: "1.125rem",
         lineHeight: "$short",
         color: "$gray100",
-        // display: "-webkit-box",
-        // WebkitLineClamp: 2,
-        // WebkitBoxOrient: "vertical",
-        // overflow: "hidden",
       },
 
-      span: {
+      '& > span': {
         fontWeight: "$regular",
         fontSize: "1rem",
         lineHeight: "$base",
@@ -149,26 +145,22 @@ export const BookInfoBody = styled("div", {
       },
     },
 
-    "span:last-child": {
+    "& > span:last-child": {
       display: "flex",
       flexDirection: "column",
       alignItems: "flex-start",
       gap: "0.25rem",
 
-      "span:first-child": {
-        display: "flex",
-        flexDirection: "row",
-        gap: "0.25rem",
+      "span:nth-child(2)": {
 
         svg: {
           width: "1.25rem",
           height: "1.25rem",
 
-          color: "$purple100",
         },
       },
 
-      "span:last-child": {
+      "& > span:last-child": {
         fontWeight: "$regular",
         fontSize: "0.875rem",
         lineHeight: "$base",
@@ -306,18 +298,18 @@ export const BookDetailsRating = styled("div", {
   flexDirection: "column",
   gap: "1.25rem",
 
-  div: {
+  '& > div': {
     
     display: "flex",
     justifyContent: "space-between",
 
-    div: {
+   '& > div:first-child': {
       display: "flex",
       justifyContent: "flex-start",
       gap: "1rem",
 
 
-      span: {
+      '& > span': {
         display: "flex",
         flexDirection: "column",
 
@@ -328,7 +320,7 @@ export const BookDetailsRating = styled("div", {
           color: "$gray100",
         },
 
-        span: {
+        '& > span': {
           fontWeight: "$regular",
           fontSize: "0.875rem",
           lineHeight: "$base",
@@ -337,17 +329,6 @@ export const BookDetailsRating = styled("div", {
       },
     },
 
-    span: {
-      display: "flex",
-      gap: "0.25rem",
-
-      svg: {
-        width: "1rem",
-        height: "1rem",
-
-        color: "$purple100",
-      },
-    },
   },
 
   p: {

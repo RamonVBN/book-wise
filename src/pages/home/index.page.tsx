@@ -60,6 +60,8 @@ export default function Home() {
 
   const loginModalRef = useRef<HTMLDivElement>(null);
 
+  const [modalDescripion, setModalDescription] = useState('')
+
   const session = useSession();
 
   const { data: homeData, isLoading: isLoadingHomeData } =
@@ -83,10 +85,6 @@ export default function Home() {
     setIsModalOpen(false);
   }
 
-  function handleOpenModal() {
-    setIsModalOpen(true);
-  }
-
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
 
@@ -103,6 +101,11 @@ export default function Home() {
     if (event.key === "Escape" && isModalOpen) {
       return setIsModalOpen(false);
     }
+  }
+
+  function handleOpenLoginModal(description: string){
+    setModalDescription(description)
+    setIsModalOpen(true)
   }
 
   const hasDemoUserInteracted = queryClient.getQueryData([
@@ -140,7 +143,7 @@ export default function Home() {
             </CloseButton>
             <AuthModal
               handleCloseModal={handleCloseModal}
-              description="Faça login para ver perfis de outros usuários"
+              description={modalDescripion}
             />
           </Modal>
         )}
@@ -192,7 +195,7 @@ export default function Home() {
                               <span>
                                 {typeof lastUserActivity == "object" &&
                                 "rate" in lastUserActivity ? (
-                                  <StarRating param={lastUserActivity.rate} />
+                                  <StarRating showRate param={lastUserActivity.rate} />
                                 ) : (
                                   <BooksStatusFlag
                                     status={lastUserActivity.status}
@@ -245,7 +248,7 @@ export default function Home() {
                                     height={40}
                                     userName={rating.user.name}
                                     src={rating.user.avatarUrl}
-                                    onClick={() => setIsModalOpen(true)}
+                                    onClick={() => handleOpenLoginModal('Faça login para ver perfis de outros usuários')}
                                   />
                                 )}
                                 <span>
@@ -260,13 +263,11 @@ export default function Home() {
                                   </span>
                                 </span>
                               </BookRatingUser>
-                              <Rating>
-                                <StarRating param={rating.rate} />
-                              </Rating>
+                                <StarRating showRate param={rating.rate} />
                             </BookRatingUserContainer>
                             <BookRatingBody>
                               <HomeBook
-                                handleOpenModal={handleOpenModal}
+                                handleOpenModal={handleOpenLoginModal}
                                 homeBook={rating.book}
                               >
                                 <BookCover
@@ -309,7 +310,7 @@ export default function Home() {
                       homeData.popularBooks.map((book) => {
                         return (
                           <PopBook key={book.id}>
-                            <HomeBook handleOpenModal={handleOpenModal} homeBook={book}>
+                            <HomeBook handleOpenModal={handleOpenLoginModal} homeBook={book}>
                               <BookCover
                                 key={book.id}
                                 width={64}

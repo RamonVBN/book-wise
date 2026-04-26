@@ -257,7 +257,7 @@ export const PopBookDescription = styled("div", {
     gap: "0.25rem",
     alignItems: "flex-start",
 
-    span: {
+    '& > span': {
       fontWeight: "$regular",
       fontSize: "0.875rem",
       lineHeight: "$base",
@@ -333,13 +333,13 @@ export const LastActivityContent = styled("div", {
   gap: "1.5rem",
   width: "100%",
 
-  "div:first-child": {
+  "& > div:first-child": {
     display: "flex",
     flexDirection: "column",
     gap: "0.75rem",
     width: "100%",
 
-    "div:first-child": {
+    "& > div:first-child": {
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
@@ -353,7 +353,7 @@ export const LastActivityContent = styled("div", {
       },
     },
 
-    "div:last-child": {
+    "& > div:last-child": {
       h2: {
         fontWeight: "$bold",
         fontSize: "1rem",
@@ -361,7 +361,7 @@ export const LastActivityContent = styled("div", {
         color: "$gray100",
       },
 
-      span: {
+      '& > span': {
         color: "$gray400",
         fontSize: "0.875rem",
         fontWeight: "$regular",

@@ -64,6 +64,7 @@ import { Avatar } from "@/components/Avatar";
 import { formatAuthors } from "@/utils/formatAuthors";
 import { useAuth } from "@/components/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
+import { MeanRating } from "../MeanRating";
 
 type BookDetailsProps = {
   closeBookDetails: () => void;
@@ -186,7 +187,7 @@ export function BookDetails({
         return;
       }
 
-      return await api.post(`/app/ratings/users/${user?.id}`, {
+      return await api.post(`/app/ratings/${user?.id}`, {
         rate: data.rate,
         review: data.review,
         bookId: book?.id,
@@ -211,6 +212,23 @@ export function BookDetails({
       ]);
 
       const newCacheRatingId = crypto.randomUUID();
+
+      const newProfileRating: RatingProps = {
+        id: newCacheRatingId,
+        rate: data.rate,
+        review: data.review,
+        book: {
+          id: book!.id,
+          title: book!.title,
+          author: book!.author.join(","),
+          categories: book!.categories.join(","),
+          pageCount: book!.pageCount,
+          coverUrl: book!.coverUrl,
+        },
+        user: user!,
+        createdAt: new Date().toString(),
+        updatedAt: new Date().toString(),
+      };
 
       queryClient.setQueryData<BooksQueryData>(
         ["books", searchTerm, categoriesFilters],
@@ -269,24 +287,7 @@ export function BookDetails({
         (oldData) => {
           if (!oldData) return oldData;
 
-          const newRating: RatingProps = {
-            id: newCacheRatingId,
-            rate: data.rate,
-            review: data.review,
-            book: {
-              id: book!.id,
-              title: book!.title,
-              author: book!.author.join(","),
-              categories: book!.categories.join(","),
-              pageCount: book!.pageCount,
-              coverUrl: book!.coverUrl,
-            },
-            user: user!,
-            createdAt: new Date().toString(),
-            updatedAt: new Date().toString(),
-          };
-
-          const newUserRatings = [newRating].concat(oldData.userRatings);
+          const newUserRatings = [newProfileRating].concat(oldData.userRatings);
 
           const updatedUserbooks = oldData.abandonedBooks
             .concat(
@@ -337,22 +338,13 @@ export function BookDetails({
       queryClient.setQueryData<HomeDataResponse>(["home"], (oldData) => {
         if (!oldData) return oldData;
 
-        const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
-          "profile",
-          user?.id,
-        ]);
-
-        const userBook = updatedProfileData?.allUserBooks.find(
-          (ub) => ub.book.id === book?.id && ub.userId === user?.id,
-        );
-
         const newRating: HomeRatingProps = {
-          ...updatedProfileData!.userRatings[0],
+          ...newProfileRating,
           book: {
-            ...updatedProfileData!.userRatings[0].book,
+            ...newProfileRating.book,
             userBookInfo: {
-              userBookId: userBook?.id,
-              loggedUserCurrentBookStatus: "FINISHED",
+              userBookId: book?.userBookInfo?.userBookId,
+              loggedUserCurrentBookStatus: book?.userBookInfo?.status,
             },
           },
         };
@@ -789,7 +781,10 @@ export function BookDetails({
     setIsModalOpen(true);
   }
 
-  const bookStatus = book?.userBookInfo?.status;
+  const isSigned =
+    session.status === "authenticated" || (demoUser?.isDemo ?? false);
+
+  const bookStatus = isSigned ? book?.userBookInfo?.status : undefined
 
   const isFavoriteBook = book?.userBookInfo?.isFavorite ?? false;
 
@@ -847,10 +842,13 @@ export function BookDetails({
                         : "Autor(es) desconhecido(s)"}
                     </span>
                   </span>
+
                   <span>
+                    <MeanRating avgRating={book?.avgRating ?? 0} />
                     <span>
                       <StarRating param={book?.avgRating ?? 0} />
                     </span>
+
                     <span>
                       {book?.ratingsCount}{" "}
                       {book?.ratingsCount === 1 ? "avaliação" : "avaliações"}
@@ -888,9 +886,7 @@ export function BookDetails({
                   <div>
                     <ReadingStatusSelect
                       openLoginModal={handleLoginModalOpen}
-                      isAuthenticated={
-                        session.status === "authenticated" || demoUser?.isDemo
-                      }
+                      isAuthenticated={isSigned}
                       disabled={isUpdatingReadingStatus}
                       handleSelectOpenChange={handleSelectOpenChange}
                       isSelectOpen={isSelectOpen}
@@ -991,9 +987,7 @@ export function BookDetails({
                             </span>
                           </div>
 
-                          <span>
-                            <StarRating param={rating.rate} />
-                          </span>
+                          <StarRating param={rating.rate} />
                         </div>
 
                         <DescripitionText description={rating.review} />
