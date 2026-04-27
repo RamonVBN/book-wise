@@ -472,23 +472,13 @@ export function BookDetails({
               };
             }
 
-            userBookExists = oldData.abandonedBooks
-              .concat(
-                oldData.currentlyReadingBooks,
-                oldData.finishedBooks,
-                oldData.wantToReadBooks,
-              )
-              .some((ub) => ub.id === book?.userBookInfo?.userBookId);
+            userBookExists = oldData.allUserBooks
+              .some((ub) => ub.book.id === book?.id);
 
             if (userBookExists) {
-              const updatedProfileData = oldData.abandonedBooks
-                .concat(
-                  oldData.currentlyReadingBooks,
-                  oldData.finishedBooks,
-                  oldData.wantToReadBooks,
-                )
+              const updatedProfileData = oldData.allUserBooks
                 .map((ub) => {
-                  if (ub.id === book?.userBookInfo?.userBookId) {
+                  if (ub.book.id === book?.id) {
                     const newUpdatedAt = new Date();
                     const totalPages = ub.customTotalPage ?? ub.book.pageCount;
 

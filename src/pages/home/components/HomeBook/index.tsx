@@ -57,14 +57,16 @@ export function HomeBook({
 
   const loggedUser = session.data?.user || demoUser;
 
-  const loggedUserId = loggedUser?.id
+  const loggedUserId = loggedUser?.id;
 
   const isRealUserSigned = session.status === "authenticated";
 
   const isDemoUserSigned = demoUser?.isDemo;
 
-  const loggedUserCurrentBookStatus = (isRealUserSigned || isDemoUserSigned) ? homeBook.userBookInfo?.loggedUserCurrentBookStatus : undefined
-    
+  const loggedUserCurrentBookStatus =
+    isRealUserSigned || isDemoUserSigned
+      ? homeBook.userBookInfo?.loggedUserCurrentBookStatus
+      : undefined;
 
   const { mutate: updateUserBookMutation } = useMutation({
     mutationFn: async ({ status }: { status?: ReadingStatus }) => {
@@ -90,7 +92,7 @@ export function HomeBook({
 
       const previousProfileData = queryClient.getQueryData([
         "profile",
-       loggedUserId,
+        loggedUserId,
       ]);
 
       const userBookCacheId = crypto.randomUUID();
@@ -144,7 +146,7 @@ export function HomeBook({
               oldData.finishedBooks,
               oldData.wantToReadBooks,
             )
-            .some((ub) => ub.id === homeBook.userBookInfo?.userBookId);
+            .some((ub) => ub.book.id === homeBook.id);
 
           if (userBookExists) {
             const updatedProfileData = oldData.abandonedBooks
@@ -154,7 +156,7 @@ export function HomeBook({
                 oldData.wantToReadBooks,
               )
               .map((ub) => {
-                if (ub.id === homeBook.userBookInfo?.userBookId) {
+                if (ub.book.id === homeBook.id) {
                   const newUpdatedAt = new Date();
                   return {
                     ...ub,
@@ -274,7 +276,6 @@ export function HomeBook({
                   userBookInfo: {
                     ...book.userBookInfo!,
                     status: status ?? book.userBookInfo!.status,
-                    isFavorite: book.userBookInfo?.isFavorite ?? false,
                   },
                 };
               }),
@@ -288,52 +289,58 @@ export function HomeBook({
 
         const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
           "profile",
-         loggedUserId,
+          loggedUserId,
         ]);
 
         const updatedUb = updatedProfileData?.allUserBooks[0];
 
-        const updatedRecentRatings: HomeRatingProps[] = oldData.recentRatings.map((r) => {
-          if (r.book?.id !== homeBook?.id) {
-            return r;
-          }
+        const updatedRecentRatings: HomeRatingProps[] =
+          oldData.recentRatings.map((r) => {
+            if (r.book?.id !== homeBook?.id) {
+              return r;
+            }
 
-          const updatedUserBookInfo = {
-            ...r.book.userBookInfo,
-            loggedUserCurrentBookStatus:
-              status ?? r.book.userBookInfo?.loggedUserCurrentBookStatus,
-          };
+            const updatedUserBookInfo = {
+              ...r.book.userBookInfo,
+              loggedUserCurrentBookStatus:
+                status ?? r.book.userBookInfo?.loggedUserCurrentBookStatus,
+            };
 
-          return {
-            ...r,
-            book: {
-              ...r.book,
-              userBookInfo: status ? updatedUserBookInfo : r.book.userBookInfo,
-            },
-          };
-        });
+            return {
+              ...r,
+              book: {
+                ...r.book,
+                userBookInfo: status
+                  ? updatedUserBookInfo
+                  : r.book.userBookInfo,
+              },
+            };
+          });
 
-        const updatedPopBooks: HomePopBookProps[] = oldData.popularBooks.map((book) => {
-          if (book.id !== homeBook.id) {
-            return book
-          }
+        const updatedPopBooks: HomePopBookProps[] = oldData.popularBooks.map(
+          (book) => {
+            if (book.id !== homeBook.id) {
+              return book;
+            }
 
-          const updatedUserBookInfo = {
-            ...book.userBookInfo,
-            loggedUserCurrentBookStatus: status ?? book.userBookInfo.loggedUserCurrentBookStatus
-          }
+            const updatedUserBookInfo = {
+              ...book.userBookInfo,
+              loggedUserCurrentBookStatus:
+                status ?? book.userBookInfo.loggedUserCurrentBookStatus,
+            };
 
-          return {
-            ...book,
-            userBookInfo: updatedUserBookInfo
-          }
-        })
+            return {
+              ...book,
+              userBookInfo: updatedUserBookInfo,
+            };
+          },
+        );
 
         return {
           ...oldData,
           lastUserActivity: updatedUb ?? oldData.lastUserActivity,
           recentRatings: updatedRecentRatings,
-          popularBooks: updatedPopBooks
+          popularBooks: updatedPopBooks,
         };
       });
 
@@ -400,7 +407,7 @@ export function HomeBook({
 
   function handleOpenOptions() {
     if (!isRealUserSigned && !isDemoUserSigned) {
-      handleOpenModal('Faça login para começar a adicionar livros');
+      handleOpenModal("Faça login para começar a adicionar livros");
       return;
     }
 
