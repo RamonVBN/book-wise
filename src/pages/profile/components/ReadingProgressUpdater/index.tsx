@@ -63,7 +63,7 @@ export function ReadingProgressUpdater({
 
   const handleSubmit = () => {
 
-    if ( page > totalPagesState) {
+    if ( (page > totalPagesState) || totalPagesState < 1) {
       return
     }
 

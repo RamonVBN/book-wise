@@ -79,9 +79,15 @@ export async function updateUserBookController(
     customTotalPage,
   } = bodySchema.parse(req.body);
 
-  if (currentPage && customTotalPage && currentPage > customTotalPage) {
+  if ((currentPage && customTotalPage) && currentPage > customTotalPage) {
     return res.status(400).json({
       message: "Current page cannot be higher than total page.",
+    });
+  }
+
+   if (customTotalPage && (customTotalPage < 1 || customTotalPage > 505600)) {
+    return res.status(400).json({
+      message: "Invalid custom total page",
     });
   }
 
