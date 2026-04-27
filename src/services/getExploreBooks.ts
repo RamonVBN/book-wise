@@ -47,27 +47,27 @@ export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
 
   const googleIds = books.map((book: { id: string }) => book.id);
 
-  if (userId) {
-    const dbBooks = await prisma.book.findMany({
-      where: {
-        id: {
-          in: googleIds,
+  const dbBooks = await prisma.book.findMany({
+    where: {
+      id: {
+        in: googleIds,
+      },
+    },
+    include: {
+      userBooks: {
+        where: {
+          userId,
         },
       },
-      include: {
-        userBooks: {
-          where: {
-            userId,
-          },
-        },
-        ratings: {
-          include: {
-            user: true,
-          },
+      ratings: {
+        include: {
+          user: true,
         },
       },
-    });
+    },
+  });
 
+  if (userId) {
     const booksMap: Record<string, BookStats> = {};
 
     dbBooks.forEach((dbBook: any) => {
@@ -111,23 +111,25 @@ export async function getExploreBooks({ userId, googleData }: GetExploreBooks) {
     return result;
   }
 
-  const demoUserBooks = demoProfileData.allUserBooks
+  const demoUserBooks = demoProfileData.allUserBooks;
 
   const booksMap: Record<string, BookStats> = {};
 
-  demoUserBooks.forEach((ub) => {
-  
-    booksMap[ub.book.id] = {
-      avgRating: 0,
-      ratingsCount: 0,
-      ratingsSum: 0,
-      ratings: [],
-      userBookInfo: {
-        userBookId: ub.id,
-        status: ub.status,
-        isFavorite: ub.isFavorite,
-        rated: ub.rated,
-      },
+  dbBooks.forEach((dbBook: any) => {
+    const userBook =
+      demoUserBooks.find((ub) => ub.book.id === dbBook.id) ?? null;
+
+    booksMap[dbBook.id] = {
+      avgRating: dbBook.avgRating,
+      ratingsCount: dbBook.ratingsCount,
+      ratingsSum: dbBook.ratingsSum,
+      ratings: dbBook.ratings,
+      userBookInfo: userBook ? {
+        userBookId: userBook.id,
+        status: userBook.status,
+        isFavorite: userBook.isFavorite,
+        rated: userBook.rated,
+      } : null,
     };
   });
 
