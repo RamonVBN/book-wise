@@ -10,25 +10,23 @@ export function DescripitionText({description}: DescripitionTextProps){
     
     const [showMore, setShowMore] = useState(false)
 
+    const maxLenght = 150
+
     return (
         <DescripitionTextContainer>
-            {
-                showMore && (
-                    description
-                )
-            }
 
             {
-                !showMore && description.split(' ').length > 40 ? (
+                
+                (!showMore && description.split('').length > maxLenght) ? (
 
-                    description.split(' ').slice(0, 40).join(' ').concat('...')
+                    description.split('').slice(0, maxLenght).join('').concat('...')
                 )
                 :
                 description
             }
             
             {
-                description.split(' ').length > 40 && (
+                description.split('').length > maxLenght && (
                     <ShowMoreButton onClick={() => setShowMore((prevState) => !prevState)}>Ver {showMore? 'menos' : 'mais'}</ShowMoreButton>
                 )
             }
