@@ -1,7 +1,7 @@
 import { styled } from "@/pages/globalStyles";
 
 export const ModalOverlay = styled("div", {
-  position: "absolute",
+  position: "fixed",
   zIndex: 11,
   top: 0,
   right: 0,
@@ -21,7 +21,7 @@ export const ModalContainer = styled("div", {
 
   padding: "3.5rem 4.5rem",
   borderRadius: "12px",
-  backgroundColor: "$gray600",
+  backgroundColor: "$gray700",
 
   maxWidth: "32.25rem",
 

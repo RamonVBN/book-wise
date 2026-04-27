@@ -859,7 +859,9 @@ export function BookDetails({
 
               <BookInfoFooter>
                 <div>
-                  <div>
+                  
+                 <div>
+                   <div>
                     <BookmarkSimple />
                     <span>
                       <span>Categoria(s)</span>
@@ -882,6 +884,7 @@ export function BookDetails({
                       <span>{book?.pageCount}</span>
                     </span>
                   </div>
+                 </div>
 
                   <div>
                     <ReadingStatusSelect

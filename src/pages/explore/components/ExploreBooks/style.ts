@@ -16,6 +16,12 @@ export const ExploreBooksContainer = styled('div', {
         gridTemplateColumns: 'repeat(2, 1fr)',
 
     },
+
+
+    '@media(max-width: 425px)': {
+        gridTemplateColumns: 'repeat(1, 1fr)',
+
+    },
 })
 
 export const ExploreBook = styled('button', {

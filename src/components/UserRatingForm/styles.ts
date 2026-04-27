@@ -14,6 +14,7 @@ export const UserRatingContainer = styled("div", {
   "& > div:first-child": {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "start",
 
     "span:first-child": {
       display: "flex",
@@ -25,6 +26,10 @@ export const UserRatingContainer = styled("div", {
         fontSize: "1rem",
         lineHeight: "$short",
         color: "$gray100",
+
+        "@media(max-width: 375px)": {
+          display: 'none'
+        },
       },
     },
 

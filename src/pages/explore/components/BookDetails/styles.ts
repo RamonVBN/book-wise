@@ -1,7 +1,7 @@
 import { styled } from "@/pages/globalStyles";
 
 export const BookDetailsOverlay = styled("div", {
-  position: "absolute",
+  position: "fixed",
   top: 0,
   right: 0,
   zIndex: 10,
@@ -21,8 +21,8 @@ export const BookDetailsOverlay = styled("div", {
         transform: "translateX(0)",
         pointerEvents: "all",
       },
-    }
-  }
+    },
+  },
 });
 
 export const BookDetailsContainer = styled("div", {
@@ -49,13 +49,18 @@ export const BookDetailsContainer = styled("div", {
   gap: "1rem",
   flexDirection: "column",
 
+  "@media(max-width: 425px)": {
+    padding: "1rem",
+    width: "100vw",
+  },
+
   variants: {
     open: {
       true: {
         transform: "translateX(0)",
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 export const BookDetailsModalBody = styled("div", {
@@ -116,11 +121,11 @@ export const BookInfoBody = styled("div", {
     height: "15.125rem",
     width: "10.75rem",
     borderRadius: "10px",
-    objectFit: 'cover',
+    objectFit: "cover",
     flexShrink: 0,
   },
 
-  '& > div': {
+  "& > div": {
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -137,7 +142,7 @@ export const BookInfoBody = styled("div", {
         color: "$gray100",
       },
 
-      '& > span': {
+      "& > span": {
         fontWeight: "$regular",
         fontSize: "1rem",
         lineHeight: "$base",
@@ -152,11 +157,9 @@ export const BookInfoBody = styled("div", {
       gap: "0.25rem",
 
       "span:nth-child(2)": {
-
         svg: {
           width: "1.25rem",
           height: "1.25rem",
-
         },
       },
 
@@ -167,6 +170,10 @@ export const BookInfoBody = styled("div", {
         color: "$gray400",
       },
     },
+  },
+
+  "@media(max-width: 425px)": {
+    flexWrap: "wrap",
   },
 });
 
@@ -180,14 +187,13 @@ export const BookInfoFooter = styled("div", {
   flexDirection: "column",
   gap: "1.5rem",
 
-  div: {
+  "& > div": {
     display: "flex",
     justifyContent: "space-between",
 
-    div: {
+    "& > div:first-child": {
       display: "flex",
-      alignItems: "center",
-      gap: "1rem",
+      gap: "3.5rem",
 
       span: {
         display: "flex",
@@ -208,30 +214,46 @@ export const BookInfoFooter = styled("div", {
           color: "$gray200",
         },
       },
-    },
 
-    '& > div:nth-child(1)': {
-      svg: {
-        width: "1.5rem",
-        height: "1.5rem",
-        color: "$green100",
+      "& > div": {
+        display: "flex",
+        gap: "1rem",
+        alignItems: "center",
+        svg: {
+          width: "1.5rem",
+          height: "1.5rem",
+          color: "$green100",
+        },
       },
-    },
 
-    '& > div:nth-child(2)': {
-      svg: {
-        width: "1.5rem",
-        height: "1.5rem",
-        color: "$green100",
+      "@media(max-width: 425px)": {
+        justifyContent: "space-evenly",
+      },
+
+      "@media(max-width: 320px)": {
+        gap:'1.5rem'
       },
     },
 
     "& > div:last-child": {
+      display: "flex",
+      height: "min-content",
+      gap: "1rem",
+
       "& > button:first-child": {
         svg: {
           color: "$gray200",
         },
       },
+
+      "@media(max-width: 425px)": {
+        justifyContent: "space-evenly",
+      },
+    },
+
+    "@media(max-width: 425px)": {
+      flexDirection: "column",
+      gap: "1rem",
     },
   },
 });
@@ -298,18 +320,16 @@ export const BookDetailsRating = styled("div", {
   flexDirection: "column",
   gap: "1.25rem",
 
-  '& > div': {
-    
+  "& > div": {
     display: "flex",
     justifyContent: "space-between",
 
-   '& > div:first-child': {
+    "& > div:first-child": {
       display: "flex",
       justifyContent: "flex-start",
       gap: "1rem",
 
-
-      '& > span': {
+      "& > span": {
         display: "flex",
         flexDirection: "column",
 
@@ -320,7 +340,7 @@ export const BookDetailsRating = styled("div", {
           color: "$gray100",
         },
 
-        '& > span': {
+        "& > span": {
           fontWeight: "$regular",
           fontSize: "0.875rem",
           lineHeight: "$base",
@@ -328,7 +348,6 @@ export const BookDetailsRating = styled("div", {
         },
       },
     },
-
   },
 
   p: {
