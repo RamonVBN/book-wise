@@ -2,8 +2,10 @@ import Image from "next/image";
 import {
   AppContainer,
   MainContainer,
+  MenuButton,
   MenuContainer,
   MenuNavigation,
+  MenuNavigationOverlay,
   NavButton,
   SignInButton,
   SignInButtonContainer,
@@ -16,7 +18,7 @@ import { Binoculars, ChartLineUp, SignIn, SignOut, User } from "phosphor-react";
 
 import { signOut, useSession } from "next-auth/react";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 import { useRouter } from "next/router";
 
@@ -27,6 +29,7 @@ import { useAuth } from "../AuthContext";
 import { DemoBanner } from "../DemoBanner";
 import { useQueryClient } from "@tanstack/react-query";
 import { demoProfileData } from "@/mocks/profile";
+import { Menu, X } from "lucide-react";
 
 type Navigation = {
   buttonName: string;
@@ -38,6 +41,10 @@ export default function Layout({ children }: { children: ReactNode }) {
   const { demoUser, logout } = useAuth();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const [isNavOpen, setIsNavOpen] = useState(false);
+
+  const navMenuRef = useRef<HTMLDivElement>(null);
 
   const [navigation] = useState<Navigation[]>([
     {
@@ -76,17 +83,28 @@ export default function Layout({ children }: { children: ReactNode }) {
     return;
   }
 
+  function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
+    const target = event.target as HTMLElement;
+
+    if (
+      isNavOpen &&
+      navMenuRef.current &&
+      !navMenuRef.current.contains(target) 
+    ) {
+      return setIsNavOpen(false);
+    }
+  }
+  
+
   useEffect(() => {
     const isDemoUserCacheModified = queryClient.getQueryData([
       "demo-user-interacted",
     ]);
 
     if (demoUser?.isDemo && !isDemoUserCacheModified) {
-
-      queryClient.setQueryData(['profile', demoUserId], () => {
-
-        return demoProfileData
-      })
+      queryClient.setQueryData(["profile", demoUserId], () => {
+        return demoProfileData;
+      });
     }
   }, []);
 
@@ -102,73 +120,88 @@ export default function Layout({ children }: { children: ReactNode }) {
           src={logo}
           alt=""
         />
-        <MenuNavigation>
-          <div>
-            <NavButton
-              prefetch
-              isActive={router.pathname.includes(navigation[0].buttonName)}
-              href={"/home"}
-            >
-              <span>
-                <ChartLineUp size={24} />
-                Início
-              </span>
-            </NavButton>
-            <NavButton
-              prefetch
-              isActive={router.pathname.includes(navigation[1].buttonName)}
-              href={"/explore?category=Fiction"}
-            >
-              <span>
-                <Binoculars size={24} />
-                Explorar
-              </span>
-            </NavButton>
 
-            {(isSigned || isDemoUserSigned) && (
+        <MenuButton  onClick={() => setIsNavOpen(true)}>
+          <Menu />
+        </MenuButton>
+        
+        <MenuNavigationOverlay  onPointerDown={handleClickOutside} open={isNavOpen}>
+          <MenuNavigation ref={navMenuRef}  open={isNavOpen}>
+
+          <MenuButton style={{marginBottom: '4rem'}} onClick={() => setIsNavOpen(false)}>
+            <X size={36}/>
+          </MenuButton>
+
+            <div>
               <NavButton
                 prefetch
-                isActive={router.pathname.includes(navigation[2].buttonName)}
-                href={`/profile/${slugifyUserName(session?.data?.user.name ?? demoUser?.name ?? "User")}/${userId ?? demoUserId}?filter=allUserBooks`}
+                isActive={router.pathname.includes(navigation[0].buttonName)}
+                href={"/home"}
               >
                 <span>
-                  <User size={24} />
-                  Perfil
+                  <ChartLineUp size={24} />
+                  Início
                 </span>
               </NavButton>
-            )}
-          </div>
+              <NavButton
+                prefetch
+                isActive={router.pathname.includes(navigation[1].buttonName)}
+                href={"/explore?category=Fiction"}
+              >
+                <span>
+                  <Binoculars size={24} />
+                  Explorar
+                </span>
+              </NavButton>
 
-          {isSigned || isDemoUserSigned ? (
-            <SignOutButtonContainer>
-              <span>
-                <Avatar
-                  width={32}
-                  height={32}
-                  src={session?.data?.user.avatarUrl ?? demoUser?.avatarUrl}
-                  userName={
-                    session?.data?.user.name ?? demoUser?.name ?? "User"
-                  }
-                />
-                <span>{session?.data?.user.name ?? demoUser?.name}</span>
-              </span>
-              <AppTooltip content="Sair do BookWise">
-                <SignOutButton disabled={isLoggingOut} onClick={handleSignOut}>
-                  <SignOut size={20} />
-                </SignOutButton>
-              </AppTooltip>
-            </SignOutButtonContainer>
-          ) : (
-            <SignInButtonContainer>
-              Fazer login
-              <AppTooltip content="Ir para página de login">
-                <SignInButton prefetch href={"/"}>
-                  <SignIn size={20} />
-                </SignInButton>
-              </AppTooltip>
-            </SignInButtonContainer>
-          )}
-        </MenuNavigation>
+              {(isSigned || isDemoUserSigned) && (
+                <NavButton
+                  prefetch
+                  isActive={router.pathname.includes(navigation[2].buttonName)}
+                  href={`/profile/${slugifyUserName(session?.data?.user.name ?? demoUser?.name ?? "User")}/${userId ?? demoUserId}?filter=allUserBooks`}
+                >
+                  <span>
+                    <User size={24} />
+                    Perfil
+                  </span>
+                </NavButton>
+              )}
+            </div>
+
+            {isSigned || isDemoUserSigned ? (
+              <SignOutButtonContainer>
+                <span>
+                  <Avatar
+                    width={32}
+                    height={32}
+                    src={session?.data?.user.avatarUrl ?? demoUser?.avatarUrl}
+                    userName={
+                      session?.data?.user.name ?? demoUser?.name ?? "User"
+                    }
+                  />
+                  <span>{session?.data?.user.name ?? demoUser?.name}</span>
+                </span>
+                <AppTooltip content="Sair do BookWise">
+                  <SignOutButton
+                    disabled={isLoggingOut}
+                    onClick={handleSignOut}
+                  >
+                    <SignOut size={20} />
+                  </SignOutButton>
+                </AppTooltip>
+              </SignOutButtonContainer>
+            ) : (
+              <SignInButtonContainer>
+                Fazer login
+                <AppTooltip content="Ir para página de login">
+                  <SignInButton prefetch href={"/"}>
+                    <SignIn size={20} />
+                  </SignInButton>
+                </AppTooltip>
+              </SignInButtonContainer>
+            )}
+          </MenuNavigation>
+        </MenuNavigationOverlay>
       </MenuContainer>
 
       <MainContainer>{children}</MainContainer>

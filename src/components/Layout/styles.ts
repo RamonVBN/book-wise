@@ -36,7 +36,7 @@ export const MenuContainer = styled("div", {
 
   position: "relative",
   backgroundColor: "#0B1120",
-  overflow: "hidden",
+  // overflow: "hidden",
 
   "&::before": {
     content: "",
@@ -61,7 +61,7 @@ export const MenuContainer = styled("div", {
   },
 
   "@media(max-width: 900px)": {
-    position: "absolute",
+    position: "fixed",
     top: 0,
     left: 0,
     zIndex: 10,
@@ -69,14 +69,19 @@ export const MenuContainer = styled("div", {
 
     width: "100vw",
     paddingBlock: "3rem",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingInline: "1.5rem",
   },
 });
 
 export const MenuNavigation = styled("nav", {
-  marginTop: "4rem",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  justifyContent: "space-between",
+
+  paddingTop: "4rem",
 
   height: "100%",
 
@@ -86,15 +91,86 @@ export const MenuNavigation = styled("nav", {
     gap: "1.5rem",
   },
 
-  "@media(max-width: 900px)": {
-    gap: "3rem",
+  transition: "transform 250ms ease-out",
 
-    div: {
-      flexDirection: "row",
+  "@media(max-width: 900px)": {
+    paddingBlock: "1rem",
+
+    position: "fixed",
+    zIndex: 1000,
+    top: 0,
+    left: 0,
+    transform: "translateX(-100%)",
+
+    width: "70vw",
+    height: "100vh",
+
+    backgroundColor: "#0B1120",
+
+    "&::before": {
+      content: "",
+      position: "absolute",
+      inset: 0,
+
+      background: `
+      radial-gradient(circle at 30% 5%, rgba(129,140,248,0.40), transparent 45%),
+      radial-gradient(circle at 75% 10%, rgba(168,85,247,0.35), transparent 50%),
+      radial-gradient(circle at 20% 55%, rgba(56,189,248,0.25), transparent 55%),
+      radial-gradient(circle at 40% 90%, rgba(16,185,129,0.20), transparent 50%)
+    `,
+
+      filter: "blur(160px)",
+      opacity: 0.75,
+      zIndex: 0,
+    },
+
+    "& > *": {
+      position: "relative",
+      zIndex: 1,
+    },
+  },
+
+  variants: {
+    open: {
+      true: {
+        "@media(max-width: 900px)": {
+          transform: "translateX(0)",
+        },
+      },
     },
   },
 });
 
+export const MenuNavigationOverlay = styled("div", {
+  height: "100%",
+
+  "@media(max-width: 900px)": {
+    position: "fixed",
+    top: 0,
+    right: 0,
+    zIndex: 1000000,
+    overflow: "hidden",
+
+    width: "100vw",
+    height: "100vh",
+
+    pointerEvents: "none",
+    backgroundColor: "rgba(0,0,0,0)",
+    transition: "background-color 200ms ease-out",
+  },
+
+  variants: {
+    open: {
+      true: {
+        "@media(max-width: 900px)": {
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          transform: "translateX(0)",
+          pointerEvents: "all",
+        },
+      },
+    },
+  },
+});
 export const NavButton = styled(Link, {
   all: "unset",
   cursor: "pointer",
@@ -141,36 +217,21 @@ export const NavButton = styled(Link, {
     isActive: "false",
   },
 
-  "@media(min-width: 900px)": {
-    "&::before": {
-      content: "",
-      width: "0.25rem",
-      height: "1.5rem",
-      borderRadius: "999px",
-      backgroundImage: "transparent",
-    },
-  },
-
-  "@media(max-width: 900px)": {
-    flexDirection: "column",
-
-    "&::after": {
-      content: "",
-      width: "100%",
-      height: "0.25rem",
-      borderRadius: "999px",
-      backgroundImage: "transparent",
-    },
+  "&::before": {
+    content: "",
+    width: "0.25rem",
+    height: "1.5rem",
+    borderRadius: "999px",
+    backgroundImage: "transparent",
   },
 });
 
 export const SignInButtonContainer = styled("span", {
+  marginTop: "auto",
+
   display: "flex",
   gap: "0.25rem",
   alignItems: "center",
-  
-
-  marginTop: "auto",
 
   fontWeight: "$bold",
   fontSize: "1rem",
@@ -229,7 +290,7 @@ export const SignOutButton = styled("button", {
   cursor: "pointer",
 
   transition: "all 0.2s ease-out",
-  
+
   display: "flex",
   alignItems: "center",
 
@@ -240,9 +301,9 @@ export const SignOutButton = styled("button", {
     backgroundColor: "$gray500",
   },
 
-  '&:disabled': {
-    cursor: 'progress',
-    opacity: 0.8
+  "&:disabled": {
+    cursor: "progress",
+    opacity: 0.8,
   },
 
   svg: {
@@ -250,11 +311,34 @@ export const SignOutButton = styled("button", {
   },
 });
 
-export const DemoBanner = styled('div', {
-
-  position: 'fixed',
+export const DemoBanner = styled("div", {
+  position: "fixed",
   top: 0,
   right: 0,
-  backgroundColor: '$blue100',
-  color: '$gray200'
-})
+  backgroundColor: "$blue100",
+  color: "$gray200",
+});
+
+export const MenuButton = styled("button", {
+  all: "unset",
+  cursor: "pointer",
+  zIndex: 1,
+  svg: {
+    color: "$green100",
+  },
+  padding: "0.5rem",
+  borderRadius: "$full",
+
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  transition: "all 0.2s ease-out",
+
+  "&:hover": {
+    backgroundColor: "$gray500",
+  },
+
+  "@media(min-width: 900px)": {
+    display: "none",
+  },
+});
