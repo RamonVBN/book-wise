@@ -7,7 +7,7 @@ export const ProviderButton = styled("button", {
 
   width: "100%",
   borderRadius: 8,
-  backgroundColor: "$gray800",
+  backgroundColor: "$gray600",
   padding: "1.25rem 1.5rem",
 
   display: "flex",
@@ -21,23 +21,14 @@ export const ProviderButton = styled("button", {
   transition: "all 0.2s ease-out",
 
   svg: {
-    width: '2rem',
-    height: '2rem',
-    color: '$purple100',
+    width: "2rem",
+    height: "2rem",
+    color: "$purple100",
   },
 
   "&:hover": {
-    backgroundColor: "$gray700",
+    backgroundColor: "$gray500",
   },
 
-  variants: {
-    login: {
-      true: {
-        backgroundColor: "$gray600",
-        "&:hover": {
-          backgroundColor: "$gray500",
-        },
-      },
-    },
-  },
+
 });
