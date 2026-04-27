@@ -23,6 +23,10 @@ export const ImageContainer = styled("div", {
   position: "relative",
 
   gridColumn: "1/3",
+
+  "@media(max-width: 425px)": {
+    display: "none",
+  },
 });
 
 export const LogoFilter = styled("div", {
@@ -44,6 +48,21 @@ export const AuthContainer = styled("div", {
   alignItems: "center",
   justifyContent: "center",
   gridColumn: "3/6",
+
+  "& > div:first-child": {
+    display: "none",
+  },
+
+  "@media(max-width: 425px)": {
+    gridColumn: "1/6",
+    flexDirection: "column",
+
+    "& > div:first-child": {
+      position: 'fixed',
+      top: 20,
+      display: 'block'
+    },
+  },
 });
 
 export const LoginContainer = styled("div", {
@@ -51,7 +70,7 @@ export const LoginContainer = styled("div", {
   flexDirection: "column",
   gap: "2.5rem",
 
-  width: "23.25rem",
+  flexBasis: "23.25rem",
 });
 
 export const LoginContainerHeader = styled("div", {
@@ -80,5 +99,3 @@ export const ProviderContainer = styled("div", {
 
   gap: "1rem",
 });
-
-

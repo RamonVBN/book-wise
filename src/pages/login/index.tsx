@@ -65,6 +65,7 @@ export default function Login() {
         </ImageContainer>
 
         <AuthContainer>
+           <div> <Image unoptimized priority quality={100} src={logo} alt="" /></div>
           <LoginContainer>
             <LoginContainerHeader>
               <h1>Boas vindas!</h1>
@@ -72,19 +73,19 @@ export default function Login() {
             </LoginContainerHeader>
 
             <ProviderContainer>
-              <ProviderButton login onClick={handleGoogleSignIn}>
+              <ProviderButton onClick={handleGoogleSignIn}>
                 <Image unoptimized src={googleLogo} alt="" />
                 Entrar com Google
               </ProviderButton>
-              <ProviderButton login onClick={handleGithubSignIn}>
+              <ProviderButton onClick={handleGithubSignIn}>
                 <Image unoptimized src={githubLogo} alt="" />
                 Entrar com Github
               </ProviderButton>
-              <ProviderButton login onClick={handleRedirect}>
+              <ProviderButton onClick={handleRedirect}>
                 <Image unoptimized src={visitLogo} alt="" />
                 Acessar como visitante
               </ProviderButton>
-              <ProviderButton login onClick={loginAsDemo}>
+              <ProviderButton onClick={loginAsDemo}>
                 <BriefcaseBusiness/>
                 Entrar como recrutador (demo)
               </ProviderButton>
