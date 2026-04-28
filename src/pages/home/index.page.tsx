@@ -16,7 +16,6 @@ import {
   PopBookBody,
   PopBook,
   PopBookDescription,
-  Rating,
   ContentContainer,
   BooksRatingsContainerHeader,
   LinkButton,
@@ -29,7 +28,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useSession } from "next-auth/react";
-import { HomeDataResponse, ProfileResponse } from "@/@types/query-types";
+import { HomeDataResponse } from "@/@types/query-types";
 import Layout from "@/components/Layout";
 import { formatBookName } from "@/utils/formatBookName";
 import { StarRating } from "@/components/StarsRating";
@@ -37,7 +36,7 @@ import { StarRating } from "@/components/StarsRating";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
-import { Flame, PlusCircle, X } from "lucide-react";
+import { Flame, X } from "lucide-react";
 import { DescripitionText } from "@/components/DescriptionText";
 import { BookCover } from "@/components/BookCover";
 import Link from "next/link";
@@ -60,7 +59,7 @@ export default function Home() {
 
   const loginModalRef = useRef<HTMLDivElement>(null);
 
-  const [modalDescripion, setModalDescription] = useState('')
+  const [modalDescripion, setModalDescription] = useState("");
 
   const session = useSession();
 
@@ -103,9 +102,9 @@ export default function Home() {
     }
   }
 
-  function handleOpenLoginModal(description: string){
-    setModalDescription(description)
-    setIsModalOpen(true)
+  function handleOpenLoginModal(description: string) {
+    setModalDescription(description);
+    setIsModalOpen(true);
   }
 
   const hasDemoUserInteracted = queryClient.getQueryData([
@@ -173,48 +172,60 @@ export default function Home() {
                         prefetch
                         href={`/profile/${slugifyUserName(userName!)}/${userId}?filter=allUserBooks`}
                       >
-                        <BookCover
-                          key={lastUserActivity.book.id}
-                          width={108}
-                          height={152}
-                          sizes="108px"
-                          priority
-                          src={lastUserActivity.book.coverUrl}
-                        />
-                        <LastActivityContent>
-                          <div>
+                        <div>
+                          <BookCover
+                            key={lastUserActivity.book.id}
+                            width={108}
+                            height={152}
+                            sizes="108px"
+                            priority
+                            src={lastUserActivity.book.coverUrl}
+                          />
+                          <LastActivityContent>
                             <div>
-                              <span>
-                                {capitalize(
-                                  formatDistanceToNow(
-                                    lastUserActivity.updatedAt,
-                                    { locale: ptBR, addSuffix: true },
-                                  ),
-                                )}
-                              </span>
-                              <span>
-                                {typeof lastUserActivity == "object" &&
-                                "rate" in lastUserActivity ? (
-                                  <StarRating showRate param={lastUserActivity.rate} />
-                                ) : (
-                                  <BooksStatusFlag
-                                    status={lastUserActivity.status}
-                                  />
-                                )}
-                              </span>
+                              <div>
+                                <span>
+                                  {capitalize(
+                                    formatDistanceToNow(
+                                      lastUserActivity.updatedAt,
+                                      { locale: ptBR, addSuffix: true },
+                                    ),
+                                  )}
+                                </span>
+                                <span>
+                                  {typeof lastUserActivity == "object" &&
+                                  "rate" in lastUserActivity ? (
+                                    <StarRating
+                                      showRate
+                                      param={lastUserActivity.rate}
+                                    />
+                                  ) : (
+                                    <BooksStatusFlag
+                                      status={lastUserActivity.status}
+                                    />
+                                  )}
+                                </span>
+                              </div>
+                              <div>
+                                <h2>{lastUserActivity.book.title}</h2>
+                                <span>{lastUserActivity.book.author}</span>
+                              </div>
                             </div>
-                            <div>
-                              <h2>{lastUserActivity.book.title}</h2>
-                              <span>{lastUserActivity.book.author}</span>
-                            </div>
-                          </div>
+                            {typeof lastUserActivity == "object" &&
+                            "review" in lastUserActivity ? (
+                              <DescripitionText
+                                description={lastUserActivity.review}
+                              />
+                            ) : null}
+                          </LastActivityContent>
+                        </div>
+                        
                           {typeof lastUserActivity == "object" &&
                           "review" in lastUserActivity ? (
                             <DescripitionText
                               description={lastUserActivity.review}
                             />
                           ) : null}
-                        </LastActivityContent>
                       </LastActivityBody>
                     </LastActivityContainer>
                   )}
@@ -230,6 +241,7 @@ export default function Home() {
                         return (
                           <BookRating key={rating.id}>
                             <BookRatingUserContainer>
+                              
                               <BookRatingUser>
                                 {isSigned || demoUser?.isDemo ? (
                                   <Link
@@ -248,7 +260,11 @@ export default function Home() {
                                     height={40}
                                     userName={rating.user.name}
                                     src={rating.user.avatarUrl}
-                                    onClick={() => handleOpenLoginModal('Faça login para ver perfis de outros usuários')}
+                                    onClick={() =>
+                                      handleOpenLoginModal(
+                                        "Faça login para ver perfis de outros usuários",
+                                      )
+                                    }
                                   />
                                 )}
                                 <span>
@@ -263,7 +279,8 @@ export default function Home() {
                                   </span>
                                 </span>
                               </BookRatingUser>
-                                <StarRating showRate param={rating.rate} />
+
+                              <StarRating showRate param={rating.rate} />
                             </BookRatingUserContainer>
                             <BookRatingBody>
                               <HomeBook
@@ -284,9 +301,16 @@ export default function Home() {
                                   <h2>{rating.book.title}</h2>
                                   <span>{rating.book.author}</span>
                                 </span>
-                                <DescripitionText description={rating.review} />
+                                <DescripitionText
+                                  showMoreButton
+                                  description={rating.review}
+                                />
                               </BookRatingDescription>
                             </BookRatingBody>
+                            <DescripitionText
+                              showMoreButton
+                              description={rating.review}
+                            />
                           </BookRating>
                         );
                       })}
@@ -310,7 +334,10 @@ export default function Home() {
                       homeData.popularBooks.map((book) => {
                         return (
                           <PopBook key={book.id}>
-                            <HomeBook handleOpenModal={handleOpenLoginModal} homeBook={book}>
+                            <HomeBook
+                              handleOpenModal={handleOpenLoginModal}
+                              homeBook={book}
+                            >
                               <BookCover
                                 key={book.id}
                                 width={64}

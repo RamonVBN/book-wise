@@ -900,6 +900,7 @@ export function BookDetails({
 
                 <BookDescription style={{ fontSize: "14px" }}>
                   <DescripitionText
+                  showMoreButton
                     description={
                       (translatedBookData?.description
                         ? translatedBookData.description
@@ -983,7 +984,7 @@ export function BookDetails({
                           <StarRating param={rating.rate} />
                         </div>
 
-                        <DescripitionText description={rating.review} />
+                        <DescripitionText showMoreButton description={rating.review} />
                       </BookDetailsRating>
                     );
                   })}

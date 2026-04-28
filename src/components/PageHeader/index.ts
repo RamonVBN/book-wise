@@ -19,4 +19,8 @@ export const PageHeader = styled("div", {
     width: "2rem",
     height: "2rem",
   },
+
+  "@media(max-width: 425px)": {
+    paddingTop: '1rem',
+  }
 });

@@ -11,7 +11,12 @@ export const AppContainer = styled("div", {
 
   "@media(max-width: 900px)": {
     flexDirection: "column",
+    overflowY: "auto",
+    width: "100%",
+    minHeight: "100vh",
+    padding: 0,
   },
+
 });
 
 export const MainContainer = styled("main", {
@@ -20,6 +25,11 @@ export const MainContainer = styled("main", {
   justifyContent: "center",
 
   overflowY: "hidden",
+
+  "@media(max-width: 900px)": {
+    overflowY: "initial",
+    padding: "1.25rem",
+  },
 });
 
 export const MenuContainer = styled("div", {
@@ -61,11 +71,8 @@ export const MenuContainer = styled("div", {
   },
 
   "@media(max-width: 900px)": {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    zIndex: 10,
     borderRadius: "0px",
+    marginRight: 0,
 
     width: "100vw",
     paddingBlock: "3rem",

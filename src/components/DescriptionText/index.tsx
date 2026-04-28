@@ -4,9 +4,10 @@ import { DescripitionTextContainer, ShowMoreButton } from "./styles"
 
 type DescripitionTextProps = {
     description: string
+    showMoreButton?: boolean
 }
 
-export function DescripitionText({description}: DescripitionTextProps){
+export function DescripitionText({description, showMoreButton=false}: DescripitionTextProps){
     
     const [showMore, setShowMore] = useState(false)
 
@@ -26,7 +27,7 @@ export function DescripitionText({description}: DescripitionTextProps){
             }
             
             {
-                description.split('').length > maxLenght && (
+                showMoreButton && description.split('').length > maxLenght && (
                     <ShowMoreButton onClick={() => setShowMore((prevState) => !prevState)}>Ver {showMore? 'menos' : 'mais'}</ShowMoreButton>
                 )
             }

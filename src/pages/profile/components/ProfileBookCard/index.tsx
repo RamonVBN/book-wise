@@ -1574,7 +1574,7 @@ export function ProfileBookCard({
           </div>
 
           {rating && !isUserRatingFormOpen && (
-            <DescripitionText description={rating.review} />
+            <DescripitionText showMoreButton description={rating.review} />
           )}
 
           {(rating || userBook?.status === "FINISHED") &&

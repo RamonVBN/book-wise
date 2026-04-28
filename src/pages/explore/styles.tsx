@@ -12,11 +12,13 @@ export const ExploreContainer = styled("div", {
   paddingBottom: "1.25rem",
 
   "@media(max-width: 900px)": {
-    paddingInline: "2rem",
+    paddingInline: '0.75rem',
+    overflowY: "initial",
   },
 
   "@media(max-width: 425px)": {
     paddingInline: 0,
+    overflowY: "initial",
   },
 });
 
@@ -58,12 +60,10 @@ export const ExploreHeader = styled("div", {
     },
   },
 
-  "@media(max-width: 900px)": {
-    marginTop: "8.5rem",
-  },
-
   "@media(max-width: 425px)": {
     flexDirection: "column",
+    alignItems: "start",
+
     form: {
       width: "100%",
       flexBasis: "auto",

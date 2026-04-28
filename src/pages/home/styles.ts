@@ -8,11 +8,6 @@ export const Container = styled("div", {
   "@media(max-width: 1308px)": {
     width: "100%",
   },
-
-  "@media(max-width: 900px)": {
-    marginTop: "18rem",
-    paddingInline: "2rem",
-  },
 });
 
 export const HomeContainer = styled("div", {
@@ -25,6 +20,10 @@ export const HomeContainer = styled("div", {
     overflow: "scroll",
     scrollbarWidth: "none",
   },
+
+  // "@media(max-width: 425px)": {
+  //   flexDirection: 'column'
+  // }
 });
 
 export const ContentContainer = styled("div", {
@@ -66,12 +65,30 @@ export const BookRating = styled("div", {
   display: "flex",
   flexDirection: "column",
   gap: "2rem",
+
+  "& > p": {
+    display: "none",
+    color: "$gray300",
+    lineHeight: "$base",
+    fontSize: "0.875rem",
+    fontWeight: "$regular",
+    textAlign: "justify",
+
+    "@media(max-width: 425px)": {
+      display: "block",
+    },
+  },
 });
 
 export const BookRatingUserContainer = styled("div", {
   display: "flex",
   width: "100%",
   justifyContent: "space-between",
+
+  "@media(max-width: 425px)": {
+    flexWrap: "wrap",
+    gap: "0.75rem",
+  },
 });
 
 export const BookRatingUser = styled("div", {
@@ -153,6 +170,10 @@ export const BookRatingBody = styled("div", {
     fontSize: "0.875rem",
     fontWeight: "$regular",
     textAlign: "justify",
+
+    "@media(max-width: 425px)": {
+      display: "none",
+    },
   },
 });
 
@@ -209,6 +230,10 @@ export const PopBookContainer = styled("aside", {
       },
     },
   },
+
+  "@media(max-width: 767px)": {
+    display: "none",
+  },
 });
 
 export const PopBookBody = styled("div", {
@@ -257,7 +282,7 @@ export const PopBookDescription = styled("div", {
     gap: "0.25rem",
     alignItems: "flex-start",
 
-    '& > span': {
+    "& > span": {
       fontWeight: "$regular",
       fontSize: "0.875rem",
       lineHeight: "$base",
@@ -313,13 +338,34 @@ export const LastActivityBody = styled(Link, {
   padding: "1.25rem 1.5rem",
 
   display: "flex",
-  alignItems: "center",
-  gap: "1.5rem",
+  flexDirection: "column",
+  gap: "1rem",
 
-  img: {
-    height: "9.5rem",
-    width: "6.75rem",
-    borderRadius: "6px",
+  p: {
+    color: "$gray300",
+    fontSize: "0.875rem",
+    fontWeight: "$regular",
+    lineHeight: "$base",
+  },
+
+  "& > p": {
+    display: "none",
+
+    "@media(max-width: 425px)": {
+      display: "block",
+    },
+  },
+
+  "& > div": {
+    display: "flex",
+    alignItems: "center",
+    gap: "1.5rem",
+
+    img: {
+      height: "9.5rem",
+      width: "6.75rem",
+      borderRadius: "6px",
+    },
   },
 
   "&:hover": {
@@ -332,6 +378,10 @@ export const LastActivityContent = styled("div", {
   flexDirection: "column",
   gap: "1.5rem",
   width: "100%",
+
+  p: {
+    display: "block",
+  },
 
   "& > div:first-child": {
     display: "flex",
@@ -361,7 +411,7 @@ export const LastActivityContent = styled("div", {
         color: "$gray100",
       },
 
-      '& > span': {
+      "& > span": {
         color: "$gray400",
         fontSize: "0.875rem",
         fontWeight: "$regular",
@@ -370,11 +420,16 @@ export const LastActivityContent = styled("div", {
     },
   },
 
-  p: {
-    color: "$gray300",
-    fontSize: "0.875rem",
-    fontWeight: "$regular",
-    lineHeight: "$base",
+  "@media(max-width: 425px)": {
+    p: {
+      display: "none",
+    },
+
+    "& > div:first-child": {
+      "& > div:first-child": {
+        flexWrap: "wrap",
+        gap: "0.25rem",
+      },
+    },
   },
 });
-

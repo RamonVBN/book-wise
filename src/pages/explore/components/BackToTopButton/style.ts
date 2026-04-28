@@ -3,6 +3,7 @@ import { styled } from "@/pages/globalStyles";
 
 export const TopButton = styled('button', {
   position: 'fixed',
+  
   bottom: '40px',
   right: '40px',
   width: '40px',
