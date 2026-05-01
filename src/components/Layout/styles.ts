@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const AppContainer = styled("div", {
   width: "100%",
-  height: "100vh",
+  height: "100dvh",
   backgroundColor: "#0E1116",
   padding: "1.25rem",
 
@@ -13,10 +13,9 @@ export const AppContainer = styled("div", {
     flexDirection: "column",
     overflowY: "auto",
     width: "100%",
-    minHeight: "100vh",
+    minHeight: "100dvh",
     padding: 0,
   },
-
 });
 
 export const MainContainer = styled("main", {
@@ -79,6 +78,7 @@ export const MenuContainer = styled("div", {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingInline: "1.5rem",
+    maxHeight: "8.5rem",
   },
 });
 
@@ -102,6 +102,7 @@ export const MenuNavigation = styled("nav", {
 
   "@media(max-width: 900px)": {
     paddingBlock: "1rem",
+    overflow: "hidden", 
 
     position: "fixed",
     zIndex: 1000,
@@ -109,8 +110,8 @@ export const MenuNavigation = styled("nav", {
     left: 0,
     transform: "translateX(-100%)",
 
-    width: "70vw",
-    height: "100vh",
+    width: "70dvw",
+    height: "100dvh",
 
     backgroundColor: "#0B1120",
 
@@ -158,8 +159,8 @@ export const MenuNavigationOverlay = styled("div", {
     zIndex: 1000000,
     overflow: "hidden",
 
-    width: "100vw",
-    height: "100vh",
+    width: "100dvw",
+    height: "100dvh",
 
     pointerEvents: "none",
     backgroundColor: "rgba(0,0,0,0)",

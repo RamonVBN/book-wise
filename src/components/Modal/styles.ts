@@ -6,8 +6,8 @@ export const ModalOverlay = styled("div", {
   top: 0,
   right: 0,
 
-  width: "100vw",
-  height: "100vh",
+  width: "100dvw",
+  height: "100dvh",
 
   backgroundColor: "rgba(0, 0, 0, 0.3)",
 
@@ -42,5 +42,9 @@ export const ModalContainer = styled("div", {
     position: "absolute",
     top: 16,
     right: 16,
+  },
+
+  "@media(max-width: 425px)": {
+    marginInline: "0.5rem",
   },
 });

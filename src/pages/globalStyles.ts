@@ -75,6 +75,15 @@ export const { styled, getCssText, globalCss } = createStitches({
 })
 
 export const globalStyles = globalCss({
+
+    html: {
+      overflowX: 'hidden'
+    },
+
+    body: {
+      overflowX: 'hidden'
+    },
+
     '*': {
         margin: 0,
         padding: 0,
