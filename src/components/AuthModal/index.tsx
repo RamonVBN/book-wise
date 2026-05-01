@@ -9,18 +9,17 @@ import { useAuth } from "../AuthContext";
 
 type AuthModalProps = {
   description: string;
-  handleCloseModal?: () => void
+  handleCloseModal?: () => void;
 };
 
 export function AuthModal({ description, handleCloseModal }: AuthModalProps) {
-
-  const { loginAsDemo } = useAuth()
+  const { loginAsDemo } = useAuth();
 
   function handleLoginAsDemo() {
-    if(handleCloseModal){
-      handleCloseModal()
+    if (handleCloseModal) {
+      handleCloseModal();
     }
-    loginAsDemo()
+    loginAsDemo();
   }
 
   return (

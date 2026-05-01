@@ -30,5 +30,7 @@ export const ProviderButton = styled("button", {
     backgroundColor: "$gray500",
   },
 
-
+  "@media(max-width: 425px)": {
+    fontSize: "1rem",
+  },
 });
