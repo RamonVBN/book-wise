@@ -21,9 +21,9 @@ export const HomeContainer = styled("div", {
     scrollbarWidth: "none",
   },
 
-  // "@media(max-width: 425px)": {
-  //   flexDirection: 'column'
-  // }
+  "@media(max-width: 425px)": {
+    flexDirection: "column",
+  },
 });
 
 export const ContentContainer = styled("div", {
@@ -35,7 +35,11 @@ export const ContentContainer = styled("div", {
   scrollbarWidth: "none",
 
   paddingBottom: "8.15rem",
-  width: "38rem",
+  maxWidth: "38rem",
+
+  "@media(max-width: 425px)": {
+    paddingBottom: 0,
+  },
 });
 
 export const BooksRatingsContainer = styled("div", {
@@ -205,7 +209,7 @@ export const LinkButton = styled(Link, {
 });
 
 export const PopBookContainer = styled("aside", {
-  width: "20.25rem",
+  maxWidth: "20.25rem",
 
   "& > span": {
     display: "flex",
@@ -231,8 +235,8 @@ export const PopBookContainer = styled("aside", {
     },
   },
 
-  "@media(max-width: 767px)": {
-    display: "none",
+  "@media(max-width: 425px)": {
+    maxWidth: "100%",
   },
 });
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const AppContainer = styled("div", {
   width: "100%",
-  height: "100dvh",
+  height: "100vh",
   backgroundColor: "#0E1116",
   padding: "1.25rem",
 
@@ -13,7 +13,7 @@ export const AppContainer = styled("div", {
     flexDirection: "column",
     overflowY: "auto",
     width: "100%",
-    minHeight: "100dvh",
+    minHeight: "100vh",
     padding: 0,
   },
 });

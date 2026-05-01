@@ -7,8 +7,8 @@ export const BookDetailsOverlay = styled("div", {
   zIndex: 10,
   overflow: "hidden",
 
-  width: "100dvw",
-  height: "100dvh",
+  width: "100vw",
+  height: "100vh",
 
   pointerEvents: "none",
   backgroundColor: "rgba(0,0,0,0)",
@@ -27,7 +27,7 @@ export const BookDetailsOverlay = styled("div", {
 
 export const BookDetailsContainer = styled("div", {
   height: "100%",
-  width: "41.25rem",
+  maxWidth: "41.25rem",
 
   backgroundColor: "$gray800",
 
@@ -51,7 +51,7 @@ export const BookDetailsContainer = styled("div", {
 
   "@media(max-width: 425px)": {
     padding: "1rem",
-    width: "100dvw",
+    width: "100vw",
   },
 
   variants: {

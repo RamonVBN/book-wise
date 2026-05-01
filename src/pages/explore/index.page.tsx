@@ -77,7 +77,7 @@ export default function Explore() {
       ? router.query.category.split(" ")
       : [];
 
-  const { register, watch, setFocus, reset, handleSubmit, setValue } =
+  const { register, watch, reset, handleSubmit, setValue } =
     useForm<ExploreFormType>({
       resolver: zodResolver(exploreFormSchema),
       defaultValues: {
@@ -224,10 +224,6 @@ export default function Explore() {
     if (!router.isReady) return;
     setValue("search", searchTerm);
   }, [searchTerm]);
-
-  useEffect(() => {
-    setFocus("search");
-  }, []);
 
   useEffect(() => {
     if (!router.isReady) return;
