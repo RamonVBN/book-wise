@@ -89,12 +89,13 @@ export default function Layout({ children }: { children: ReactNode }) {
     if (
       isNavOpen &&
       navMenuRef.current &&
-      !navMenuRef.current.contains(target) 
+      !navMenuRef.current.contains(target)
     ) {
-      return setIsNavOpen(false);
+      setTimeout(() => {
+        return setIsNavOpen(false);
+      }, 150);
     }
   }
-  
 
   useEffect(() => {
     const isDemoUserCacheModified = queryClient.getQueryData([
@@ -121,16 +122,21 @@ export default function Layout({ children }: { children: ReactNode }) {
           alt=""
         />
 
-        <MenuButton  onClick={() => setIsNavOpen(true)}>
+        <MenuButton onClick={() => setIsNavOpen(true)}>
           <Menu />
         </MenuButton>
-        
-        <MenuNavigationOverlay  onPointerDown={handleClickOutside} open={isNavOpen}>
-          <MenuNavigation ref={navMenuRef}  open={isNavOpen}>
 
-          <MenuButton style={{marginBottom: '4rem'}} onClick={() => setIsNavOpen(false)}>
-            <X size={36}/>
-          </MenuButton>
+        <MenuNavigationOverlay
+          onPointerDown={handleClickOutside}
+          open={isNavOpen}
+        >
+          <MenuNavigation ref={navMenuRef} open={isNavOpen}>
+            <MenuButton
+              style={{ marginBottom: "4rem" }}
+              onClick={() => setIsNavOpen(false)}
+            >
+              <X size={36} />
+            </MenuButton>
 
             <div>
               <NavButton

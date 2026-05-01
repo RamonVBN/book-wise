@@ -160,7 +160,9 @@ export function BookDetails({
       loginModalRef.current &&
       !loginModalRef.current.contains(target)
     ) {
-      return setIsModalOpen(false);
+      setTimeout(() => {
+        return setIsModalOpen(false);
+      }, 150);
     }
 
     if (
@@ -168,7 +170,9 @@ export function BookDetails({
       bookDetailsContainerRef.current &&
       !bookDetailsContainerRef.current.contains(event.target as Node)
     ) {
-      return closeBookDetails();
+      setTimeout(() => {
+        return closeBookDetails();
+      }, 150);
     }
   }
 
@@ -472,8 +476,9 @@ export function BookDetails({
               };
             }
 
-            userBookExists = oldData.allUserBooks
-              .some((ub) => ub.book.id === book?.id);
+            userBookExists = oldData.allUserBooks.some(
+              (ub) => ub.book.id === book?.id,
+            );
 
             if (userBookExists) {
               const updatedProfileData = oldData.allUserBooks
@@ -774,7 +779,7 @@ export function BookDetails({
   const isSigned =
     session.status === "authenticated" || (demoUser?.isDemo ?? false);
 
-  const bookStatus = isSigned ? book?.userBookInfo?.status : undefined
+  const bookStatus = isSigned ? book?.userBookInfo?.status : undefined;
 
   const isFavoriteBook = book?.userBookInfo?.isFavorite ?? false;
 
@@ -849,32 +854,31 @@ export function BookDetails({
 
               <BookInfoFooter>
                 <div>
-                  
-                 <div>
-                   <div>
-                    <BookmarkSimple />
-                    <span>
-                      <span>Categoria(s)</span>
-                      <span>
-                        {translatedBookData
-                          ? translatedBookData.categories.map((c, i) => {
-                              return formatCategories(c, i);
-                            })
-                          : book?.categories.map((c, i) => {
-                              return formatCategories(c, i);
-                            })}
-                      </span>
-                    </span>
-                  </div>
-
                   <div>
-                    <BookOpen />
-                    <span>
-                      <span>Páginas</span>
-                      <span>{book?.pageCount}</span>
-                    </span>
+                    <div>
+                      <BookmarkSimple />
+                      <span>
+                        <span>Categoria(s)</span>
+                        <span>
+                          {translatedBookData
+                            ? translatedBookData.categories.map((c, i) => {
+                                return formatCategories(c, i);
+                              })
+                            : book?.categories.map((c, i) => {
+                                return formatCategories(c, i);
+                              })}
+                        </span>
+                      </span>
+                    </div>
+
+                    <div>
+                      <BookOpen />
+                      <span>
+                        <span>Páginas</span>
+                        <span>{book?.pageCount}</span>
+                      </span>
+                    </div>
                   </div>
-                 </div>
 
                   <div>
                     <ReadingStatusSelect
@@ -900,7 +904,7 @@ export function BookDetails({
 
                 <BookDescription style={{ fontSize: "14px" }}>
                   <DescripitionText
-                  showMoreButton
+                    showMoreButton
                     description={
                       (translatedBookData?.description
                         ? translatedBookData.description
@@ -984,7 +988,10 @@ export function BookDetails({
                           <StarRating param={rating.rate} />
                         </div>
 
-                        <DescripitionText showMoreButton description={rating.review} />
+                        <DescripitionText
+                          showMoreButton
+                          description={rating.review}
+                        />
                       </BookDetailsRating>
                     );
                   })}

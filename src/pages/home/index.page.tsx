@@ -92,7 +92,9 @@ export default function Home() {
       loginModalRef.current &&
       !loginModalRef.current.contains(target)
     ) {
-      return setIsModalOpen(false);
+      setTimeout(() => {
+        return setIsModalOpen(false);
+      }, 150);
     }
   }
 
@@ -219,13 +221,13 @@ export default function Home() {
                             ) : null}
                           </LastActivityContent>
                         </div>
-                        
-                          {typeof lastUserActivity == "object" &&
-                          "review" in lastUserActivity ? (
-                            <DescripitionText
-                              description={lastUserActivity.review}
-                            />
-                          ) : null}
+
+                        {typeof lastUserActivity == "object" &&
+                        "review" in lastUserActivity ? (
+                          <DescripitionText
+                            description={lastUserActivity.review}
+                          />
+                        ) : null}
                       </LastActivityBody>
                     </LastActivityContainer>
                   )}
@@ -241,7 +243,6 @@ export default function Home() {
                         return (
                           <BookRating key={rating.id}>
                             <BookRatingUserContainer>
-                              
                               <BookRatingUser>
                                 {isSigned || demoUser?.isDemo ? (
                                   <Link
