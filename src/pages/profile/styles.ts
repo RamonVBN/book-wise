@@ -134,7 +134,8 @@ export const ProfileButton = styled("button", {
 
 export const UserContainer = styled("div", {
   marginTop: "7.1rem",
-  maxWidth: "20.25rem",
+  // maxWidth: "20.25rem",
+  flexBasis: "20.25rem",
 
   display: "flex",
   flexDirection: "column",
@@ -143,10 +144,6 @@ export const UserContainer = styled("div", {
 
   borderLeft: "1px solid $gray700",
   height: "min-content",
-
-  "@media(max-width: 1236px)": {
-    width: "100%",
-  },
 
   "@media(max-width: 900px)": {
     marginTop: 0,
@@ -205,6 +202,7 @@ export const UserSeparator = styled("span", {
 export const UserStatsContainer = styled("div", {
   display: "flex",
   flexDirection: "column",
+  width: '100%',
   gap: "2.5rem",
   padding: "1.25rem 3.5rem",
 });
