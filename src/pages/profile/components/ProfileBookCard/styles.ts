@@ -223,7 +223,7 @@ export const ModalBody = styled("div", {
 
       padding: "0.5rem",
 
-      backgroundColor: "$gray700",
+      backgroundColor: "$gray600",
       borderRadius: "4px",
 
       "&:hover": {

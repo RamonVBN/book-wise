@@ -35,7 +35,13 @@ type Navigation = {
   buttonName: string;
 };
 
-export default function Layout({ children }: { children: ReactNode }) {
+type LayoutProps = {
+  children: ReactNode;
+  onScroll?: (e: React.UIEvent<HTMLDivElement>) => void
+  ref?: React.Ref<HTMLDivElement>;
+}
+
+export default function Layout({ children, onScroll, ref }: LayoutProps) {
   const queryClient = useQueryClient();
 
   const { demoUser, logout } = useAuth();
@@ -110,7 +116,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AppContainer>
+    <AppContainer onScroll={onScroll} ref={ref}>
       <DemoBanner />
       <MenuContainer>
         <Image

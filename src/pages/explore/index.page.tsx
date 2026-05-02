@@ -59,6 +59,7 @@ export default function Explore() {
   const [bookDetailsId, setBookDetailsId] = useState<string>("");
 
   const exploreContainerRef = useRef<HTMLDivElement | null>(null);
+  const appContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [isBackToTopButtonVisible, setIsBackToTopButtonVisible] =
     useState(false);
@@ -203,6 +204,7 @@ export default function Explore() {
 
   const scrollToTop = () => {
     exploreContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    appContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -244,7 +246,7 @@ export default function Explore() {
         title=" Explore | BookWise"
         description="Explore o mundo dos livros junto conosco!"
       />
-      <Layout>
+      <Layout ref={appContainerRef} onScroll={handleScroll}>
         <BookDetails
           isOpen={isBookDetailsOpen && !!bookDetailsId}
           searchTerm={searchTerm}
