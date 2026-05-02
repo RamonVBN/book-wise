@@ -529,7 +529,7 @@ export default function Profile() {
                   </div>
 
                   <ProfileBooksContainer>
-                    {allUserBooks.length > 0 ? (
+                    {categories[profileFilter as keyof Categories]?.items.length > 0 ? (
                       isSortableList ? (
                         <SortableBooksList
                           books={orderedBooks}
@@ -541,7 +541,15 @@ export default function Profile() {
                       )
                     ) : (
                       <ProfileBookFallback>
-                        <p>Você ainda não adicionou livros a sua estante...</p>
+                        <p>
+                          {profileFilter === "allUserBooks" && "Você ainda não adicionou livros a sua estante..."}
+                          {profileFilter === "userRatings" && "Nenhuma avaliação realizada..."}
+                          {profileFilter === "currentlyReadingBooks" && "Nenhum livro em progresso de leitura..."}
+                          {profileFilter === "wantToReadBooks" && "Nenhum livro marcado como 'Quero ler'..."}
+                          {profileFilter === "finishedBooks" && "Nenhum livro finalizado..."}
+                          {profileFilter === "favoriteBooks" && "Nenhum livro favoritado..."}
+                          {profileFilter === "abandonedBooks" && "Nenhum livro abandonado..."}
+                        </p>
                         <Link href={"/explore"}>
                           <BookAlert />
                         </Link>

@@ -280,6 +280,10 @@ export const ProfileBookFallback = styled("div", {
       color: "$gray400",
     },
   },
+
+  "@media(max-width: 900px)": {
+    paddingBottom: "5rem",
+  },
 });
 
 export const ProfileCategoriesContainer = styled("div", {
