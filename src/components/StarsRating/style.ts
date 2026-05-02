@@ -5,6 +5,10 @@ export const Container = styled("div", {
   gap: "0.6rem",
   flexDirection: "row",
   color: "$purple100",
+
+  "@media(max-width: 320px)": {
+    flexDirection: "column",
+  },
 });
 
 export const StarRatingContainer = styled("span", {

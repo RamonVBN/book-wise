@@ -3,14 +3,7 @@ import { styled } from "@/pages/globalStyles";
 export const Container = styled("div", {
   display: "flex",
   flexDirection: "column",
-  width: '100%',
-
-  "@media(max-width: 900px)": {
-    marginTop: "18rem",
-    paddingInline: "2rem",
-    overflow: "scroll",
-    scrollbarWidth: "none",
-  },
+  width: "100%",
 });
 
 export const ProfileContainer = styled("div", {
@@ -20,6 +13,19 @@ export const ProfileContainer = styled("div", {
 
   flex: 1,
   minHeight: 0,
+
+  "& > div:first-child": {
+    display: "none",
+  },
+
+  "@media(max-width: 900px)": {
+    flexDirection: "column",
+    gap: 0,
+
+    "& > div:first-child": {
+      display: "flex",
+    },
+  },
 });
 
 export const ProfileMainContainer = styled("div", {
@@ -32,6 +38,14 @@ export const ProfileMainContainer = styled("div", {
 
   "@media(max-width: 1236px)": {
     width: "100%",
+    flexBasis: "auto",
+    order: 3,
+  },
+
+  "@media(max-width: 900px)": {
+    "& > div:first-child": {
+      display: "none",
+    },
   },
 });
 
@@ -48,6 +62,10 @@ export const ProfileBooksContainer = styled("div", {
   overflowY: "auto",
   minHeight: 0,
   flex: 1,
+
+  "@media(max-width: 900px)": {
+    overflowY: "initial",
+  },
 });
 
 export const ProfileForm = styled("form", {
@@ -115,7 +133,7 @@ export const ProfileButton = styled("button", {
 });
 
 export const UserContainer = styled("div", {
-  marginTop: '7.1rem',
+  marginTop: "7.1rem",
   maxWidth: "20.25rem",
 
   display: "flex",
@@ -128,6 +146,14 @@ export const UserContainer = styled("div", {
 
   "@media(max-width: 1236px)": {
     width: "100%",
+  },
+
+  "@media(max-width: 900px)": {
+    marginTop: 0,
+    order: 1,
+    borderLeft: "1px solid transparent",
+    alignSelf: "center",
+    marginBottom: "4rem",
   },
 });
 
@@ -257,10 +283,23 @@ export const ProfileBookFallback = styled("div", {
 });
 
 export const ProfileCategoriesContainer = styled("div", {
-  marginTop: '7.1rem',
+  marginTop: "7.1rem",
   display: "flex",
   flexDirection: "column",
   gap: "1.25rem",
+
+  "@media(max-width: 768px)": {
+    marginTop: 0,
+    order: 2,
+    marginBottom: "3rem",
+    width: "50%",
+    alignSelf: "center",
+  },
+
+  "@media(max-width: 500px)": {
+    width: "auto",
+    alignSelf: "auto",
+  },
 });
 
 export const ProfileCategory = styled("button", {
@@ -280,7 +319,7 @@ export const ProfileCategory = styled("button", {
   border: "1px solid $gray600",
   borderRadius: "$lg",
 
-  padding: '0.5rem 1.25rem 0.5rem 0.5rem',
+  padding: "0.5rem 1.25rem 0.5rem 0.5rem",
 
   span: {
     display: "flex",
@@ -341,7 +380,7 @@ export const ProfileCategory = styled("button", {
           color: "$purple100",
           fill: "$purple100",
         },
-      },  
+      },
 
       FAVORITES: {
         svg: {

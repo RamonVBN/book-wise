@@ -135,7 +135,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               style={{ marginBottom: "4rem" }}
               onClick={() => setIsNavOpen(false)}
             >
-              <X size={36} />
+              <X/>
             </MenuButton>
 
             <div>

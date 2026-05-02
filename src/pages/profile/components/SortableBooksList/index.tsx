@@ -3,6 +3,7 @@ import {
   closestCenter,
   DragOverlay,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   defaultDropAnimation,
@@ -47,6 +48,13 @@ export function SortableBooksList<T extends BaseBook>({
         distance: 8,
       },
     }),
+
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 180,
+        tolerance: 8,
+      },
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -72,7 +80,7 @@ export function SortableBooksList<T extends BaseBook>({
     <DndContext
       measuring={{
         droppable: {
-          strategy: MeasuringStrategy.Always,
+          strategy: MeasuringStrategy.WhileDragging,
         },
       }}
       sensors={sensors}
@@ -88,7 +96,7 @@ export function SortableBooksList<T extends BaseBook>({
       onDragCancel={() => setActiveOverlay(null)}
     >
       <SortableContext
-        items={books.map(book => book.id)}
+        items={books.map((book) => book.id)}
         strategy={verticalListSortingStrategy}
       >
         {books.map((book) => (
@@ -98,7 +106,7 @@ export function SortableBooksList<T extends BaseBook>({
         ))}
       </SortableContext>
 
-      <DragOverlay dropAnimation={defaultDropAnimation}>
+      <DragOverlay adjustScale={false} dropAnimation={defaultDropAnimation}>
         {activeOverlay}
       </DragOverlay>
     </DndContext>

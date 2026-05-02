@@ -474,6 +474,10 @@ export default function Profile() {
           ) : (
             <>
               <ProfileContainer>
+                <PageHeader>
+                    <User />
+                    <h1>Perfil</h1>
+                  </PageHeader>
                 <ProfileCategoriesContainer>
                   {(Object.keys(categories) as (keyof Categories)[]).map(
                     (categoryKey) => (

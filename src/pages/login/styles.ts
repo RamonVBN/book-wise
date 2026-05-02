@@ -49,19 +49,9 @@ export const AuthContainer = styled("div", {
   justifyContent: "center",
   gridColumn: "3/6",
 
-  "& > div:first-child": {
-    display: "none",
-  },
-
   "@media(max-width: 425px)": {
     gridColumn: "1/6",
     flexDirection: "column",
-
-    "& > div:first-child": {
-      position: 'fixed',
-      top: 20,
-      display: 'block'
-    },
   },
 });
 

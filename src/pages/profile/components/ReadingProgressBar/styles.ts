@@ -43,6 +43,11 @@ export const ReadingProgressBarContainer = styled("div", {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'baseline',
+
+    "@media(max-width: 320px)": {
+      flexDirection: 'column',
+      gap: '0.25rem',
+    }
   },
 
   span: {

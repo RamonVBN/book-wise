@@ -1027,7 +1027,10 @@ export function ProfileBookCard({
 
       await queryClient.cancelQueries({ queryKey: ["profile", loggedUserId] });
 
-      const previousProfileData = queryClient.getQueryData(["profile", loggedUserId]);
+      const previousProfileData = queryClient.getQueryData([
+        "profile",
+        loggedUserId,
+      ]);
 
       queryClient.setQueryData<ProfileResponse>(
         ["profile", loggedUserId],
@@ -1282,7 +1285,9 @@ export function ProfileBookCard({
       modalRef.current &&
       !modalRef.current.contains(event.target as Node)
     ) {
-      return setIsModalOpen(false);
+      setTimeout(() => {
+        return setIsModalOpen(false);
+      }, 150);
     }
   }
 

@@ -65,7 +65,6 @@ export default function Login() {
         </ImageContainer>
 
         <AuthContainer>
-           <div> <Image unoptimized priority quality={100} src={logo} alt="" /></div>
           <LoginContainer>
             <LoginContainerHeader>
               <h1>Boas vindas!</h1>

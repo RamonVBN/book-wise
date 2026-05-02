@@ -74,11 +74,11 @@ export const MenuContainer = styled("div", {
     marginRight: 0,
 
     width: "100vw",
-    paddingBlock: "3rem",
+    paddingBlock: "1.5rem",
     flexDirection: "row",
     justifyContent: "space-between",
     paddingInline: "1.5rem",
-    maxHeight: "8.5rem",
+    maxHeight: "6rem",
   },
 });
 
@@ -102,7 +102,7 @@ export const MenuNavigation = styled("nav", {
 
   "@media(max-width: 900px)": {
     paddingBlock: "1rem",
-    overflow: "hidden", 
+    overflow: "hidden",
 
     position: "fixed",
     zIndex: 1000,
@@ -330,9 +330,13 @@ export const DemoBanner = styled("div", {
 export const MenuButton = styled("button", {
   all: "unset",
   cursor: "pointer",
+  width: "2rem",
+  height: "2rem",
   zIndex: 1,
   svg: {
     color: "$green100",
+    width: "2.5rem",
+    height: "2.5rem",
   },
   padding: "0.5rem",
   borderRadius: "$full",

@@ -33,10 +33,14 @@ export const ProfileBook = styled("div", {
     textAlign: "justify",
   },
 
-  "& > :first-child": {
+  "& > div:first-child": {
     display: "flex",
     justifyContent: "space-between",
     gap: "1.5rem",
+
+    "@media(max-width: 500px)": {
+      flexDirection: "column",
+    },
   },
 
   transition: "box-shadow 400ms ease, background-color 400ms ease",
@@ -51,14 +55,21 @@ export const ProfileBook = styled("div", {
 });
 
 export const ProfileBookInfo = styled("div", {
-
-  display: 'flex',
-  flexWrap: 'nowrap',
-  gap: '0.75rem',
+  display: "flex",
+  flexWrap: "nowrap",
+  gap: "0.75rem",
 
   "& > div:first-child": {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
+    button: {
+      touchAction: "none",
+    },
+
+    "@media(max-width: 320px)": {
+      marginInline: 'auto'
+    }
+
   },
 
   "& > div:last-child": {
@@ -73,7 +84,7 @@ export const ProfileBookInfo = styled("div", {
       flexShrink: 0,
     },
 
-    '& > div': {
+    "& > div": {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
@@ -88,6 +99,10 @@ export const ProfileBookInfo = styled("div", {
           fontSize: "1.125rem",
           lineHeight: "$short",
           color: "$gray100",
+
+          "@media(max-width: 425px)": {
+            fontSize: "1rem",
+          },
         },
 
         span: {
@@ -98,7 +113,13 @@ export const ProfileBookInfo = styled("div", {
         },
       },
     },
+
+    
   },
+
+  "@media(max-width: 320px)": {
+    flexWrap: 'wrap',
+  }
 });
 
 export const ProfileBookOptions = styled("div", {
@@ -110,6 +131,10 @@ export const ProfileBookOptions = styled("div", {
     flexDirection: "row",
     alignItems: "center",
     gap: "0.75rem",
+  },
+
+  "@media(max-width: 500px)": {
+    alignSelf: "center",
   },
 });
 
@@ -215,13 +240,11 @@ export const ModalBody = styled("div", {
   },
 });
 
-
-export const AddedBookFlag = styled('span', {
-  display: 'flex',
-  gap: '0.5rem',
-  alignItems: 'center',
+export const AddedBookFlag = styled("span", {
+  display: "flex",
+  gap: "0.5rem",
+  alignItems: "center",
   svg: {
-    color: '$green100',
+    color: "$green100",
   },
-
-})
+});
