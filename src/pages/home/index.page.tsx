@@ -338,6 +338,7 @@ export default function Home() {
                             <HomeBook
                               handleOpenModal={handleOpenLoginModal}
                               homeBook={book}
+                              small
                             >
                               <BookCover
                                 key={book.id}

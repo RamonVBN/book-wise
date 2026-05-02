@@ -31,6 +31,7 @@ type HomeBookProps = {
   children: ReactNode;
   homeBook: HomeRatingBookProps;
   handleOpenModal: (description: string) => void;
+  small?: boolean
 };
 
 const status: ReadingStatus[] = [
@@ -44,6 +45,7 @@ export function HomeBook({
   children,
   homeBook,
   handleOpenModal,
+  small = false
 }: HomeBookProps) {
   const session = useSession();
 
@@ -427,7 +429,7 @@ export function HomeBook({
       onKeyDown={handleEsc}
       onPointerDown={handleClickOutside}
     >
-      <AddBookOverlay>
+      <AddBookOverlay isOptionsVisible={isOptionsVisible}>
         {isOptionsVisible ? (
           <AddBookButtonContainer tabIndex={-1} ref={optionsRef}>
             {status.map((s) => (
@@ -443,7 +445,7 @@ export function HomeBook({
                         : "Abandonado"
                 }
               >
-                <AddBookButton onClick={() => handleUpdateUserBook(s)}>
+                <AddBookButton small={small} onClick={() => handleUpdateUserBook(s)}>
                   <BooksStatusFlag status={s} />
                 </AddBookButton>
               </AppTooltip>

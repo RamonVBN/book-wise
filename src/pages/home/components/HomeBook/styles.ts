@@ -3,7 +3,6 @@ import { styled } from "@/pages/globalStyles";
 export const AddBookOverlayContainer = styled("div", {
   position: "relative",
   height: "min-content",
-  
 });
 
 export const AddBookOverlay = styled("div", {
@@ -25,13 +24,26 @@ export const AddBookOverlay = styled("div", {
     opacity: 0,
     color: "$green100",
     cursor: "pointer",
-    transition: 'all 250ms ease-out'
+    transition: "all 250ms ease-out",
   },
 
   "&:hover": {
-    backgroundColor: '#0e1116d5',
+    backgroundColor: "#0e1116d5",
     svg: {
       opacity: 100,
+    },
+  },
+
+  variants: {
+    isOptionsVisible: {
+      true: {
+        "@media(max-width: 900px)": {
+          backgroundColor: "#0e1116d5",
+          svg: {
+            opacity: 100,
+          },
+        },
+      },
     },
   },
 });
@@ -68,6 +80,15 @@ export const AddBookButton = styled("button", {
 
   "&:not(:disabled):hover": {
     backgroundColor: "$gray500",
+  },
+
+  variants: {
+    small: {
+      true: {
+        width: "2rem",
+        height: "2rem",
+      },
+    },
   },
 });
 
