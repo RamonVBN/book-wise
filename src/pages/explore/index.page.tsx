@@ -28,7 +28,7 @@ import BookCard from "./components/ExploreBooks";
 import LoadingSpinner from "../../components/LoadingSpinner.tsx";
 import BackToTop from "./components/BackToTopButton/index.tsx";
 import axios from "axios";
-import { BookX } from "lucide-react";
+import { BookX, ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/router";
 
 const categories = [
@@ -63,6 +63,8 @@ export default function Explore() {
 
   const [isBackToTopButtonVisible, setIsBackToTopButtonVisible] =
     useState(false);
+
+  const [isCategoriesVisible, setIsCategoriesVisible] = useState(false);
 
   const { ref, inView } = useInView({
     rootMargin: "300px",
@@ -275,19 +277,26 @@ export default function Explore() {
               </ExploreFormButton>
             </form>
           </ExploreHeader>
-          <CategoriesContainer>
-            {categories.map((category, i) => {
-              return (
-                <Category
-                  disabled={isLoading}
-                  isActive={urlCategory.includes(category.queryName)}
-                  onClick={() => handleCategoriesFilters(category.queryName)}
-                  key={i}
-                >
-                  {category.name}
-                </Category>
-              );
-            })}
+          
+          <CategoriesContainer isCategoriesVisible={isCategoriesVisible}>
+            <button onClick={() => setIsCategoriesVisible(!isCategoriesVisible)}>
+              <span>Categorias: {urlCategory.map((c) => categories.find((cat) => cat.queryName === c)?.name).join(', ')}</span> 
+              <span>{isCategoriesVisible ? <ChevronUp /> : <ChevronDown />}</span>
+            </button>
+            <div>
+              {categories.map((category, i) => {
+                return (
+                  <Category
+                    disabled={isLoading}
+                    isActive={urlCategory.includes(category.queryName)}
+                    onClick={() => handleCategoriesFilters(category.queryName)}
+                    key={i}
+                  >
+                    {category.name}
+                  </Category>
+                );
+              })}
+            </div>
           </CategoriesContainer>
           {!isLoading ? (
             <>

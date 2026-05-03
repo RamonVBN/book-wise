@@ -12,7 +12,7 @@ export const ExploreContainer = styled("div", {
   paddingBottom: "1.25rem",
 
   "@media(max-width: 900px)": {
-    paddingInline: '0.75rem',
+    paddingInline: "0.75rem",
     overflowY: "initial",
   },
 
@@ -110,7 +110,7 @@ export const ExploreFormButton = styled("button", {
 export const ExplorePageFallback = styled("div", {
   width: "100%",
 
-  padding: "8rem",
+  paddingBlock: "8rem",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -125,16 +125,65 @@ export const ExplorePageFallback = styled("div", {
     width: "3rem",
     height: "3rem",
   },
+
+  "@media(max-width: 425px)": {
+    paddingBlock: "4rem",
+  },
 });
 
 export const CategoriesContainer = styled("div", {
   display: "flex",
-  flexWrap: "wrap",
-  gap: "0.75rem",
+  flexDirection: "column",
+  alignItems: "start",
+  gap: "1rem",
+
+  "& > button:first-child": {
+    all: "unset",
+    cursor: "pointer",
+    padding: "0.25rem 1rem",
+    color: "$purple100",
+    fontWeight: "$bold",
+
+    svg: {
+      width: "1.25rem",
+      height: "1.25rem",
+      color: "$purple100",
+    },
+
+    display: "none",
+  },
+
+  "& > div:last-child": {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "0.75rem",
+  },
 
   "@media(max-width: 425px)": {
     marginTop: "3rem",
-    justifyContent: "center",
+    "& > button:first-child": {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "0.25rem",
+    },
+    "& > div:last-child": {
+      justifyContent: "center",
+      display: "none",
+    },
+  },
+
+  variants: {
+    isCategoriesVisible: {
+      true: {
+        "@media(max-width: 425px)": {
+          "& > div:last-child": {
+            display: "flex",
+
+            gap: "0.75rem",
+          },
+        },
+      },
+    },
   },
 });
 

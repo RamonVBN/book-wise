@@ -2,7 +2,7 @@ import { styled } from "@/pages/globalStyles";
 
 export const ExploreBooksContainer = styled('div', {
 
-    marginTop: '3rem',
+    marginTop: '1.25rem',
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '1.25rem',
