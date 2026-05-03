@@ -1,4 +1,6 @@
 import { styled } from "@/pages/globalStyles";
+import { min } from "date-fns";
+import { text } from "stream/consumers";
 
 export const Container = styled("div", {
   display: "flex",
@@ -134,7 +136,6 @@ export const ProfileButton = styled("button", {
 
 export const UserContainer = styled("div", {
   marginTop: "7.1rem",
-  // maxWidth: "20.25rem",
   flexBasis: "20.25rem",
 
   display: "flex",
@@ -151,6 +152,7 @@ export const UserContainer = styled("div", {
     borderLeft: "1px solid transparent",
     alignSelf: "center",
     marginBottom: "4rem",
+    width: "100%",
   },
 });
 
@@ -202,13 +204,26 @@ export const UserSeparator = styled("span", {
 export const UserStatsContainer = styled("div", {
   display: "flex",
   flexDirection: "column",
-  width: '100%',
+  width: "100%",
   gap: "2.5rem",
   padding: "1.25rem 3.5rem",
+
+  "@media(max-width: 900px)": {
+    padding: 0,
+    gap: "2rem",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
+
+  "@media(max-width: 369px)": {
+    justifyContent: "space-evenly",
+  },
 });
 
 export const UserStats = styled("div", {
-  width: "100%",
+  maxWidth: "100%",
 
   display: "flex",
   alignItems: "center",
@@ -251,6 +266,15 @@ export const UserStats = styled("div", {
       },
     },
   },
+
+  "@media(max-width: 900px)": {
+    flexDirection: "column",
+
+    span: {
+      alignItems: "center",
+      textAlign: "center",
+    },
+  },
 });
 
 export const ProfileBookFallback = styled("div", {
@@ -290,23 +314,33 @@ export const ProfileCategoriesContainer = styled("div", {
   flexDirection: "column",
   gap: "1.25rem",
 
-  "@media(max-width: 768px)": {
+  "@media(max-width: 900px)": {
+    width: "100%",
     marginTop: 0,
     order: 2,
     marginBottom: "3rem",
-    width: "50%",
     alignSelf: "center",
-  },
 
-  "@media(max-width: 500px)": {
-    width: "auto",
-    alignSelf: "auto",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: "1rem",
+
+    "& > button:first-child": {
+      gridColumn: "1 / 3",
+    },
+
+    "& > button:not(:first-child)": {
+      "& > span:last-child": {
+        display: "none",
+      },
+    },
   },
 });
 
 export const ProfileCategory = styled("button", {
   all: "unset",
   cursor: "pointer",
+  height: "min-content",
 
   display: "flex",
   alignItems: "center",
@@ -323,7 +357,7 @@ export const ProfileCategory = styled("button", {
 
   padding: "0.5rem 1.25rem 0.5rem 0.5rem",
 
-  span: {
+  "& > span:first-child": {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -341,6 +375,7 @@ export const ProfileCategory = styled("button", {
       border: "1px solid $purple200",
 
       svg: {
+        flexShrink: 0,
         color: "$gray200",
         fill: "$gray200",
       },
@@ -400,7 +435,7 @@ export const ProfileCategory = styled("button", {
 
     isActive: {
       true: {
-        span: {
+        "& > span:first-child": {
           color: "$gray200",
           backgroundColor: "$purple200",
           border: "1px solid $purple200",
@@ -409,6 +444,31 @@ export const ProfileCategory = styled("button", {
             fill: "$gray200",
           },
         },
+      },
+    },
+  },
+
+  "@media(max-width: 900px)": {
+    minWidth: 0,
+
+    "& > span:first-child": {
+      padding: "0.25rem 0.5rem 0.25rem 0.5rem",
+    },
+  },
+
+  "@media(max-width: 375px)": {
+    "& > span:first-child": {
+      maxWidth: "100%",
+      "& > span:last-child": {
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        minWidth: 0,
+      },
+      svg: {
+        flexShrink: 0,
+        width: "1.25rem",
+        height: "1.25rem",
       },
     },
   },

@@ -500,9 +500,9 @@ export default function Profile() {
                               "Favoritos" &&
                             categories[categoryKey].categoryName !==
                               "Sua estante" && <Bookmark />}
-                          {categories[categoryKey].categoryName}
+                          <span>{categories[categoryKey].categoryName}</span>
                         </span>
-                        {categories[categoryKey].items?.length || 0}
+                        <span>{categories[categoryKey].items?.length || 0}</span>
                       </ProfileCategory>
                     ),
                   )}
