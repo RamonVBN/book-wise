@@ -17,6 +17,10 @@ export default async function updateRating(
         }
     })
 
+    if (!rating) {
+        return
+    }
+
     const oldRate = rating!.rate
 
     const book = await prisma.book.findUnique({
@@ -25,12 +29,16 @@ export default async function updateRating(
         }
     })
 
+    if (!book) {
+        return
+    }
+
     const isSame = oldRate === newRate 
     
     if(!isSame) {
 
-        const newRatingsSum = (book!.ratingsSum - oldRate) + newRate
-        const newAvg = newRatingsSum / book!.ratingsCount
+        const newRatingsSum = (book.ratingsSum - oldRate) + newRate
+        const newAvg = newRatingsSum / book.ratingsCount
 
         await prisma.book.update({
             where: {

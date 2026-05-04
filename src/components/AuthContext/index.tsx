@@ -38,7 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       id: "demo-user",
       name: "Recruiter Demo",
       email: "demo@bookwise.app",
-      // avatarUrl: "/demo-avatar.png",
       avatarUrl: "/gigachad.jpg",
       createdAt: new Date().toString(),
       isDemo: true,

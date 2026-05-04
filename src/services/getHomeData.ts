@@ -6,6 +6,7 @@ interface GetHomeDataProps {
 }
 
 export async function getHomeData({ userId }: GetHomeDataProps) {
+  
   const recentRatingsPromise = await prisma.rating.findMany({
     take: 10,
     orderBy: { createdAt: "desc" },

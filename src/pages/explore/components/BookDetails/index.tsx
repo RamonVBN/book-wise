@@ -12,7 +12,6 @@ import {
   BookInfoFooter,
   BookDetailsRating,
   CloseButton,
-  BookDetailsModalBody,
   BookDescription,
 } from "./styles";
 
@@ -21,12 +20,7 @@ import { compareAsc, compareDesc, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { formatCategories } from "@/utils/formatCategories";
 import { useEffect, useRef, useState } from "react";
-import { signIn, useSession } from "next-auth/react";
-
-import Image from "next/image";
-
-import googleLogo from "../../../../../assets/logos_google-icon.png";
-import githubLogo from "../../../../../assets/akar-icons_github-fill.png";
+import { useSession } from "next-auth/react";
 
 import { api } from "@/lib/axios";
 import {
@@ -39,7 +33,6 @@ import {
   BooksQueryData,
   BooksResponse,
   HomeDataResponse,
-  HomeRatingBookProps,
   HomeRatingProps,
   ProfileResponse,
   RatingProps,
@@ -191,15 +184,10 @@ export function BookDetails({
         return;
       }
 
-      return await api.post(`/app/ratings/${user?.id}`, {
+      return await api.post("/app/ratings/", {
         rate: data.rate,
         review: data.review,
         bookId: book?.id,
-        title: book?.title,
-        author: book?.author.join(","),
-        coverUrl: book?.coverUrl,
-        pageCount: book?.pageCount,
-        categories: book?.categories.join(","),
       });
     },
     onMutate: async (data) => {
@@ -409,7 +397,8 @@ export function BookDetails({
           return;
         }
 
-        return await api.patch(`/app/user-books/${user?.id}`, {
+        const userBookId = book?.userBookInfo?.userBookId;
+        return await api.patch(`/app/user-books/${userBookId}`, {
           readStatus: status,
           isFavorite: isFavorite,
           bookId: book?.id,

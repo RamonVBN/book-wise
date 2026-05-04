@@ -1,27 +1,36 @@
-import { authOptions } from "@/pages/api/auth/[...nextauth].api";
-import updateUserBook from "@/services/updateUserBook";
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { z } from "zod";
+import { prisma } from "@/lib/prisma"
+import { authOptions } from "@/pages/api/auth/[...nextauth].api"
+import updateUserBook from "@/services/updateUserBook"
+import { NextApiRequest, NextApiResponse } from "next"
+import { getServerSession } from "next-auth"
+import { z } from "zod"
 
 export async function updateUserBookController(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions)
 
   if (!session) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthorized" })
   }
 
   const querySchema = z.object({
     id: z.string(),
-  });
+  })
 
-  const { id } = querySchema.parse(req.query);
+  const { id } = querySchema.parse(req.query)
 
-  if (session.user.id !== id) {
-    return res.status(401).json({ message: "Unauthorized" });
+  const userBook = await prisma.userBook.findUnique({
+    where: {
+      id,
+    },
+  })
+
+  if (userBook && (session.user.id !== userBook.userId)) {
+    return res
+      .status(404)
+      .json({ message: "You cannot update another user book" })
   }
 
   const bodySchema = z
@@ -45,7 +54,7 @@ export async function updateUserBookController(
         data.currentPage !== undefined,
         data.readStatus !== undefined,
         data.isFavorite !== undefined,
-      ].filter(Boolean).length;
+      ].filter(Boolean).length
 
       if (filledFields === 0) {
         ctx.addIssue({
@@ -53,7 +62,7 @@ export async function updateUserBookController(
           message:
             "Envie exatamente um desses campos para atualização [currentPage, readStatus, isFavorite]",
           path: [],
-        });
+        })
       }
 
       if (filledFields > 1) {
@@ -62,9 +71,9 @@ export async function updateUserBookController(
           message:
             "Apenas um desses campos pode ser atualizado por vez [currentPage, readStatus, isFavorite]",
           path: [],
-        });
+        })
       }
-    });
+    })
 
   const {
     bookId,
@@ -77,18 +86,18 @@ export async function updateUserBookController(
     isFavorite,
     currentPage,
     customTotalPage,
-  } = bodySchema.parse(req.body);
+  } = bodySchema.parse(req.body)
 
-  if ((currentPage && customTotalPage) && currentPage > customTotalPage) {
+  if (currentPage && customTotalPage && currentPage > customTotalPage) {
     return res.status(400).json({
       message: "Current page cannot be higher than total page.",
-    });
+    })
   }
 
-   if (customTotalPage && (customTotalPage < 1 || customTotalPage > 505600)) {
+  if (customTotalPage && (customTotalPage < 1 || customTotalPage > 505600)) {
     return res.status(400).json({
       message: "Invalid custom total page",
-    });
+    })
   }
 
   await updateUserBook({
@@ -103,7 +112,7 @@ export async function updateUserBookController(
     title,
     categories,
     customTotalPage,
-  });
+  })
 
-  return res.status(200).json({});
+  return res.status(200).json({})
 }

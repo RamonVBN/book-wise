@@ -2,7 +2,7 @@
 
 import { ReadingStatus } from "@/generated/prisma";
 
-type RatingBookProps = {
+type BookProps = {
   id: string;
   author: string;
   title: string;
@@ -11,7 +11,7 @@ type RatingBookProps = {
   categories: string;
 };
 
-interface HomeRatingBookProps extends RatingBookProps {
+interface HomeRatingBookProps extends BookProps {
   userBookInfo: {
     userBookId?: string
     loggedUserCurrentBookStatus?: ReadingStatus 
@@ -21,7 +21,6 @@ interface HomeRatingBookProps extends RatingBookProps {
 export interface HomePopBookProps extends HomeRatingBookProps {
   avgRating: number
 }
-
 
 type UserProps = {
   id: string;
@@ -35,7 +34,7 @@ export type RatingProps = {
   id: string;
   rate: number;
   review: string;
-  book: RatingBookProps;
+  book: BookProps;
   user: UserProps;
   createdAt: string;
   updatedAt: string;
@@ -45,7 +44,7 @@ export interface HomeRatingProps extends RatingProps {
   book: HomeRatingBookProps;
 }
 
-export type BookProps = {
+export type FullBookProps = {
   id: string;
   title: string;
   description: string;
@@ -59,7 +58,7 @@ export type BookProps = {
   ratings: RatingProps[];
 };
 
-export interface ExploreBooksProps extends BookProps {
+export interface ExploreBooksProps extends FullBookProps {
   author: string[];
   categories: string[];
   userBookInfo: UserBookInfo;
@@ -74,7 +73,7 @@ export type UserBookProps = {
   currentPage?: number;
   customTotalPage?: number;
   updatedAt: string;
-  book: RatingBookProps;
+  book: BookProps;
   user: UserProps;
   wantToReadPosition?: number;
   favoritePosition?: number;

@@ -17,7 +17,6 @@ import {
   HomeRatingBookProps,
   HomeRatingProps,
   ProfileResponse,
-  RatingBookProps,
   UserBookProps,
 } from "@/@types/query-types";
 import { compareAsc, compareDesc } from "date-fns";

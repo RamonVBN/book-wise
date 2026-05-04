@@ -40,7 +40,7 @@ export async function updateRatingController(
 
   if (rating.userId !== session.user.id) {
     return res
-      .status(400)
+      .status(401)
       .json({ message: "You cannot update other user rating" });
   }
 

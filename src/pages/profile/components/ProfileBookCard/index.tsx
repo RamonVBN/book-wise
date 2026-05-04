@@ -38,7 +38,6 @@ import {
   BookCheck,
   BookmarkPlus,
   GripVertical,
-  SquareLibrary,
 } from "lucide-react";
 import { ReadingProgressUpdater } from "../ReadingProgressUpdater";
 import { BooksStatusFlag } from "@/components/BooksStatusFlag";
@@ -321,15 +320,10 @@ export function ProfileBookCard({
           return;
         }
 
-        return await api.post(`/app/ratings/${userId}`, {
+        return await api.post("/app/ratings", {
           rate: data.rate,
           review: data.review,
           bookId: book?.id,
-          title: book?.title,
-          author: book?.author,
-          coverUrl: book?.coverUrl,
-          pageCount: book?.pageCount,
-          categories: book?.categories,
         });
       },
       mutationKey: ["createRating"],
@@ -697,7 +691,7 @@ export function ProfileBookCard({
           return;
         }
 
-        return await api.patch(`/app/user-books/${loggedUserId}`, {
+        return await api.patch(`/app/user-books/${userBook?.id}`, {
           readStatus: status,
           isFavorite,
           currentPage,

@@ -1,7 +1,6 @@
-import { authOptions } from "@/pages/api/auth/[...nextauth].api"
+import { prisma } from "@/lib/prisma"
 import { getProfileData } from "@/services/getProfileData"
 import { NextApiRequest, NextApiResponse } from "next"
-import { getServerSession } from "next-auth"
 import { z } from "zod"
 
 export async function getProfileController(
@@ -17,6 +16,14 @@ export async function getProfileController(
 
   if (!userId){
     return res.status(401).json({ message: "Unauthorized" })
+  }
+
+  const user = prisma.user.findUnique({
+    where: { id: userId }
+  })
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" })
   }
 
   const profileData = await getProfileData({
