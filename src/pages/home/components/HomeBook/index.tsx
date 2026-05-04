@@ -1,4 +1,4 @@
-import { BookPlus, PlusCircle } from "lucide-react";
+import { BookPlus } from "lucide-react";
 import {
   AddBookOverlay,
   AddBookOverlayContainer,
@@ -25,6 +25,8 @@ import { api } from "@/lib/axios";
 import { toast } from "sonner";
 import { toastMessages } from "@/lib/toast-messages";
 import { AppTooltip } from "@/components/Tooltip";
+import { handleClickOutside } from "@/utils/handleClickOutside";
+import { handleEsc } from "@/utils/handleEsc";
 
 type HomeBookProps = {
   children: ReactNode;
@@ -388,21 +390,16 @@ export function HomeBook({
     }
   }
 
-  function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
-    const target = event.target as HTMLElement;
+  function clickOutside(event: React.PointerEvent<HTMLDivElement>) {
 
-    if (
-      isOptionsVisible &&
-      optionsRef.current &&
-      !optionsRef.current.contains(target)
-    ) {
-      return setIsOptionsVisible(false);
+    if (isOptionsVisible) {
+      return handleClickOutside({event, ref: optionsRef, closeFunction: () => setIsOptionsVisible(false)});
     }
   }
 
-  function handleEsc(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Escape" && isOptionsVisible) {
-      return setIsOptionsVisible(false);
+  function keyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (isOptionsVisible) {
+      return handleEsc({event, closeFunction: () => setIsOptionsVisible(false)});
     }
   }
 
@@ -425,8 +422,8 @@ export function HomeBook({
   return (
     <AddBookOverlayContainer
       onMouseLeave={() => setIsOptionsVisible(false)}
-      onKeyDown={handleEsc}
-      onPointerDown={handleClickOutside}
+      onKeyDown={keyDown}
+      onPointerDown={clickOutside}
     >
       <AddBookOverlay isOptionsVisible={isOptionsVisible}>
         {isOptionsVisible ? (

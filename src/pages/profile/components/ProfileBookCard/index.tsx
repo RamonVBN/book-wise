@@ -52,6 +52,9 @@ import { useAuth } from "@/components/AuthContext";
 import { DescripitionText } from "@/components/DescriptionText";
 import { useSession } from "next-auth/react";
 import { demoProfileData } from "@/mocks/profile";
+import { handleClickOutside } from "@/utils/handleClickOutside";
+import { handleEsc } from "@/utils/handleEsc";
+
 
 interface ProfileBookCardProps {
   userBook?: UserBookProps;
@@ -1273,21 +1276,15 @@ export function ProfileBookCard({
     },
   });
 
-  function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
-    if (
-      isModalOpen &&
-      modalRef.current &&
-      !modalRef.current.contains(event.target as Node)
-    ) {
-      setTimeout(() => {
-        return setIsModalOpen(false);
-      }, 150);
+  function clickOutside(event: React.PointerEvent<HTMLDivElement>) {
+    if (isModalOpen) {
+      handleClickOutside({ref: modalRef, event, closeFunction: () => setIsModalOpen(false)})
     }
   }
 
-  function handleEsc(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Escape" && isModalOpen) {
-      return setIsModalOpen(false);
+  function keyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (isModalOpen) {
+      handleEsc({event, closeFunction: () => setIsModalOpen(false)});
     }
   }
 
@@ -1336,8 +1333,8 @@ export function ProfileBookCard({
     <>
       {isModalOpen && (
         <Modal
-          onKeyDown={handleEsc}
-          onPointerDown={handleClickOutside}
+          onKeyDown={keyDown}
+          onPointerDown={clickOutside}
           ref={modalRef}
         >
           <CloseButton type="button" onClick={() => setIsModalOpen(false)}>

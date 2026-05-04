@@ -1,4 +1,4 @@
-import { BookmarkSimple, BookOpen, X } from "phosphor-react";
+import { BookmarkSimple, BookOpen, X } from "phosphor-react"
 
 import {
   BookDetailsBody,
@@ -13,59 +13,61 @@ import {
   BookDetailsRating,
   CloseButton,
   BookDescription,
-} from "./styles";
+} from "./styles"
 
-import { capitalize } from "@/utils/capitalize";
-import { compareAsc, compareDesc, formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
-import { formatCategories } from "@/utils/formatCategories";
-import { useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
+import { capitalize } from "@/utils/capitalize"
+import { compareAsc, compareDesc, formatDistanceToNow } from "date-fns"
+import { ptBR } from "date-fns/locale/pt-BR"
+import { formatCategories } from "@/utils/formatCategories"
+import { useEffect, useRef, useState } from "react"
+import { useSession } from "next-auth/react"
 
-import { api } from "@/lib/axios";
+import { api } from "@/lib/axios"
 import {
   InfiniteData,
   useMutation,
   useQuery,
   useQueryClient,
-} from "@tanstack/react-query";
+} from "@tanstack/react-query"
 import {
   BooksQueryData,
-  BooksResponse,
+  GoogleBooksResponse,
   HomeDataResponse,
   HomeRatingProps,
   ProfileResponse,
   RatingProps,
   UserBookProps,
-} from "@/@types/query-types";
-import { StarRating } from "@/components/StarsRating";
+} from "@/@types/query-types"
+import { StarRating } from "@/components/StarsRating"
 import {
   UserRatingForm,
   UserRatingSubmitData,
-} from "@/components/UserRatingForm";
-import { Modal } from "@/components/Modal";
-import { ReadingStatusSelect } from "../../../../components/ReadingStatusSelect";
-import { ReadingStatus } from "@/generated/prisma";
-import { FavoriteButton } from "../../../../components/FavoriteButton";
-import { DescripitionText } from "@/components/DescriptionText";
-import { toast } from "sonner";
-import { toastMessages } from "@/lib/toast-messages";
-import { BookCover } from "../../../../components/BookCover";
-import Link from "next/link";
-import { slugifyUserName } from "@/utils/slugifyUserName";
-import { Avatar } from "@/components/Avatar";
-import { formatAuthors } from "@/utils/formatAuthors";
-import { useAuth } from "@/components/AuthContext";
-import { AuthModal } from "@/components/AuthModal";
-import { MeanRating } from "../MeanRating";
+} from "@/components/UserRatingForm"
+import { Modal } from "@/components/Modal"
+import { ReadingStatusSelect } from "../../../../components/ReadingStatusSelect"
+import { ReadingStatus } from "@/generated/prisma"
+import { FavoriteButton } from "../../../../components/FavoriteButton"
+import { DescripitionText } from "@/components/DescriptionText"
+import { toast } from "sonner"
+import { toastMessages } from "@/lib/toast-messages"
+import { BookCover } from "../../../../components/BookCover"
+import Link from "next/link"
+import { slugifyUserName } from "@/utils/slugifyUserName"
+import { Avatar } from "@/components/Avatar"
+import { formatAuthors } from "@/utils/formatAuthors"
+import { useAuth } from "@/components/AuthContext"
+import { AuthModal } from "@/components/AuthModal"
+import { MeanRating } from "../MeanRating"
+import { handleClickOutside } from "@/utils/handleClickOutside"
+import { handleEsc } from "@/utils/handleEsc"
 
 type BookDetailsProps = {
-  closeBookDetails: () => void;
-  bookId: string;
-  searchTerm: string;
-  categoriesFilters: string;
-  isOpen: boolean;
-};
+  closeBookDetails: () => void
+  bookId: string
+  searchTerm: string
+  categoriesFilters: string
+  isOpen: boolean
+}
 
 export function BookDetails({
   closeBookDetails,
@@ -74,64 +76,66 @@ export function BookDetails({
   categoriesFilters,
   isOpen,
 }: BookDetailsProps) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  const session = useSession();
+  const session = useSession()
 
-  const { demoUser } = useAuth();
+  const { demoUser } = useAuth()
 
-  const [isUserRatingOpen, setIsUserRatingOpen] = useState(false);
+  const [isUserRatingOpen, setIsUserRatingOpen] = useState(false)
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const [modalMessage, setModalMessage] = useState("");
+  const [modalMessage, setModalMessage] = useState("")
 
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const [isSelectOpen, setIsSelectOpen] = useState(false)
 
-  const bookDetailsContainerRef = useRef<HTMLDivElement>(null);
-  const loginModalRef = useRef<HTMLDivElement>(null);
+  const bookDetailsContainerRef = useRef<HTMLDivElement>(null)
+  const loginModalRef = useRef<HTMLDivElement>(null)
 
   function handleUserRatingOpen() {
     if (session.status !== "authenticated" && !demoUser?.isDemo) {
-      return setIsModalOpen(true);
+      return setIsModalOpen(true)
     }
 
-    return setIsUserRatingOpen(true);
+    return setIsUserRatingOpen(true)
   }
 
   function handleCloseUserRatingForm() {
-    return setIsUserRatingOpen(false);
+    return setIsUserRatingOpen(false)
   }
 
   function handleRatingSubmit(data: UserRatingSubmitData) {
-    createRatingMutation(data);
-    setIsUserRatingOpen(false);
+    createRatingMutation(data)
+    setIsUserRatingOpen(false)
 
     if (demoUser?.isDemo) {
-      queryClient.setQueryData(["demo-user-interacted"], true);
+      queryClient.setQueryData(["demo-user-interacted"], true)
     }
   }
 
   function findBookById(bookId: string) {
-    const queries = queryClient.getQueriesData<InfiniteData<BooksResponse>>({
+    const queries = queryClient.getQueriesData<
+      InfiniteData<GoogleBooksResponse>
+    >({
       queryKey: ["books", searchTerm, categoriesFilters],
-    });
+    })
 
     const book = queries
       .flatMap(([, data]) => data?.pages ?? [])
       .flatMap((page) => page.items)
-      .find((book) => book.id === bookId);
+      .find((book) => book.id === bookId)
 
-    return book;
+    return book
   }
 
-  const book = findBookById(bookId);
+  const book = findBookById(bookId)
 
-  const user = session.data?.user ?? demoUser;
+  const user = session.data?.user ?? demoUser
 
   const { data: translatedBookData } = useQuery<{
-    categories: string[];
-    description: string;
+    categories: string[]
+    description: string
   }>({
     queryKey: ["traslatedBook", bookId],
     enabled: !!bookId && !!book,
@@ -139,71 +143,67 @@ export function BookDetails({
       const response = await api.post("/app/translate-books", {
         categories: book?.categories,
         description: book?.description,
-      });
+      })
 
-      return response.data;
+      return response.data
     },
-  });
+  })
 
-  function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
-    const target = event.target as HTMLElement;
-
-    if (
-      isModalOpen &&
-      loginModalRef.current &&
-      !loginModalRef.current.contains(target)
-    ) {
+  function clickOutside(event: React.PointerEvent<HTMLDivElement>) {
+    if (isModalOpen) {
+      handleClickOutside({
+        event,
+        ref: loginModalRef,
+        closeFunction: () => setIsModalOpen(false),
+      })
       setTimeout(() => {
-        return setIsModalOpen(false);
-      }, 150);
+        bookDetailsContainerRef.current?.focus()
+      }, 150)
+      return
     }
 
-    if (
-      !isModalOpen &&
-      bookDetailsContainerRef.current &&
-      !bookDetailsContainerRef.current.contains(event.target as Node)
-    ) {
-      setTimeout(() => {
-        return closeBookDetails();
-      }, 150);
-    }
+    return handleClickOutside({
+      event,
+      ref: bookDetailsContainerRef,
+      closeFunction: () => closeBookDetails(),
+    })
   }
 
-  function handleEsc(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Escape") {
-      if (isModalOpen) {
-        return setIsModalOpen(false);
-      }
-      return closeBookDetails();
+  function keyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (isModalOpen) {
+      handleEsc({ event, closeFunction: () => setIsModalOpen(false) })
+      bookDetailsContainerRef.current?.focus()
+      return
     }
+    return handleEsc({ event, closeFunction: () => closeBookDetails() })
   }
 
   const { mutate: createRatingMutation } = useMutation({
     mutationFn: async (data: UserRatingSubmitData) => {
       if (demoUser?.isDemo) {
-        return;
+        return
       }
 
       return await api.post("/app/ratings/", {
         rate: data.rate,
         review: data.review,
         bookId: book?.id,
-      });
+      })
     },
     onMutate: async (data) => {
-      toast.success(toastMessages.addRating.success);
+      toast.success(toastMessages.addRating.success)
 
       await queryClient.cancelQueries({
         queryKey: ["ratings", bookId],
-      });
+      })
 
       const previousBooks = queryClient.getQueryData([
         "books",
         searchTerm,
         categoriesFilters,
-      ]);
+      ])
 
-      const newCacheRatingId = crypto.randomUUID();
+      const newCacheRatingId = crypto.randomUUID()
 
       const newProfileRating: RatingProps = {
         id: newCacheRatingId,
@@ -220,23 +220,23 @@ export function BookDetails({
         user: user!,
         createdAt: new Date().toString(),
         updatedAt: new Date().toString(),
-      };
+      }
 
       queryClient.setQueryData<BooksQueryData>(
         ["books", searchTerm, categoriesFilters],
         (oldData) => {
-          if (!oldData) return oldData;
+          if (!oldData) return oldData
 
           return {
             ...oldData,
             pages: oldData.pages.map((page) => ({
               ...page,
               items: page.items.map((book) => {
-                if (book.id !== bookId) return book;
+                if (book.id !== bookId) return book
 
-                const newRatingsCount = book.ratingsCount + 1;
-                const newRatingsSum = book.ratingsSum + data.rate!;
-                const newAvg = newRatingsSum / newRatingsCount;
+                const newRatingsCount = book.ratingsCount + 1
+                const newRatingsSum = book.ratingsSum + data.rate!
+                const newAvg = newRatingsSum / newRatingsCount
 
                 const newRating: RatingProps = {
                   id: newCacheRatingId,
@@ -253,9 +253,9 @@ export function BookDetails({
                   user: user!,
                   createdAt: new Date().toString(),
                   updatedAt: new Date().toString(),
-                };
+                }
 
-                const newBookRatings = [newRating].concat(book.ratings);
+                const newBookRatings = [newRating].concat(book.ratings)
 
                 return {
                   ...book,
@@ -267,19 +267,19 @@ export function BookDetails({
                     rated: true,
                   },
                   ratings: newBookRatings,
-                };
+                }
               }),
             })),
-          };
+          }
         },
-      );
+      )
 
       queryClient.setQueryData<ProfileResponse>(
         ["profile", user?.id],
         (oldData) => {
-          if (!oldData) return oldData;
+          if (!oldData) return oldData
 
-          const newUserRatings = [newProfileRating].concat(oldData.userRatings);
+          const newUserRatings = [newProfileRating].concat(oldData.userRatings)
 
           const updatedUserbooks = oldData.abandonedBooks
             .concat(
@@ -289,30 +289,30 @@ export function BookDetails({
             )
             .map((ub) => {
               if (ub.id === book?.userBookInfo?.userBookId) {
-                const newUpdatedAt = new Date();
+                const newUpdatedAt = new Date()
                 return {
                   ...ub,
                   rated: true,
                   updatedAt: newUpdatedAt.toString(),
-                };
+                }
               }
-              return ub;
+              return ub
             })
-            .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
+            .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt))
 
           const currentlyReadingBooks = updatedUserbooks.filter(
             (ub) => ub.status === "READING",
-          );
+          )
           const wantToReadBooks = updatedUserbooks.filter(
             (ub) => ub.status === "WANT_TO_READ",
-          );
+          )
           const finishedBooks = updatedUserbooks.filter(
             (ub) => ub.status === "FINISHED",
-          );
+          )
           const abandonedBooks = updatedUserbooks.filter(
             (ub) => ub.status === "ABANDONED",
-          );
-          const favoriteBooks = updatedUserbooks.filter((ub) => ub.isFavorite);
+          )
+          const favoriteBooks = updatedUserbooks.filter((ub) => ub.isFavorite)
 
           return {
             ...oldData,
@@ -323,12 +323,12 @@ export function BookDetails({
             finishedBooks,
             favoriteBooks,
             abandonedBooks,
-          };
+          }
         },
-      );
+      )
 
       queryClient.setQueryData<HomeDataResponse>(["home"], (oldData) => {
-        if (!oldData) return oldData;
+        if (!oldData) return oldData
 
         const newRating: HomeRatingProps = {
           ...newProfileRating,
@@ -339,50 +339,50 @@ export function BookDetails({
               loggedUserCurrentBookStatus: book?.userBookInfo?.status,
             },
           },
-        };
+        }
         return {
           ...oldData,
           lastUserActivity: newRating ?? oldData.lastUserActivity,
           recentRatings: newRating
             ? [newRating].concat(oldData.recentRatings)
             : oldData.recentRatings,
-        };
-      });
+        }
+      })
 
-      return { previousBooks };
+      return { previousBooks }
     },
     mutationKey: ["createRating"],
     onError: (err, __, context) => {
-      toast.error(toastMessages.addRating.error);
-      console.log(err);
+      toast.error(toastMessages.addRating.error)
+      console.log(err)
       queryClient.setQueryData(
         ["books", searchTerm, categoriesFilters],
         context?.previousBooks,
-      );
+      )
     },
     onSuccess: () => {
       if (!demoUser?.isDemo) {
         const isStillMutating =
           queryClient.isMutating({
             mutationKey: ["createRating"],
-          }) - 1;
+          }) - 1
 
         if (isStillMutating === 0) {
           queryClient.invalidateQueries({
             queryKey: ["books", searchTerm, categoriesFilters],
-          });
+          })
 
           queryClient.invalidateQueries({
             queryKey: ["profile", user?.id],
-          });
+          })
 
           queryClient.invalidateQueries({
             queryKey: ["home"],
-          });
+          })
         }
       }
     },
-  });
+  })
 
   const { mutate: updateUserBookMutation, isPending: isUpdatingReadingStatus } =
     useMutation({
@@ -390,14 +390,14 @@ export function BookDetails({
         status,
         isFavorite,
       }: {
-        status?: ReadingStatus;
-        isFavorite?: boolean;
+        status?: ReadingStatus
+        isFavorite?: boolean
       }) => {
         if (demoUser?.isDemo) {
-          return;
+          return
         }
 
-        const userBookId = book?.userBookInfo?.userBookId;
+        const userBookId = book?.userBookInfo?.userBookId
         return await api.patch(`/app/user-books/${userBookId}`, {
           readStatus: status,
           isFavorite: isFavorite,
@@ -407,23 +407,23 @@ export function BookDetails({
           coverUrl: book?.coverUrl,
           pageCount: book?.pageCount,
           categories: book?.categories.join(","),
-        });
+        })
       },
       mutationKey: ["updateUserBook"],
       onMutate: async ({ status, isFavorite }) => {
         await queryClient.cancelQueries({
           queryKey: ["books", searchTerm, categoriesFilters],
-        });
+        })
 
         const previousBooks = queryClient.getQueryData<BooksQueryData>([
           "books",
           searchTerm,
           categoriesFilters,
-        ]);
+        ])
 
-        const userBookCacheId = crypto.randomUUID();
+        const userBookCacheId = crypto.randomUUID()
 
-        let userBookExists = false;
+        let userBookExists = false
 
         queryClient.setQueryData<ProfileResponse>(
           ["profile", user?.id],
@@ -446,7 +446,7 @@ export function BookDetails({
               updatedAt: new Date().toString(),
               user: user!,
               userId: user!.id,
-            };
+            }
 
             if (!oldData) {
               return {
@@ -462,19 +462,19 @@ export function BookDetails({
                   newUserBook.status === "ABANDONED" ? [newUserBook] : [],
                 favoriteBooks: newUserBook.isFavorite ? [newUserBook] : [],
                 userInfo: demoUser!,
-              };
+              }
             }
 
             userBookExists = oldData.allUserBooks.some(
               (ub) => ub.book.id === book?.id,
-            );
+            )
 
             if (userBookExists) {
               const updatedProfileData = oldData.allUserBooks
                 .map((ub) => {
                   if (ub.book.id === book?.id) {
-                    const newUpdatedAt = new Date();
-                    const totalPages = ub.customTotalPage ?? ub.book.pageCount;
+                    const newUpdatedAt = new Date()
+                    const totalPages = ub.customTotalPage ?? ub.book.pageCount
 
                     return {
                       ...ub,
@@ -483,15 +483,15 @@ export function BookDetails({
                       currentPage:
                         status === "FINISHED" ? totalPages : ub.currentPage,
                       updatedAt: newUpdatedAt.toString(),
-                    };
+                    }
                   }
-                  return ub;
+                  return ub
                 })
-                .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
+                .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt))
 
               const currentlyReadingBooks = updatedProfileData.filter(
                 (ub) => ub.status === "READING",
-              );
+              )
 
               const wantToReadBooks = updatedProfileData
                 .filter((ub) => ub.status === "WANT_TO_READ")
@@ -500,15 +500,15 @@ export function BookDetails({
                     ub1.wantToReadPosition ?? Infinity,
                     ub2.wantToReadPosition ?? Infinity,
                   ),
-                );
+                )
 
               const finishedBooks = updatedProfileData.filter(
                 (ub) => ub.status === "FINISHED",
-              );
+              )
 
               const abandonedBooks = updatedProfileData.filter(
                 (ub) => ub.status === "ABANDONED",
-              );
+              )
               const favoriteBooks = updatedProfileData
                 .filter((ub) => ub.isFavorite)
                 .sort((ub1, ub2) =>
@@ -516,7 +516,7 @@ export function BookDetails({
                     ub1.favoritePosition ?? Infinity,
                     ub2.favoritePosition ?? Infinity,
                   ),
-                );
+                )
 
               return {
                 ...oldData,
@@ -526,7 +526,7 @@ export function BookDetails({
                 finishedBooks,
                 abandonedBooks,
                 favoriteBooks,
-              };
+              }
             }
 
             const updatedProfileData = [newUserBook]
@@ -537,11 +537,11 @@ export function BookDetails({
                   oldData.wantToReadBooks,
                 ),
               )
-              .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt));
+              .sort((ub1, ub2) => compareDesc(ub1.updatedAt, ub2.updatedAt))
 
             const currentlyReadingBooks = updatedProfileData.filter(
               (ub) => ub.status === "READING",
-            );
+            )
 
             const wantToReadBooks = updatedProfileData
               .filter((ub) => ub.status === "WANT_TO_READ")
@@ -550,15 +550,15 @@ export function BookDetails({
                   ub1.wantToReadPosition ?? Infinity,
                   ub2.wantToReadPosition ?? Infinity,
                 ),
-              );
+              )
 
             const finishedBooks = updatedProfileData.filter(
               (ub) => ub.status === "FINISHED",
-            );
+            )
 
             const abandonedBooks = updatedProfileData.filter(
               (ub) => ub.status === "ABANDONED",
-            );
+            )
             const favoriteBooks = updatedProfileData
               .filter((ub) => ub.isFavorite)
               .sort((ub1, ub2) =>
@@ -566,7 +566,7 @@ export function BookDetails({
                   ub1.favoritePosition ?? Infinity,
                   ub2.favoritePosition ?? Infinity,
                 ),
-              );
+              )
 
             return {
               ...oldData,
@@ -576,21 +576,21 @@ export function BookDetails({
               finishedBooks,
               abandonedBooks,
               favoriteBooks,
-            };
+            }
           },
-        );
+        )
 
         queryClient.setQueryData<BooksQueryData>(
           ["books", searchTerm, categoriesFilters],
           (oldData) => {
-            if (!oldData) return oldData;
+            if (!oldData) return oldData
 
             return {
               ...oldData,
               pages: oldData.pages.map((page) => ({
                 ...page,
                 items: page.items.map((book) => {
-                  if (book.id !== bookId) return book;
+                  if (book.id !== bookId) return book
 
                   return {
                     ...book,
@@ -603,30 +603,30 @@ export function BookDetails({
                       isFavorite:
                         isFavorite ?? book.userBookInfo?.isFavorite ?? false,
                     },
-                  };
+                  }
                 }),
               })),
-            };
+            }
           },
-        );
+        )
 
         queryClient.setQueryData<HomeDataResponse>(["home"], (oldData) => {
-          if (!oldData) return oldData;
+          if (!oldData) return oldData
 
           const updatedProfileData = queryClient.getQueryData<ProfileResponse>([
             "profile",
             user?.id,
-          ]);
+          ])
 
-          const updatedUb = updatedProfileData?.allUserBooks[0];
+          const updatedUb = updatedProfileData?.allUserBooks[0]
 
           const isThisBookARecentRatedBook = oldData.recentRatings.find(
             (r) => r.book.id === updatedUb?.book.id,
-          );
+          )
 
           const isThisBookAPopBook = oldData.popularBooks.find(
             (b) => b.id === updatedUb?.book.id,
-          );
+          )
 
           return {
             ...oldData,
@@ -634,7 +634,7 @@ export function BookDetails({
             recentRatings: isThisBookARecentRatedBook
               ? oldData.recentRatings.map((r) => {
                   if (r.book.id !== updatedUb?.book.id) {
-                    return r;
+                    return r
                   }
 
                   return {
@@ -646,13 +646,13 @@ export function BookDetails({
                         loggedUserCurrentBookStatus: updatedUb.status,
                       },
                     },
-                  };
+                  }
                 })
               : oldData.recentRatings,
             popularBooks: isThisBookAPopBook
               ? oldData.popularBooks.map((b) => {
                   if (b.id !== updatedUb?.book.id) {
-                    return b;
+                    return b
                   }
 
                   return {
@@ -661,129 +661,135 @@ export function BookDetails({
                       ...b.userBookInfo,
                       loggedUserCurrentBookStatus: updatedUb.status,
                     },
-                  };
+                  }
                 })
               : oldData.popularBooks,
-          };
-        });
+          }
+        })
 
-        return { previousBooks };
+        return { previousBooks }
       },
       onError: (err, __, context) => {
-        const books = context?.previousBooks;
+        const books = context?.previousBooks
 
         const isUserUpdatingBook = books?.pages.some((page) => {
           return page.items.some((book) => {
             if (book.id === bookId) {
-              return book.userBookInfo !== null;
+              return book.userBookInfo !== null
             }
 
-            return false;
-          });
-        });
+            return false
+          })
+        })
 
         if (isUserUpdatingBook) {
-          toast.error(toastMessages.updateBook.error);
+          toast.error(toastMessages.updateBook.error)
         } else {
-          toast.error(toastMessages.addBook.error);
+          toast.error(toastMessages.addBook.error)
         }
 
-        console.log(err);
+        console.log(err)
         queryClient.setQueryData(
           ["books", searchTerm, categoriesFilters],
           context?.previousBooks,
-        );
+        )
       },
       onSuccess: (_, __, context) => {
-        const books = context.previousBooks;
+        const books = context.previousBooks
 
         const isUserUpdatingBook = books?.pages.some((page) => {
           return page.items.some((book) => {
             if (book.id === bookId) {
-              return book.userBookInfo !== null;
+              return book.userBookInfo !== null
             }
 
-            return false;
-          });
-        });
+            return false
+          })
+        })
 
         if (isUserUpdatingBook) {
-          toast.success(toastMessages.updateBook.success);
+          toast.success(toastMessages.updateBook.success)
         } else {
-          toast.success(toastMessages.addBook.success);
+          toast.success(toastMessages.addBook.success)
         }
 
         if (!demoUser?.isDemo) {
           const isStillMutating =
             queryClient.isMutating({
               mutationKey: ["updateUserBook"],
-            }) - 1;
+            }) - 1
 
           if (isStillMutating === 0) {
             queryClient.invalidateQueries({
               queryKey: ["books", searchTerm, categoriesFilters],
-            });
+            })
 
             queryClient.invalidateQueries({
               queryKey: ["profile", user?.id],
-            });
+            })
 
             queryClient.invalidateQueries({
               queryKey: ["home"],
-            });
+            })
           }
         }
       },
-    });
+    })
 
   function handleSelectOpenChange(isOpen: boolean) {
-    setIsSelectOpen(!isOpen);
+    setIsSelectOpen(!isOpen)
   }
 
   function onSelectChange(status: ReadingStatus) {
-    updateUserBookMutation({ status });
+    updateUserBookMutation({ status })
     if (demoUser?.isDemo) {
-      queryClient.setQueryData(["demo-user-interacted"], true);
+      queryClient.setQueryData(["demo-user-interacted"], true)
     }
-    return;
+    return
   }
 
   function onFavoriteButtonClick(isFavorite: boolean) {
     if (session.status !== "authenticated" && !demoUser?.isDemo) {
-      return setIsModalOpen(true);
+      return setIsModalOpen(true)
     }
 
-    updateUserBookMutation({ isFavorite });
+    updateUserBookMutation({ isFavorite })
     if (demoUser?.isDemo) {
-      queryClient.setQueryData(["demo-user-interacted"], true);
+      queryClient.setQueryData(["demo-user-interacted"], true)
     }
-    return;
+    return
   }
 
   function handleLoginModalOpen(message: string) {
-    setModalMessage(message);
-    setIsModalOpen(true);
+    setModalMessage(message)
+    setIsModalOpen(true)
   }
 
   const isSigned =
-    session.status === "authenticated" || (demoUser?.isDemo ?? false);
+    session.status === "authenticated" || (demoUser?.isDemo ?? false)
 
-  const bookStatus = isSigned ? book?.userBookInfo?.status : undefined;
+  const bookStatus = isSigned ? book?.userBookInfo?.status : undefined
 
-  const isFavoriteBook = book?.userBookInfo?.isFavorite ?? false;
+  const isFavoriteBook = book?.userBookInfo?.isFavorite ?? false
 
-  const rated = book?.userBookInfo?.rated;
+  const rated = book?.userBookInfo?.rated
 
-  const ratings = book?.ratings;
+  const ratings = book?.ratings
 
   useEffect(() => {
-    bookDetailsContainerRef.current?.focus();
-  }, []);
+    setTimeout(() => {
+      bookDetailsContainerRef.current?.focus()
+    }, 260)
+  }, [isOpen])
 
   return (
     <>
       {isModalOpen && (
-        <Modal ref={loginModalRef} onPointerDown={(e) => handleClickOutside(e)}>
+        <Modal
+          ref={loginModalRef}
+          onPointerDown={clickOutside}
+          onKeyDown={keyDown}
+        >
           <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
             <X />
           </CloseButton>
@@ -791,14 +797,11 @@ export function BookDetails({
         </Modal>
       )}
 
-      <BookDetailsOverlay
-        open={isOpen}
-        onKeyDown={(e) => handleEsc(e)}
-        onPointerDown={(e) => handleClickOutside(e)}
-      >
+      <BookDetailsOverlay open={isOpen} onPointerDown={clickOutside}>
         <BookDetailsContainer
           open={isOpen}
           tabIndex={-1}
+          onKeyDown={keyDown}
           ref={bookDetailsContainerRef}
         >
           <CloseButton onClick={closeBookDetails}>
@@ -851,10 +854,10 @@ export function BookDetails({
                         <span>
                           {translatedBookData
                             ? translatedBookData.categories.map((c, i) => {
-                                return formatCategories(c, i);
+                                return formatCategories(c, i)
                               })
                             : book?.categories.map((c, i) => {
-                                return formatCategories(c, i);
+                                return formatCategories(c, i)
                               })}
                         </span>
                       </span>
@@ -982,7 +985,7 @@ export function BookDetails({
                           description={rating.review}
                         />
                       </BookDetailsRating>
-                    );
+                    )
                   })}
               </BookDetailsRatingsBody>
             </BookDetailsRatingsContainer>
@@ -990,5 +993,5 @@ export function BookDetails({
         </BookDetailsContainer>
       </BookDetailsOverlay>
     </>
-  );
+  )
 }

@@ -49,6 +49,8 @@ import { AuthModal } from "@/components/AuthModal";
 import { useEffect, useRef, useState } from "react";
 import { demoProfileData } from "@/mocks/profile";
 import { HomeBook } from "./components/HomeBook";
+import { handleEsc } from "@/utils/handleEsc";
+import { handleClickOutside } from "@/utils/handleClickOutside";
 
 export default function Home() {
   const queryClient = useQueryClient();
@@ -84,24 +86,16 @@ export default function Home() {
     setIsModalOpen(false);
   }
 
-  function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
-    const target = event.target as HTMLElement;
+  function clickOutside(event: React.PointerEvent<HTMLDivElement>) {
 
-    if (
-      isModalOpen &&
-      loginModalRef.current &&
-      !loginModalRef.current.contains(target)
-    ) {
-      setTimeout(() => {
-        return setIsModalOpen(false);
-      }, 150);
+    if (isModalOpen) {
+      
+      return handleClickOutside({ event, ref: loginModalRef, closeFunction: () => setIsModalOpen(false) });
     }
   }
 
-  function handleEsc(event: React.KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Escape" && isModalOpen) {
-      return setIsModalOpen(false);
-    }
+  function keyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    handleEsc({ event, closeFunction: () => setIsModalOpen(false) });
   }
 
   function handleOpenLoginModal(description: string) {
@@ -136,8 +130,8 @@ export default function Home() {
         {isModalOpen && (
           <Modal
             ref={loginModalRef}
-            onPointerDown={(e) => handleClickOutside(e)}
-            onKeyDown={handleEsc}
+            onPointerDown={clickOutside}
+            onKeyDown={keyDown}
           >
             <CloseButton type="button" onClick={() => setIsModalOpen(false)}>
               <X />
