@@ -1,40 +1,149 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# 📚 BookWise
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![React](https://img.shields.io/badge/React-19-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748)
+![License](https://img.shields.io/badge/status-Active-success)
 
-First, run the development server:
+BookWise é uma plataforma moderna para leitores descobrirem, organizarem e avaliarem livros.  
+Os usuários podem criar conta, montar sua biblioteca pessoal, acompanhar progresso de leitura e interagir com avaliações da comunidade.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌐 Acesse o projeto
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🔗 https://book-wise-ruddy.vercel.app/
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+---
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## ✨ Funcionalidades
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+### 👤 Autenticação
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Login com Google
+- Login com GitHub
+- Sessão segura com NextAuth
 
-## Learn More
+### 📚 Biblioteca pessoal
 
-To learn more about Next.js, take a look at the following resources:
+- Adicionar livros à estante
+- Alterar status:
+  - Quero ler
+  - Lendo
+  - Lido
+  - Abandonado
+- Atualizar progresso de leitura
+- Adicionar livros à lista de favoritos
+- Reordenar livros
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+### 🔎 Exploração de livros
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Buscar livros por título
+- Navegar por categorias
+- Descobrir novos livros
 
-## Deploy on Vercel
+### ⭐ Avaliações
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Avaliar livros
+- Visualizar avaliações de outros usuários
+- Histórico de reviews
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+### 👥 Social
+
+- Ver perfil de outros usuários
+
+### 📱 Responsividade
+
+- Interface adaptada para desktop e mobile
+
+---
+
+## 📸 Screenshots
+
+### Início
+
+![Home](./docs/home.png)
+
+### Explorar
+
+![Explore](./docs/explore.png)
+
+### Perfil
+
+![Profile](./docs/profile.png)
+
+### Mobile
+
+![Mobile](./docs/home-mobile.png)
+
+---
+
+![Mobile](./docs/book-details-mobile.png)
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+### Front-end
+
+- Next.js 15
+- React 19
+- TypeScript
+- Stitches
+- Radix UI
+- dnd kit
+- Lucide React
+
+### Back-end / Infra
+
+- Next.js API Routes
+- Prisma ORM
+- PostgreSQL
+- NextAuth
+
+### Estado / Performance
+
+- TanStack Query
+- Intersection Observer
+
+### Formulários / Validação
+
+- React Hook Form
+- Zod
+
+---
+
+## 🎯 Objetivo do Projeto
+
+O BookWise foi criado para oferecer uma experiência moderna para leitores organizarem sua jornada literária, descobrirem novos livros e compartilharem opiniões com outros usuários.
+
+Além disso, o projeto também teve como foco o aprofundamento em tecnologias modernas de desenvolvimento fullstack, autenticação OAuth, modelagem de banco de dados e construção de interfaces performáticas e responsivas.
+
+---
+
+## 💡 Aprendizados
+
+Durante o desenvolvimento deste projeto foram aprofundados conhecimentos em:
+
+- Arquitetura com Next.js
+- Prisma + banco relacional
+- Consumo de APIs externas
+- OAuth com Google e GitHub
+- Gerenciamento de cache com React Query
+- Interfaces escaláveis com Stitches
+- UX responsiva para múltiplos dispositivos
+
+---
+
+## 👨‍💻 Autor
+
+Desenvolvido por **Ramon Victor Barros Nunes**
+
+- GitHub: https://github.com/RamonVBN
+- LinkedIn: https://linkedin.com/in/ramon-barros-4a107837a
+  
+
+## 📄 Licença
+
+Este projeto foi desenvolvido para fins de estudo e portfólio.
+
+
