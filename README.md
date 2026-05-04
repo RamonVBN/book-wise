@@ -110,6 +110,8 @@ Os usuários podem criar conta, montar sua biblioteca pessoal, acompanhar progre
 - React Hook Form
 - Zod
 
+### APIs consumidas
+- Google Books API
 ---
 
 ## 🎯 Objetivo do Projeto
