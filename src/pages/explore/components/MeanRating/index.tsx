@@ -6,11 +6,10 @@ type MeanRatingProps = {
 
 export function MeanRating({ avgRating }: MeanRatingProps) {
 
-
     return (
         <MeanRatingContainer>
             <MeanRatingAmount>
-                {avgRating.toString()}
+                {avgRating.toFixed(2).toString()}
             </MeanRatingAmount>
         </MeanRatingContainer>
     )
