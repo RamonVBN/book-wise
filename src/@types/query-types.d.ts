@@ -2,6 +2,26 @@
 
 import { ReadingStatus } from "@/generated/prisma";
 
+export type FullBookProps = {
+  id: string;
+  title: string;
+  description: string;
+  author: string;
+  categories: string;
+  pageCount: number;
+  coverUrl: string;
+  avgRating: number;
+  ratingsCount: number;
+  ratingsSum: number;
+  ratings: RatingProps[];
+};
+
+export interface ExploreBooksProps extends FullBookProps {
+  author: string[];
+  categories: string[];
+  userBookInfo: UserBookInfo;
+}
+
 type BookProps = {
   id: string;
   author: string;
@@ -44,26 +64,6 @@ export interface HomeRatingProps extends RatingProps {
   book: HomeRatingBookProps;
 }
 
-export type FullBookProps = {
-  id: string;
-  title: string;
-  description: string;
-  author: string;
-  categories: string;
-  pageCount: number;
-  coverUrl: string;
-  avgRating: number;
-  ratingsCount: number;
-  ratingsSum: number;
-  ratings: RatingProps[];
-};
-
-export interface ExploreBooksProps extends FullBookProps {
-  author: string[];
-  categories: string[];
-  userBookInfo: UserBookInfo;
-}
-
 export type UserBookProps = {
   id: string;
   userId: string;
@@ -85,7 +85,7 @@ export type HomeDataResponse = {
   lastUserActivity: RatingProps | UserBookProps | null;
 };
 
-export type BooksResponse = {
+export type GoogleBooksResponse = {
   items: ExploreBooksProps[];
   total: number;
 };
@@ -96,12 +96,6 @@ export type BookStats = {
   ratingsSum: number;
   ratings: RatingProps[];
   userBookInfo: UserBookInfo;
-};
-
-type Category = {
-  category: {
-    name: string;
-  };
 };
 
 export type ProfileResponse = {

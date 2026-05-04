@@ -17,7 +17,7 @@ import { PageHeader } from "@/components/PageHeader/index.ts";
 import { BookDetails } from "./components/BookDetails";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
-import { BooksResponse } from "@/@types/query-types";
+import { GoogleBooksResponse } from "@/@types/query-types";
 import { NextSeo } from "next-seo";
 import { Fallback } from "@/components/Fallback";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -151,7 +151,7 @@ export default function Explore() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<BooksResponse>({
+  } = useInfiniteQuery<GoogleBooksResponse>({
     queryKey: ["books", searchTerm, [...urlCategory].sort().join(",")],
     queryFn: async ({ pageParam = 0 }) => {
       const subjectString = urlCategory.map((c) => `subject:${c}`).join(" ");
@@ -241,7 +241,7 @@ export default function Explore() {
       handleUrlSearch({param: 'category', value: 'Fiction'})
     }
   }, [router.isReady, searchTerm, urlCategory]);
-
+    
   return (
     <>
       <NextSeo
