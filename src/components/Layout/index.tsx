@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/image"
 import {
   AppContainer,
   MainContainer,
@@ -11,46 +11,47 @@ import {
   SignInButtonContainer,
   SignOutButton,
   SignOutButtonContainer,
-} from "./styles";
-import logo from "../../../assets/Logo.png";
+} from "./styles"
+import logo from "../../../assets/Logo.png"
 
-import { Binoculars, ChartLineUp, SignIn, SignOut, User } from "phosphor-react";
+import { Binoculars, ChartLineUp, SignIn, SignOut, User } from "phosphor-react"
 
-import { signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react"
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react"
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/router"
 
-import { AppTooltip } from "../Tooltip";
-import { slugifyUserName } from "@/utils/slugifyUserName";
-import { Avatar } from "../Avatar";
-import { useAuth } from "../AuthContext";
-import { DemoBanner } from "../DemoBanner";
-import { useQueryClient } from "@tanstack/react-query";
-import { demoProfileData } from "@/mocks/profile";
-import { Menu, X } from "lucide-react";
+import { AppTooltip } from "../Tooltip"
+import { slugifyUserName } from "@/utils/slugifyUserName"
+import { Avatar } from "../Avatar"
+import { useAuth } from "../AuthContext"
+import { DemoBanner } from "../DemoBanner"
+import { useQueryClient } from "@tanstack/react-query"
+import { demoProfileData } from "@/mocks/profile"
+import { Menu, X } from "lucide-react"
+import Link from "next/link"
 
 type Navigation = {
-  buttonName: string;
-};
+  buttonName: string
+}
 
 type LayoutProps = {
-  children: ReactNode;
+  children: ReactNode
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void
-  ref?: React.Ref<HTMLDivElement>;
+  ref?: React.Ref<HTMLDivElement>
 }
 
 export default function Layout({ children, onScroll, ref }: LayoutProps) {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  const { demoUser, logout } = useAuth();
+  const { demoUser, logout } = useAuth()
 
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false)
 
-  const navMenuRef = useRef<HTMLDivElement>(null);
+  const navMenuRef = useRef<HTMLDivElement>(null)
 
   const [navigation] = useState<Navigation[]>([
     {
@@ -62,35 +63,35 @@ export default function Layout({ children, onScroll, ref }: LayoutProps) {
     {
       buttonName: "profile",
     },
-  ]);
+  ])
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const session = useSession();
+  const session = useSession()
 
-  const isSigned = session.status === "authenticated";
+  const isSigned = session.status === "authenticated"
 
-  const userId = session.data?.user.id;
+  const userId = session.data?.user.id
 
-  const isDemoUserSigned = demoUser?.isDemo;
+  const isDemoUserSigned = demoUser?.isDemo
 
-  const demoUserId = demoUser?.id;
+  const demoUserId = demoUser?.id
 
   async function handleSignOut() {
-    setIsLoggingOut(true);
+    setIsLoggingOut(true)
 
     if (isSigned) {
-      await signOut({ redirect: true, callbackUrl: "/" });
+      await signOut({ redirect: true, callbackUrl: "/" })
     } else {
-      logout();
+      logout()
     }
 
-    queryClient.clear();
-    return;
+    queryClient.clear()
+    return
   }
 
   function handleClickOutside(event: React.PointerEvent<HTMLDivElement>) {
-    const target = event.target as HTMLElement;
+    const target = event.target as HTMLElement
 
     if (
       isNavOpen &&
@@ -98,35 +99,37 @@ export default function Layout({ children, onScroll, ref }: LayoutProps) {
       !navMenuRef.current.contains(target)
     ) {
       setTimeout(() => {
-        return setIsNavOpen(false);
-      }, 150);
+        return setIsNavOpen(false)
+      }, 150)
     }
   }
 
   useEffect(() => {
     const isDemoUserCacheModified = queryClient.getQueryData([
       "demo-user-interacted",
-    ]);
+    ])
 
     if (demoUser?.isDemo && !isDemoUserCacheModified) {
       queryClient.setQueryData(["profile", demoUserId], () => {
-        return demoProfileData;
-      });
+        return demoProfileData
+      })
     }
-  }, []);
+  }, [])
 
   return (
     <AppContainer onScroll={onScroll} ref={ref}>
       <DemoBanner />
       <MenuContainer>
-        <Image
-          priority
-          quality={100}
-          width={128}
-          height={32}
-          src={logo}
-          alt=""
-        />
+        <Link href={"/home"}>
+          <Image
+            priority
+            quality={100}
+            width={128}
+            height={32}
+            src={logo}
+            alt=""
+          />
+        </Link>
 
         <MenuButton onClick={() => setIsNavOpen(true)}>
           <Menu />
@@ -141,7 +144,7 @@ export default function Layout({ children, onScroll, ref }: LayoutProps) {
               style={{ marginBottom: "4rem" }}
               onClick={() => setIsNavOpen(false)}
             >
-              <X/>
+              <X />
             </MenuButton>
 
             <div>
@@ -218,5 +221,5 @@ export default function Layout({ children, onScroll, ref }: LayoutProps) {
 
       <MainContainer>{children}</MainContainer>
     </AppContainer>
-  );
+  )
 }
