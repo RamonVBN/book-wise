@@ -4,5 +4,5 @@ NEXTAUTH_SECRET=''
 
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_SECRET_KEY=your-google-secret-key
-GITHUB_ID='your-github-client-id'
-GITHUB_SECRET='your-github-secret-key'
+GITHUB_ID=your-github-client-id
+GITHUB_SECRET=your-github-secret-key
