@@ -1,4 +1,4 @@
-DATABASE_URL=postgresql://user:password@localhost/mydb
+DATABASE_URL=postgresql://user:password@localhost/mydb&connect_timeout=15
 
 NEXTAUTH_SECRET=''
 
