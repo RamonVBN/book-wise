@@ -1,4 +1,4 @@
-import { CaretRight, ChartLineUp } from "phosphor-react";
+import { CaretRight, ChartLineUp } from "phosphor-react"
 import {
   BookRating,
   BookRatingBody,
@@ -19,106 +19,110 @@ import {
   ContentContainer,
   BooksRatingsContainerHeader,
   LinkButton,
-} from "./styles";
+} from "./styles"
 
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
-import { capitalize } from "@/utils/capitalize";
-import { PageHeader } from "@/components/PageHeader";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/axios";
-import { useSession } from "next-auth/react";
-import { HomeDataResponse } from "@/@types/query-types";
-import Layout from "@/components/Layout";
-import { formatBookName } from "@/utils/formatBookName";
-import { StarRating } from "@/components/StarsRating";
+import { formatDistanceToNow } from "date-fns"
+import { ptBR } from "date-fns/locale/pt-BR"
+import { capitalize } from "@/utils/capitalize"
+import { PageHeader } from "@/components/PageHeader"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { api } from "@/lib/axios"
+import { useSession } from "next-auth/react"
+import { HomeDataResponse } from "@/@types/query-types"
+import Layout from "@/components/Layout"
+import { formatBookName } from "@/utils/formatBookName"
+import { StarRating } from "@/components/StarsRating"
 
-import { NextSeo } from "next-seo";
-import { Fallback } from "@/components/Fallback";
-import { BooksStatusFlag } from "@/components/BooksStatusFlag";
-import { Flame, X } from "lucide-react";
-import { DescripitionText } from "@/components/DescriptionText";
-import { BookCover } from "@/components/BookCover";
-import Link from "next/link";
-import { slugifyUserName } from "@/utils/slugifyUserName";
-import { Avatar } from "@/components/Avatar";
-import { useAuth } from "@/components/AuthContext";
-import { Modal } from "@/components/Modal";
-import { CloseButton } from "../explore/components/BookDetails/styles";
-import { AuthModal } from "@/components/AuthModal";
-import { useEffect, useRef, useState } from "react";
-import { demoProfileData } from "@/mocks/profile";
-import { HomeBook } from "./components/HomeBook";
-import { handleEsc } from "@/utils/handleEsc";
-import { handleClickOutside } from "@/utils/handleClickOutside";
+import { NextSeo } from "next-seo"
+import { Fallback } from "@/components/Fallback"
+import { BooksStatusFlag } from "@/components/BooksStatusFlag"
+import { Flame, X } from "lucide-react"
+import { DescripitionText } from "@/components/DescriptionText"
+import { BookCover } from "@/components/BookCover"
+import Link from "next/link"
+import { slugifyUserName } from "@/utils/slugifyUserName"
+import { Avatar } from "@/components/Avatar"
+import { useAuth } from "@/components/AuthContext"
+import { Modal } from "@/components/Modal"
+import { CloseButton } from "../explore/components/BookDetails/styles"
+import { AuthModal } from "@/components/AuthModal"
+import { useEffect, useRef, useState } from "react"
+import { demoProfileData } from "@/mocks/profile"
+import { HomeBook } from "./components/HomeBook"
+import { handleEsc } from "@/utils/handleEsc"
+import { handleClickOutside } from "@/utils/handleClickOutside"
 
 export default function Home() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  const { demoUser } = useAuth();
+  const { demoUser } = useAuth()
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const loginModalRef = useRef<HTMLDivElement>(null);
+  const loginModalRef = useRef<HTMLDivElement>(null)
 
-  const [modalDescripion, setModalDescription] = useState("");
+  const [modalDescripion, setModalDescription] = useState("")
 
-  const session = useSession();
+  const session = useSession()
 
   const { data: homeData, isLoading: isLoadingHomeData } =
     useQuery<HomeDataResponse>({
       queryKey: ["home"],
       queryFn: async () => {
-        const response = await api.get("/app/home");
+        const response = await api.get("/app/home")
 
-        return response.data;
+        return response.data
       },
 
       staleTime: demoUser?.isDemo ? Infinity : 2 * 60 * 1000, // 2 minutos
-    });
+      retry: true,
+      retryOnMount: true,
+    })
 
-  const isSigned = session.status === "authenticated";
+  const isSigned = session.status === "authenticated"
 
-  const userId = session.data?.user.id ?? demoUser?.id;
-  const userName = session.data?.user.name ?? demoUser?.name;
+  const userId = session.data?.user.id ?? demoUser?.id
+  const userName = session.data?.user.name ?? demoUser?.name
 
   function handleCloseModal() {
-    setIsModalOpen(false);
+    setIsModalOpen(false)
   }
 
   function clickOutside(event: React.PointerEvent<HTMLDivElement>) {
-
     if (isModalOpen) {
-      
-      return handleClickOutside({ event, ref: loginModalRef, closeFunction: () => setIsModalOpen(false) });
+      return handleClickOutside({
+        event,
+        ref: loginModalRef,
+        closeFunction: () => setIsModalOpen(false),
+      })
     }
   }
 
   function keyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-    handleEsc({ event, closeFunction: () => setIsModalOpen(false) });
+    handleEsc({ event, closeFunction: () => setIsModalOpen(false) })
   }
 
   function handleOpenLoginModal(description: string) {
-    setModalDescription(description);
-    setIsModalOpen(true);
+    setModalDescription(description)
+    setIsModalOpen(true)
   }
 
   const hasDemoUserInteracted = queryClient.getQueryData([
     "demo-user-interacted",
-  ]);
+  ])
 
-  const demofallbackActivity = demoProfileData.allUserBooks[0];
+  const demofallbackActivity = demoProfileData.allUserBooks[0]
 
   const lastUserActivity =
     demoUser?.isDemo && !hasDemoUserInteracted
       ? demofallbackActivity
-      : homeData?.lastUserActivity;
+      : homeData?.lastUserActivity
 
   useEffect(() => {
     if (isModalOpen) {
-      loginModalRef.current?.focus();
+      loginModalRef.current?.focus()
     }
-  }, [isModalOpen]);
+  }, [isModalOpen])
 
   return (
     <>
@@ -307,7 +311,7 @@ export default function Home() {
                               description={rating.review}
                             />
                           </BookRating>
-                        );
+                        )
                       })}
                   </BooksRatingsContainer>
                 </ContentContainer>
@@ -352,7 +356,7 @@ export default function Home() {
                               <StarRating param={book.avgRating} />
                             </PopBookDescription>
                           </PopBook>
-                        );
+                        )
                       })}
                   </PopBookBody>
                 </PopBookContainer>
@@ -364,5 +368,5 @@ export default function Home() {
         </Container>
       </Layout>
     </>
-  );
+  )
 }
