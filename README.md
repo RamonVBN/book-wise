@@ -142,10 +142,3 @@ Desenvolvido por **Ramon Victor Barros Nunes**
 
 - GitHub: https://github.com/RamonVBN
 - LinkedIn: https://linkedin.com/in/ramon-barros-4a107837a
-  
-
-## 📄 Licença
-
-Este projeto foi desenvolvido para fins de estudo e portfólio.
-
-
