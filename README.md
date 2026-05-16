@@ -6,7 +6,7 @@
 ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748)
 ![License](https://img.shields.io/badge/status-Active-success)
 
-BookWise é uma plataforma moderna para leitores descobrirem, organizarem e avaliarem livros.  
+BookWise é uma aplicação para leitores descobrirem, organizarem e avaliarem livros.  
 Os usuários podem criar conta, montar sua biblioteca pessoal, acompanhar progresso de leitura e interagir com avaliações da comunidade.
 
 ## 🌐 Acesse o projeto
