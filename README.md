@@ -21,7 +21,7 @@ Os usuários podem criar conta, montar sua biblioteca pessoal, acompanhar progre
 
 - Login com Google
 - Login com GitHub
-- Sessão segura com NextAuth
+- Sessão com NextAuth
 
 ### 📚 Biblioteca pessoal
 
