@@ -114,14 +114,6 @@ Os usuários podem criar conta, montar sua biblioteca pessoal, acompanhar progre
 - Google Books API
 ---
 
-## 🎯 Objetivo do Projeto
-
-O BookWise foi criado para oferecer uma experiência moderna para leitores organizarem sua jornada literária, descobrirem novos livros e compartilharem opiniões com outros usuários.
-
-Além disso, o projeto também teve como foco o aprofundamento em tecnologias modernas de desenvolvimento fullstack, autenticação OAuth, modelagem de banco de dados e construção de interfaces performáticas e responsivas.
-
----
-
 ## 💡 Aprendizados
 
 Durante o desenvolvimento deste projeto foram aprofundados conhecimentos em:
